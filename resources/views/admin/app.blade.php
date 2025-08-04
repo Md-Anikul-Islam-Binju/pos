@@ -131,6 +131,24 @@
                 </li>
                 @endcan
 
+                @can('brand-list')
+                    <li class="side-nav-item">
+                        <a href="{{route('brand.section')}}" class="side-nav-link">
+                            <i class="ri-slideshow-line"></i>
+                            <span> Brand </span>
+                        </a>
+                    </li>
+                @endcan
+
+                @can('color-list')
+                    <li class="side-nav-item">
+                        <a href="{{route('color.section')}}" class="side-nav-link">
+                            <i class="ri-slideshow-line"></i>
+                            <span> Color </span>
+                        </a>
+                    </li>
+                @endcan
+
 
 
 

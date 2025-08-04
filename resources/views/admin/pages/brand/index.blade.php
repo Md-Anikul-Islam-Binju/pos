@@ -127,7 +127,7 @@
                     <form method="post" action="{{route('brand.store')}}" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
-                            <div class="col-6">
+                            <div class="col-12">
                                 <div class="mb-3">
                                     <label for="name" class="form-label">Name</label>
                                     <input type="text" id="name" name="name"
