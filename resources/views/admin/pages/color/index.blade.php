@@ -6,7 +6,7 @@
             <div class="page-title-box">
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">POS</a></li>
+                        <li class="breadcrumb-item"><a href="javascript: void(0);">CoderNetix POS</a></li>
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Resource</a></li>
                         <li class="breadcrumb-item active">Color!</li>
                     </ol>
