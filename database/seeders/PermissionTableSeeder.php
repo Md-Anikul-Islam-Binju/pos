@@ -14,38 +14,48 @@ class PermissionTableSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
-            //For roll and permission
+
+            // For roll and permission
             'role-list',
             'role-create',
             'role-edit',
             'role-delete',
 
-            //For Role and permission
+            // For Role and permission
             'role-and-permission-list',
 
-            //For Resource
+            // For Resource
             'resource-list',
 
-            //For User
+            // For User
             'user-list',
             'user-create',
             'user-edit',
             'user-delete',
 
-
-
-            //For Slider
+            // For Slider
             'slider-list',
             'slider-create',
             'slider-edit',
             'slider-delete',
 
-            //Site Setting
+            // For Brand
+            'brand-list',
+            'brand-create',
+            'brand-edit',
+            'brand-delete',
+
+            // For Color
+            'color-list',
+            'color-create',
+            'color-edit',
+            'color-delete',
+
+            // Site Setting
             'site-setting',
 
-            //Dashboard
+            // Dashboard
             'login-log-list',
-
 
         ];
         foreach ($permissions as $permission) {

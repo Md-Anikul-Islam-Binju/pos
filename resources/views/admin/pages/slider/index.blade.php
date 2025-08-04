@@ -58,7 +58,7 @@
                                     <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editNewModalId{{$sliderData->id}}">Edit</button>
                                 @endcan
                                 @can('slider-delete')
-                                    <a href="{{route('slider.destroy',$sliderData->id)}}"class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#danger-header-modal{{$sliderData->id}}">Delete</a>
+                                    <a href="{{route('slider.destroy',$sliderData->id)}}" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#danger-header-modal{{$sliderData->id}}">Delete</a>
                                 @endcan
                             </div>
                         </td>
