@@ -51,6 +51,18 @@ class PermissionTableSeeder extends Seeder
             'color-edit',
             'color-delete',
 
+            // For Showroom
+            'showroom-list',
+            'showroom-create',
+            'showroom-edit',
+            'showroom-delete',
+
+            // For Department
+            'department-list',
+            'department-create',
+            'department-edit',
+            'department-delete',
+
             // Site Setting
             'site-setting',
 

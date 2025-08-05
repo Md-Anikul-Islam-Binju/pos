@@ -5,13 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Color extends Model
+class Showroom extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'color_code',
         'name',
+        'address',
+        'phone',
+        'email',
         'status',
     ];
 }

@@ -149,6 +149,24 @@
                     </li>
                 @endcan
 
+                @can('department-list')
+                    <li class="side-nav-item">
+                        <a href="{{route('department.section')}}" class="side-nav-link">
+                            <i class="ri-slideshow-line"></i>
+                            <span> Department </span>
+                        </a>
+                    </li>
+                @endcan
+
+                @can('showroom-list')
+                    <li class="side-nav-item">
+                        <a href="{{route('showroom.section')}}" class="side-nav-link">
+                            <i class="ri-slideshow-line"></i>
+                            <span> Showroom </span>
+                        </a>
+                    </li>
+                @endcan
+
 
 
 

@@ -5,6 +5,7 @@ use App\Http\Controllers\admin\AdminDashboardController;
 use App\Http\Controllers\admin\BrandController;
 use App\Http\Controllers\admin\ColorController;
 use App\Http\Controllers\admin\CounterController;
+use App\Http\Controllers\admin\DepartmentController;
 use App\Http\Controllers\admin\LabSetupController;
 use App\Http\Controllers\admin\MenuController;
 use App\Http\Controllers\admin\NewsController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\admin\ProjectController;
 use App\Http\Controllers\admin\ProjectFileCategoryController;
 use App\Http\Controllers\admin\ProjectFileController;
 use App\Http\Controllers\admin\ShowcaseController;
+use App\Http\Controllers\admin\ShowroomController;
 use App\Http\Controllers\admin\SiteSettingController;
 use App\Http\Controllers\admin\SliderController;
 use App\Http\Controllers\admin\TeamController;
@@ -81,6 +83,18 @@ Route::middleware('auth')->group(callback: function () {
     Route::post('/color-store', [ColorController::class, 'store'])->name('color.store');
     Route::put('/color-update/{id}', [ColorController::class, 'update'])->name('color.update');
     Route::get('/color-delete/{id}', [ColorController::class, 'destroy'])->name('color.destroy');
+
+    // Showrooms
+    Route::get('/showroom-section', [ShowroomController::class, 'index'])->name('showroom.section');
+    Route::post('/showroom-store', [ShowroomController::class, 'store'])->name('showroom.store');
+    Route::put('/showroom-update/{id}', [ShowroomController::class, 'update'])->name('showroom.update');
+    Route::get('/showroom-delete/{id}', [ShowroomController::class, 'destroy'])->name('showroom.destroy');
+
+    // Departments
+    Route::get('/department-section', [DepartmentController::class, 'index'])->name('department.section');
+    Route::post('/department-store', [DepartmentController::class, 'store'])->name('department.store');
+    Route::put('/department-update/{id}', [DepartmentController::class, 'update'])->name('department.update');
+    Route::get('/department-delete/{id}', [DepartmentController::class, 'destroy'])->name('department.destroy');
 
 });
 
