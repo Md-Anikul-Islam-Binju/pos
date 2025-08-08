@@ -41,7 +41,7 @@
                     <tr>
                         <td>{{$key+1}}</td>
                         <td>{{$departmentData->name}}</td>
-                        <td>{{$colorData->status==1? 'Active':'Inactive'}}</td>
+                        <td>{{$departmentData->status==1? 'Active':'Inactive'}}</td>
                         <td style="width: 100px;">
                             <div class="d-flex justify-content-end gap-1">
                                 @can('department-edit')
