@@ -143,7 +143,7 @@
                                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <h5 class="mt-0">Are You Went to Delete this ? </h5>
+                                        <h5 class="mt-0">Do you want to Delete this ? </h5>
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>

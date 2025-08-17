@@ -63,6 +63,30 @@ class PermissionTableSeeder extends Seeder
             'department-edit',
             'department-delete',
 
+            // For Currency
+            'currency-list',
+            'currency-create',
+            'currency-edit',
+            'currency-delete',
+
+            // For Customer
+            'customer-list',
+            'customer-create',
+            'customer-edit',
+            'customer-delete',
+
+            // For Employee
+            'employee-list',
+            'employee-create',
+            'employee-edit',
+            'employee-delete',
+
+            // For Expense Category
+            'expense-category-list',
+            'expense-category-create',
+            'expense-category-edit',
+            'expense-category-delete',
+
             // Site Setting
             'site-setting',
 

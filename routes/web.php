@@ -5,7 +5,11 @@ use App\Http\Controllers\admin\AdminDashboardController;
 use App\Http\Controllers\admin\BrandController;
 use App\Http\Controllers\admin\ColorController;
 use App\Http\Controllers\admin\CounterController;
+use App\Http\Controllers\admin\CurrencyController;
+use App\Http\Controllers\admin\CustomerController;
 use App\Http\Controllers\admin\DepartmentController;
+use App\Http\Controllers\admin\EmployeeController;
+use App\Http\Controllers\admin\ExpenseCategoryController;
 use App\Http\Controllers\admin\LabSetupController;
 use App\Http\Controllers\admin\MenuController;
 use App\Http\Controllers\admin\NewsController;
@@ -95,6 +99,30 @@ Route::middleware('auth')->group(callback: function () {
     Route::post('/department-store', [DepartmentController::class, 'store'])->name('department.store');
     Route::put('/department-update/{id}', [DepartmentController::class, 'update'])->name('department.update');
     Route::get('/department-delete/{id}', [DepartmentController::class, 'destroy'])->name('department.destroy');
+
+    // Currencies
+    Route::get('/currency-section', [CurrencyController::class, 'index'])->name('currency.section');
+    Route::post('/currency-store', [CurrencyController::class, 'store'])->name('currency.store');
+    Route::put('/currency-update/{id}', [CurrencyController::class, 'update'])->name('currency.update');
+    Route::get('/currency-delete/{id}', [CurrencyController::class, 'destroy'])->name('currency.destroy');
+
+    // Customers
+    Route::get('/customer-section', [CustomerController::class, 'index'])->name('customer.section');
+    Route::post('/customer-store', [CustomerController::class, 'store'])->name('customer.store');
+    Route::put('/customer-update/{id}', [CustomerController::class, 'update'])->name('customer.update');
+    Route::get('/customer-delete/{id}', [CustomerController::class, 'destroy'])->name('customer.destroy');
+
+    // Employees
+    Route::get('/employee-section', [EmployeeController::class, 'index'])->name('employee.section');
+    Route::post('/employee-store', [EmployeeController::class, 'store'])->name('employee.store');
+    Route::put('/employee-update/{id}', [EmployeeController::class, 'update'])->name('employee.update');
+    Route::get('/employee-delete/{id}', [EmployeeController::class, 'destroy'])->name('employee.destroy');
+
+    // Employees
+    Route::get('/expense-category-section', [ExpenseCategoryController::class, 'index'])->name('expense.category.section');
+    Route::post('/expense-category-store', [ExpenseCategoryController::class, 'store'])->name('expense.category.store');
+    Route::put('/expense-category-update/{id}', [ExpenseCategoryController::class, 'update'])->name('expense.category.update');
+    Route::get('/expense-category-delete/{id}', [ExpenseCategoryController::class, 'destroy'])->name('expense.category.destroy');
 
 });
 

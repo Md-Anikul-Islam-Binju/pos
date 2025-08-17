@@ -41,7 +41,7 @@
                     <tr>
                         <td>{{$key+1}}</td>
                         <td>{{$departmentData->name}}</td>
-                        <td>{{$colorData->status==1? 'Active':'Inactive'}}</td>
+                        <td>{{$departmentData->status==1? 'Active':'Inactive'}}</td>
                         <td style="width: 100px;">
                             <div class="d-flex justify-content-end gap-1">
                                 @can('department-edit')
@@ -99,7 +99,7 @@
                                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <h5 class="mt-0">Are You Went to Delete this ? </h5>
+                                        <h5 class="mt-0">Do you want to Delete this ? </h5>
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
