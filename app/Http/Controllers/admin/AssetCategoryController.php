@@ -1,0 +1,75 @@
+<?php
+
+namespace App\Http\Controllers\admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\AssetCategory;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+
+class AssetCategoryController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware(function ($request, $next) {
+            if (!Gate::allows('asset-category-list')) {
+                return redirect()->route('unauthorized.action');
+            }
+
+            return $next($request);
+        })->only('index');
+    }
+    public function index()
+    {
+        $assetCategory = AssetCategory::all();
+        return view('admin.pages.assetCategory.index', compact('assetCategory'));
+    }
+    public function store(Request $request)
+    {
+        try {
+            $request->validate([
+                'name' => 'required',
+            ]);
+
+            $assetCategory = new AssetCategory();
+            $assetCategory->name = $request->name;
+            $assetCategory->save();
+            Toastr::success('Asset Category Added Successfully', 'Success');
+            return redirect()->back();
+        } catch (\Exception $e) {
+            // Handle the exception here
+            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+
+        try {
+            $request->validate([
+                'name' => 'required',
+            ]);
+            $assetCategory = AssetCategory::find($id);
+            $assetCategory->name = $request->name;
+            $assetCategory->status = $request->status;
+            $assetCategory->save();
+            Toastr::success('Asset Category Updated Successfully', 'Success');
+            return redirect()->back();
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $assetCategory = AssetCategory::find($id);
+            $assetCategory->delete();
+            Toastr::success('Asset Category Deleted Successfully', 'Success');
+            return redirect()->back();
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        }
+    }
+}

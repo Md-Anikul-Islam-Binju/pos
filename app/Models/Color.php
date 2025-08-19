@@ -14,4 +14,9 @@ class Color extends Model
         'name',
         'status',
     ];
+
+    public function rawMaterials()
+    {
+        return $this->belongsToMany(RawMaterial::class, 'brand_raw_material');
+    }
 }
