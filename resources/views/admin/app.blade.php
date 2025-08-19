@@ -167,6 +167,42 @@
                     </li>
                 @endcan
 
+                @can('currency-list')
+                    <li class="side-nav-item">
+                        <a href="{{route('currency.section')}}" class="side-nav-link">
+                            <i class="ri-slideshow-line"></i>
+                            <span> Currency </span>
+                        </a>
+                    </li>
+                @endcan
+
+                @can('customer-list')
+                    <li class="side-nav-item">
+                        <a href="{{route('customer.section')}}" class="side-nav-link">
+                            <i class="ri-slideshow-line"></i>
+                            <span> Customer </span>
+                        </a>
+                    </li>
+                @endcan
+
+                @can('employee-list')
+                    <li class="side-nav-item">
+                        <a href="{{route('employee.section')}}" class="side-nav-link">
+                            <i class="ri-slideshow-line"></i>
+                            <span> Employee </span>
+                        </a>
+                    </li>
+                @endcan
+
+                @can('expense-category-list')
+                    <li class="side-nav-item">
+                        <a href="{{route('expense.category.section')}}" class="side-nav-link">
+                            <i class="ri-slideshow-line"></i>
+                            <span> Expense Category </span>
+                        </a>
+                    </li>
+                @endcan
+
 
 
 
