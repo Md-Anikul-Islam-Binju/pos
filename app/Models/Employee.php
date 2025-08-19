@@ -18,4 +18,9 @@ class Employee extends Model
         'registration_date',
         'status',
     ];
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id');
+    }
 }
