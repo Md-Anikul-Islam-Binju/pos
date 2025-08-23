@@ -5,12 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AssetCategory extends Model
+class ProductionHouse extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'name',
-        'status',
+        'address',
+        'phone',
+        'email',
+        'balance',
+        'status'
     ];
 }

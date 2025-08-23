@@ -6,15 +6,15 @@ use App\Traits\HandlesAccountTransactions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Asset extends Model
+class Expense extends Model
 {
     use HandlesAccountTransactions, HasFactory;
 
     protected $fillable = [
-        'name',
-        'asset_category_id',
-        'amount',
+        'title',
+        'expense_category_id',
         'account_id',
+        'amount',
         'status'
     ];
 
@@ -26,7 +26,6 @@ class Asset extends Model
         } elseif ($this->status === 'pending' || $this->status === 'rejected') {
             return 'in'; // Money comes in if the expense is pending or rejected
         }
-
         // You can add additional conditions as needed
         return 'out'; // Default to 'out' if no conditions are met
     }
@@ -38,14 +37,13 @@ class Asset extends Model
 
     public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(AssetCategory::class,'asset_category_id');
+        return $this->belongsTo(ExpenseCategory::class,'expense_category_id');
     }
 
     public function account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Account::class,'account_id');
     }
-
     public function accountTransaction(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(AccountTransaction::class, 'model_id')

@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('brand_raw_material', function (Blueprint $table) {
+        Schema::create('asset_categories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('raw_material_id')->constrained('raw_materials')->onDelete('cascade');
-            $table->foreignId('brand_id')->constrained('brands')->onDelete('cascade');
+            $table->string('name')->nullable();
+            $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('brand_raw_material');
+        Schema::dropIfExists('asset_categories');
     }
 };

@@ -167,15 +167,7 @@ class AccountController extends Controller
         $transactionInfo = DB::table('account_transactions')->where('account_id', $account->id)->get();
         $pendingTransactions = AccountTransfer::where('from_account_id', $id)->where('status', '=', 'pending')->get();
         $accounts = Account::all();
-        return view('admin.pages.account.showTransaction',
-            compact(
-                'account',
-                'data',
-                'lineChartData',
-                'transactionInfo',
-                'accounts',
-                'pendingTransactions'
-            ));
+        return view('admin.pages.account.showTransaction', compact('account', 'data', 'lineChartData', 'transactionInfo', 'accounts', 'pendingTransactions'));
     }
 
     public function getMonthlyModelWiseTransactions($accountId)

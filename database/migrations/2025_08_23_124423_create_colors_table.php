@@ -11,16 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('currencies', function (Blueprint $table) {
+        Schema::create('colors', function (Blueprint $table) {
             $table->id();
-            $table->string('code', 3)->unique()->nullable(); // e.g., USD, EUR, GBP
+            $table->string('color_code')->nullable();
             $table->string('name')->nullable();
-            $table->double('rate',16,2)->nullable(); // Exchange rate relative to the default currency
-            $table->string('suffix')->nullable();
-            $table->string('prefix')->nullable();
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });
+
+        'color_code',,
+        'name',
+        'status',
     }
 
     /**
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('currencies');
+        Schema::dropIfExists('colors');
     }
 };

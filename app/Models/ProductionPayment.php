@@ -6,29 +6,27 @@ use App\Traits\HandlesAccountTransactions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Asset extends Model
+class ProductionPayment extends Model
 {
     use HandlesAccountTransactions, HasFactory;
 
     protected $fillable = [
-        'name',
-        'asset_category_id',
+        'house_id',
         'amount',
         'account_id',
+        'date',
+        'received_by',
         'status'
     ];
 
     public function getTransactionType(): string
     {
-        // Check the status of the expense to determine the transaction type
         if ($this->status === 'approved') {
-            return 'out'; // Money goes out for approved expenses
+            return 'out';
         } elseif ($this->status === 'pending' || $this->status === 'rejected') {
-            return 'in'; // Money comes in if the expense is pending or rejected
+            return 'in';
         }
-
-        // You can add additional conditions as needed
-        return 'out'; // Default to 'out' if no conditions are met
+        return 'out';
     }
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -36,14 +34,14 @@ class Asset extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(AssetCategory::class,'asset_category_id');
-    }
-
     public function account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Account::class,'account_id');
+    }
+
+    public function productionHouse(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ProductionHouse::class, 'house_id');
     }
 
     public function accountTransaction(): \Illuminate\Database\Eloquent\Relations\HasOne

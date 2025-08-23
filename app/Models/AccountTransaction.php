@@ -9,6 +9,16 @@ class AccountTransaction extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'account_id',
+        'amount',
+        'date',
+        'type',
+        'transaction_id',
+        'unique_id',
+        'status',
+    ];
+
     public function account() {
         return $this->belongsTo(Account::class);
     }
