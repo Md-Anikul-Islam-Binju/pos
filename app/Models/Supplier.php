@@ -5,17 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Brand extends Model
+class Supplier extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'name',
-        'status',
+        'contact_person',
+        'phone',
+        'email',
+        'balance',
+        'address',
     ];
-
-    public function rawMaterials()
-    {
-        return $this->belongsToMany(RawMaterial::class, 'brand_raw_material');
-    }
 }

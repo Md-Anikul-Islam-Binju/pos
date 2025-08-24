@@ -11,13 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('showrooms', function (Blueprint $table) {
+        Schema::create('payment_methods', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
-            $table->string('address')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('email')->nullable();
-            $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });
     }
@@ -27,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('showrooms');
+        Schema::dropIfExists('payment_methods');
     }
 };

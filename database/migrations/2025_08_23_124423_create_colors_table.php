@@ -11,12 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('expense_categories', function (Blueprint $table) {
+        Schema::create('colors', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('color_code')->nullable();
+            $table->string('name')->nullable();
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });
+
+        'color_code',,
+        'name',
+        'status',
     }
 
     /**
@@ -24,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('expense_categories');
+        Schema::dropIfExists('colors');
     }
 };
