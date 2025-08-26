@@ -13,9 +13,6 @@ return new class extends Migration
     {
         Schema::create('raw_material_purchases', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('supplier_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('warehouse_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('account_id')->nullable()->constrained()->nullOnDelete();
             $table->date('purchase_date')->nullable();
             $table->json('cost_details')->nullable();
             $table->decimal('total_cost', 15, 2)->nullable();
@@ -25,6 +22,10 @@ return new class extends Migration
             $table->string('payment_type')->default('full_paid');
             $table->string('status')->default('pending');
             $table->timestamps();
+
+            $table->foreignId('supplier_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('warehouse_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('account_id')->nullable()->constrained()->nullOnDelete();
         });
     }
 

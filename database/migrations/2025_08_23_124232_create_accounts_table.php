@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('type')->nullable();
             $table->double('balance', 16, 2)->default(0)->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->tinyInteger('status')->default('pending');
+            $table->string('status')->default('pending');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

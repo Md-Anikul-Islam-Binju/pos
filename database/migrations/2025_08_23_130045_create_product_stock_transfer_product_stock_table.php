@@ -18,10 +18,6 @@ return new class extends Migration
             $table->double('quantity',16,2);
             $table->timestamps();
         });
-
-        'product_stock_transfer_id',
-        'product_stock_id',
-        'quantity',
     }
 
     /**

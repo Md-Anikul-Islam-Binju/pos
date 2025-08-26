@@ -18,10 +18,6 @@ return new class extends Migration
             $table->double('quantity',16,2);
             $table->timestamps();
         });
-
-        'raw_material_stock_transfer_id',
-        'raw_material_stock_id',
-        'quantity',
     }
 
     /**

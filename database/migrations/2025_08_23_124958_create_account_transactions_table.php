@@ -22,14 +22,6 @@ return new class extends Migration
             $table->string('reference')->nullable();
             $table->timestamps();
         });
-
-        'account_id',
-        'transaction_id',
-        'transaction_type',
-        'amount',
-        'model',
-        'model_id',
-        'reference',
     }
 
     /**
