@@ -25,10 +25,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('raw_material_purchase_id')->references('id')->on('raw_material_purchases')->onDelete('cascade');
-            $table->timestamps();
         });
-
-
     }
 
     /**

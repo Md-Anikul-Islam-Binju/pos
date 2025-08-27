@@ -18,8 +18,6 @@ return new class extends Migration
             $table->double('quantity',16,2);
             $table->timestamps();
         });
-
-
     }
 
     /**

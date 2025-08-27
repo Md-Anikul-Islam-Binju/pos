@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('color_id')->constrained('colors')->onDelete('cascade');
             $table->timestamps();
         });
-
     }
 
     /**

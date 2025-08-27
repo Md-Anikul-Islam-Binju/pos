@@ -17,8 +17,6 @@ return new class extends Migration
             $table->foreignId('brand_id')->constrained('brands')->onDelete('cascade');
             $table->timestamps();
         });
-
-
     }
 
     /**

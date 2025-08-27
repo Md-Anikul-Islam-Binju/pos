@@ -22,8 +22,6 @@ return new class extends Migration
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });
-
-
     }
 
     /**

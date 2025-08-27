@@ -21,8 +21,6 @@ return new class extends Migration
             $table->string('status')->default('pending');
             $table->timestamps();
         });
-
-
     }
 
     /**

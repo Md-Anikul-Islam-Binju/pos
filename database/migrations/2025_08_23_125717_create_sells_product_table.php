@@ -22,8 +22,6 @@ return new class extends Migration
             $table->double('total', 10, 2);
             $table->timestamps();
         });
-
-
     }
 
     /**
