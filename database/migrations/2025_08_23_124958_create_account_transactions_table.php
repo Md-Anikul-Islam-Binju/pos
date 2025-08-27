@@ -23,13 +23,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        'account_id',
-        'transaction_id',
-        'transaction_type',
-        'amount',
-        'model',
-        'model_id',
-        'reference',
+
     }
 
     /**

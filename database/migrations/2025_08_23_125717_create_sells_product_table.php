@@ -23,13 +23,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        'sell_id',
-        'product_id',
-        'price',
-        'quantity',
-        'discount_type',
-        'discount_amount',
-        'total',
+
     }
 
     /**

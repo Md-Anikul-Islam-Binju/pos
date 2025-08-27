@@ -18,8 +18,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        'name',
-        'status',
+
     }
 
     /**

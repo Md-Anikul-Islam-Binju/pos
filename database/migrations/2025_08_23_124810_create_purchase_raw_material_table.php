@@ -28,15 +28,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        'raw_material_purchase_id',
-        'raw_material_id',
-        'brand_id',
-        'size_id',
-        'color_id',
-        'warehouse_id',
-        'price',
-        'quantity',
-        'total_price',
+
     }
 
     /**

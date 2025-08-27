@@ -19,9 +19,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        'raw_material_stock_transfer_id',
-        'raw_material_stock_id',
-        'quantity',
+
     }
 
     /**

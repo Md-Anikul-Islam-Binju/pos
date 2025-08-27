@@ -19,9 +19,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        'product_stock_transfer_id',
-        'product_stock_id',
-        'quantity',
+
     }
 
     /**

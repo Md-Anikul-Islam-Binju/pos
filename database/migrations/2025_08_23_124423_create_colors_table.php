@@ -19,9 +19,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        'color_code',,
-        'name',
-        'status',
     }
 
     /**

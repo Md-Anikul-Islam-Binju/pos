@@ -18,8 +18,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        'raw_material_id',
-        'brand_id',
+
     }
 
     /**

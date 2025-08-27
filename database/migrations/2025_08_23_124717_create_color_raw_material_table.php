@@ -18,8 +18,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        'raw_material_id',
-        'color_id',
     }
 
     /**

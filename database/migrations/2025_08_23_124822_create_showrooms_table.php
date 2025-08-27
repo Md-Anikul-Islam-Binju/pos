@@ -21,11 +21,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        'name',
-        'address',
-        'phone',
-        'email',
-        'status'
+
     }
 
     /**

@@ -22,12 +22,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        'code',
-        'name',
-        'rate',
-        'suffix',
-        'prefix',
-        'status',
     }
 
     /**
