@@ -2,40 +2,41 @@
 
 namespace App\Http\Controllers\admin;
 
-use App\Http\Controllers\Controller;
-use App\Models\Brand;
+use App\Models\Size;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 
-class BrandController extends Controller
+class SizeController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
-            if (!Gate::allows('brand-list')) {
+            if (!Gate::allows('size-list')) {
                 return redirect()->route('unauthorized.action');
             }
 
             return $next($request);
         })->only('index');
     }
+
     public function index()
     {
-        $brand = Brand::all();
-        return view('admin.pages.brand.index', compact('brand'));
+        $size = Size::all();
+        return view('admin.pages.size.index', compact('size'));
     }
+
     public function store(Request $request)
     {
         try {
             $request->validate([
                 'name' => 'required',
             ]);
-
-            $brand = new Brand();
-            $brand->name = $request->name;
-            $brand->save();
-            Toastr::success('Brand Added Successfully', 'Success');
+            $size = new Size();
+            $size->name = $request->name;
+            $size->save();
+            Toastr::success('Size Added Successfully', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {
             // Handle the exception here
@@ -48,12 +49,13 @@ class BrandController extends Controller
         try {
             $request->validate([
                 'name' => 'required',
+                'status' => 'required',
             ]);
-            $brand = Brand::find($id);
-            $brand->name = $request->name;
-            $brand->status = $request->status;
-            $brand->save();
-            Toastr::success('Brand Updated Successfully', 'Success');
+            $size = Size::find($id);
+            $size->name = $request->name;
+            $size->status = $request->status;
+            $size->save();
+            Toastr::success('Size Updated Successfully', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
@@ -63,9 +65,9 @@ class BrandController extends Controller
     public function destroy($id)
     {
         try {
-            $brand = Brand::find($id);
-            $brand->delete();
-            Toastr::success('Brand Deleted Successfully', 'Success');
+            $size = Size::find($id);
+            $size->delete();
+            Toastr::success('Size Deleted Successfully', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
