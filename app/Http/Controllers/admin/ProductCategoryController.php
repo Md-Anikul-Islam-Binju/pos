@@ -3,40 +3,45 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Brand;
+use App\Models\ProductCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Yoeunes\Toastr\Facades\Toastr;
 
-class BrandController extends Controller
+class ProductCategoryController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
-            if (!Gate::allows('brand-list')) {
+            if (!Gate::allows('product-category-list')) {
                 return redirect()->route('unauthorized.action');
             }
 
             return $next($request);
         })->only('index');
     }
+
     public function index()
     {
-        $brand = Brand::all();
-        return view('admin.pages.brand.index', compact('brand'));
+        $productCategory = ProductCategory::all();
+        return view('admin.pages.product-category.index', compact('productCategory'));
     }
+
     public function store(Request $request)
     {
         try {
             $request->validate([
                 'name' => 'required',
+                'parent_id' => 'required',
             ]);
 
-            $brand = new Brand();
-            $brand->name = $request->name;
-            $brand->save();
-            Toastr::success('Brand Added Successfully', 'Success');
+            $productCategory = new ProductCategory();
+            $productCategory->name = $request->name;
+            $productCategory->parent_id = $request->parent_id;
+            $productCategory->save();
+
+            Toastr::success('Product Category Added Successfully', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {
             // Handle the exception here
@@ -49,12 +54,15 @@ class BrandController extends Controller
         try {
             $request->validate([
                 'name' => 'required',
+                'parent_id' => 'required',
             ]);
-            $brand = Brand::find($id);
-            $brand->name = $request->name;
-            $brand->status = $request->status;
-            $brand->save();
-            Toastr::success('Brand Updated Successfully', 'Success');
+
+            $productCategory = ProductCategory::find($id);
+            $productCategory->name = $request->name;
+            $productCategory->status = $request->status;
+            $productCategory->save();
+
+            Toastr::success('Product Category Updated Successfully', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
@@ -64,9 +72,9 @@ class BrandController extends Controller
     public function destroy($id)
     {
         try {
-            $brand = Brand::find($id);
-            $brand->delete();
-            Toastr::success('Brand Deleted Successfully', 'Success');
+            $productCategory = ProductCategory::find($id);
+            $productCategory->delete();
+            Toastr::success('Product Category Deleted Successfully', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());

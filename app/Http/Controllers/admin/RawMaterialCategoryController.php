@@ -3,29 +3,30 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Brand;
+use App\Models\RawMaterialCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Yoeunes\Toastr\Facades\Toastr;
 
-class BrandController extends Controller
+class RawMaterialCategoryController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
-            if (!Gate::allows('brand-list')) {
+            if (!Gate::allows('material-category-list')) {
                 return redirect()->route('unauthorized.action');
             }
 
             return $next($request);
         })->only('index');
     }
+
     public function index()
     {
-        $brand = Brand::all();
-        return view('admin.pages.brand.index', compact('brand'));
+        $category = RawMaterialCategory::all();
+        return view('admin.pages.raw-material-category.index', compact('category'));
     }
+
     public function store(Request $request)
     {
         try {
@@ -33,10 +34,11 @@ class BrandController extends Controller
                 'name' => 'required',
             ]);
 
-            $brand = new Brand();
-            $brand->name = $request->name;
-            $brand->save();
-            Toastr::success('Brand Added Successfully', 'Success');
+            $category = new RawMaterialCategory();
+            $category->name = $request->name;
+            $category->save();
+
+            Toastr::success('Category Added Successfully', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {
             // Handle the exception here
@@ -49,11 +51,14 @@ class BrandController extends Controller
         try {
             $request->validate([
                 'name' => 'required',
+                'status' => 'required',
             ]);
-            $brand = Brand::find($id);
-            $brand->name = $request->name;
-            $brand->status = $request->status;
-            $brand->save();
+
+            $category = RawMaterialCategory::find($id);
+            $category->name = $request->name;
+            $category->status = $request->status;
+            $category->save();
+
             Toastr::success('Brand Updated Successfully', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {
@@ -64,8 +69,9 @@ class BrandController extends Controller
     public function destroy($id)
     {
         try {
-            $brand = Brand::find($id);
-            $brand->delete();
+            $category = RawMaterialCategory::find($id);
+            $category->delete();
+
             Toastr::success('Brand Deleted Successfully', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {

@@ -3,29 +3,32 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Brand;
+use App\Models\ProductStock;
+use App\Models\ProductStockTransfer;
+use App\Models\Showroom;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
-use Yoeunes\Toastr\Facades\Toastr;
 
-class BrandController extends Controller
+class ProductStockTransferController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
-            if (!Gate::allows('brand-list')) {
+            if (!Gate::allows('product-stock-transfer-list')) {
                 return redirect()->route('unauthorized.action');
             }
 
             return $next($request);
         })->only('index');
     }
+
     public function index()
     {
-        $brand = Brand::all();
-        return view('admin.pages.brand.index', compact('brand'));
+        $transfer = ProductStockTransfer::all();
+        $showroom = Showroom::all();
+        return view('admin.pages.productStockTransfer.index', compact('transfer', 'showroom'));
     }
+
     public function store(Request $request)
     {
         try {
@@ -46,6 +49,7 @@ class BrandController extends Controller
 
     public function update(Request $request, $id)
     {
+
         try {
             $request->validate([
                 'name' => 'required',
@@ -71,5 +75,25 @@ class BrandController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
+    }
+
+    public function getProductStocksByShowroom($showroom_id)
+    {
+        $productStocks = ProductStock::where('showroom_id', $showroom_id)
+            ->with(['product', 'color', 'size', 'brand', 'showroom'])
+            ->get()
+            ->map(function ($productStock) {
+                return [
+                    'id' => $productStock->id,
+                    'product_name' => $productStock->product->name,
+                    'color_name' => $productStock->color->color_name,
+                    'size_name' => $productStock->size->name,
+                    'brand_name' => $productStock->brand->name,
+                    'showroom_name' => $productStock->showroom->name,
+                    'quantity' => $productStock->quantity,
+                ];
+            });
+
+        return response()->json($productStocks);
     }
 }
