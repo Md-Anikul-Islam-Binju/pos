@@ -262,10 +262,10 @@ class PermissionTableSeeder extends Seeder
             'deposit-balance-list',
             'withdraw-balance-list',
             'transfer-balance-list',
-            'transfer-balance-list',
             'sell-profit-loss-list',
             'product-transfer-report-list',
             'material-transfer-report-list',
+            'cron-job-log-list',
 
             // For Product Stock Transfer
             'product-stock-transfer-list',
@@ -314,7 +314,7 @@ class PermissionTableSeeder extends Seeder
             'production-payment-delete',
             'production-payment-updateStatus',
 
-            // For Report
+            // For Sell Price
             'sell-price-list',
             'sell-price-create',
             'sell-price-edit',
