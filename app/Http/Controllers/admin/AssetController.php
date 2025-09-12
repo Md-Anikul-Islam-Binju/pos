@@ -23,7 +23,7 @@ class AssetController extends Controller
     }
     public function index()
     {
-        $asset = Asset::all();
+        $asset = Asset::with(['category','account'])->get();
         $account = Account::all();
         return view('admin.pages.asset.index', compact('asset', 'account'));
     }
@@ -39,7 +39,7 @@ class AssetController extends Controller
 
             $asset = new Asset();
             $asset->name = $request->name;
-            $asset->category_id = $request->category_id;
+            $asset->asset_category_id = $request->category_id;
             $asset->amount = $request->amount;
             $asset->account_id = $request->account_id;
             $asset->save();
@@ -62,7 +62,7 @@ class AssetController extends Controller
             ]);
             $asset = Asset::find($id);
             $asset->name = $request->name;
-            $asset->category_id = $request->category_id;
+            $asset->asset_category_id = $request->category_id;
             $asset->amount = $request->amount;
             $asset->account_id = $request->account_id;
             $asset->status = $request->status;
@@ -99,7 +99,7 @@ class AssetController extends Controller
         }
         // Update the asset status
         $asset->status = $status;
-        $asset->update();
+        $asset->save();
         return redirect()->back()->with('success', 'Asset status updated successfully.');
     }
 }

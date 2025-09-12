@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\admin;
 
-use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\Account;
-use App\Models\AccountTransaction;
-use App\Models\AccountTransfer;
 use Illuminate\Http\Request;
+use App\Models\AccountTransfer;
+use App\Models\AccountTransaction;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 
 class AccountController extends Controller
@@ -26,7 +28,8 @@ class AccountController extends Controller
     public function index()
     {
         $account = Account::all();
-        return view('admin.pages.account.index', compact('account'));
+        $user = User::all();
+        return view('admin.pages.account.index', compact('account', 'user'));
     }
 
     public function store(Request $request)
@@ -59,8 +62,9 @@ class AccountController extends Controller
                 'name' => 'required',
                 'type' => 'required',
                 'user_id' => 'required',
+                'status' => 'required|in:active,inactive,pending'
             ]);
-            $account = Account::find($id);
+            $account = Account::findOrFail($id);
             $account->name = $request->name;
             $account->type = $request->type;
             $account->user_id = $request->user_id;
@@ -76,7 +80,7 @@ class AccountController extends Controller
     public function destroy($id)
     {
         try {
-            $account = Account::find($id);
+            $account = Account::findOrFail($id);
             $account->delete();
             Toastr::success('Account Deleted Successfully', 'Success');
             return redirect()->back();

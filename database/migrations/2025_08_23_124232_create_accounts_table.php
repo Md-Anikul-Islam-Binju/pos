@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('accounts', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique()->nullable();
+            $table->string('name')->unique();
             $table->string('type')->nullable();
-            $table->double('balance', 16, 2)->default(0)->nullable();
+            $table->double('balance', 16, 2)->default(0);
             $table->unsignedBigInteger('user_id')->nullable();
             $table->string('status')->default('pending');
             $table->timestamps();

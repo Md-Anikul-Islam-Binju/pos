@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('product_categories', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique()->nullable();
-            $table->string('slug')->unique()->nullable();
+            $table->string('name')->unique();
+            $table->string('slug')->unique();
             $table->foreignId('parent_id')->nullable()->constrained('product_categories')->onDelete('cascade');
+            $table->tinyInteger('status')->default(1)->comment('1=active,0=inactive');
             $table->timestamps();
         });
     }

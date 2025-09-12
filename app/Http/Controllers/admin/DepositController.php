@@ -33,7 +33,7 @@ class DepositController extends Controller
         try {
             $request->validate([
                 'account_id' => 'required',
-                'amount' => 'required',
+                'amount' => 'required|numeric|min:0',
             ]);
 
             $deposit = new Deposit();
@@ -54,11 +54,11 @@ class DepositController extends Controller
         try {
             $request->validate([
                 'account_id' => 'required',
-                'amount' => 'required',
+                'amount' => 'required|numeric|min:0',
                 'status' => 'required',
             ]);
 
-            $deposit = Deposit::find($id);
+            $deposit = Deposit::findOrFail($id);
             $deposit->account_id = $request->account_id ?? $deposit->account_id;
             $deposit->amount = $request->amount;
             $deposit->status = $request->status;
@@ -74,7 +74,7 @@ class DepositController extends Controller
     public function destroy($id)
     {
         try {
-            $deposit = Deposit::find($id);
+            $deposit = Deposit::findOrFail($id);
             $deposit->delete();
             Toastr::success('Deposit Deleted Successfully', 'Success');
             return redirect()->back();
@@ -88,7 +88,7 @@ class DepositController extends Controller
         if (!in_array($status, ['pending', 'approved', 'rejected'])) {
             return redirect()->route('admin.pages.deposit.index')->with('error', 'Invalid status.');
         }
-        $deposit = Deposit::find($id);
+        $deposit = Deposit::findOrFail($id);
         if (!$deposit) {
             return redirect()->back()->with('error', 'Deposit not found.');
         }

@@ -29,7 +29,7 @@ class AssetCategoryController extends Controller
     {
         try {
             $request->validate([
-                'name' => 'required',
+                'name' => 'required|unique:asset_categories,name',
             ]);
 
             $assetCategory = new AssetCategory();
@@ -48,9 +48,9 @@ class AssetCategoryController extends Controller
 
         try {
             $request->validate([
-                'name' => 'required',
+                'name' => 'required|unique:asset_categories,name,' . $id,
             ]);
-            $assetCategory = AssetCategory::find($id);
+            $assetCategory = AssetCategory::findOrFail($id);
             $assetCategory->name = $request->name;
             $assetCategory->status = $request->status;
             $assetCategory->save();
@@ -64,7 +64,7 @@ class AssetCategoryController extends Controller
     public function destroy($id)
     {
         try {
-            $assetCategory = AssetCategory::find($id);
+            $assetCategory = AssetCategory::findOrFail($id);
             $assetCategory->delete();
             Toastr::success('Asset Category Deleted Successfully', 'Success');
             return redirect()->back();

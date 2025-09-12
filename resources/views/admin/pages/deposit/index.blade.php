@@ -1,146 +1,197 @@
 @extends('admin.app')
 @section('admin_content')
-    {{-- CKEditor CDN --}}
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box">
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">CoderNetix POS</a></li>
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">Resource</a></li>
-                        <li class="breadcrumb-item active">Brand!</li>
-                    </ol>
-                </div>
-                <h4 class="page-title">Brand!</h4>
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">CoderNetix POS</a></li>
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Finance</a></li>
+                    <li class="breadcrumb-item active">Deposit</li>
+                </ol>
             </div>
+            <h4 class="page-title">Deposit</h4>
         </div>
     </div>
+</div>
 
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <div class="d-flex justify-content-end">
-                    <!-- Large modal -->
-                    @can('brand-create')
-                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewModalId">Add New</button>
-                    @endcan
-                </div>
+<div class="col-12">
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-end">
+                @can('deposit-create')
+                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addDepositModal">Add Deposit</button>
+                @endcan
             </div>
-            <div class="card-body">
-                <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
-                    <thead>
+        </div>
+
+        <div class="card-body">
+            <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+                <thead>
                     <tr>
                         <th>S/N</th>
-                        <th>Name</th>
+                        <th>Account</th>
+                        <th>Amount</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($brand as $key=>$brandData)
-                        <tr>
-                            <td>{{$key+1}}</td>
-                            <td>{{$brandData->name}}</td>
-                            <td>{{$brandData->status==1? 'Active':'Inactive'}}</td>
-                            <td style="width: 100px;">
-                                <div class="d-flex justify-content-end gap-1">
-                                    @can('brand-edit')
-                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editNewModalId{{$brandData->id}}">Edit</button>
-                                    @endcan
-                                    @can('brand-delete')
-                                        <a href="{{route('brand.destroy',$brandData->id)}}" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#danger-header-modal{{$brandData->id}}">Delete</a>
-                                    @endcan
-                                </div>
-                            </td>
-                            <!--Edit Modal -->
-                            <div class="modal fade" id="editNewModalId{{$brandData->id}}" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="editNewModalLabel{{$brandData->id}}" aria-hidden="true">
-                                <div class="modal-dialog modal-lg modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h4 class="modal-title" id="addNewModalLabel{{$brandData->id}}">Edit</h4>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <form method="post" action="{{route('brand.update',$brandData->id)}}" enctype="multipart/form-data">
-                                                @csrf
-                                                @method('PUT')
-                                                <div class="row">
-                                                    <div class="col-6">
-                                                        <div class="mb-3">
-                                                            <label for="name" class="form-label">Name</label>
-                                                            <input type="text" id="name" name="name" value="{{$brandData->name}}"
-                                                                   class="form-control" placeholder="Enter Name" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <div class="mb-3">
-                                                            <label for="example-select" class="form-label">Status</label>
-                                                            <select name="status" class="form-select">
-                                                                <option value="1" {{ $brandData->status === 1 ? 'selected' : '' }}>Active</option>
-                                                                <option value="0" {{ $brandData->status === 0 ? 'selected' : '' }}>Inactive</option>
-                                                            </select>
-                                                        </div>
+                </thead>
+                <tbody>
+                    @foreach($deposit as $key => $dep)
+                    <tr>
+                        <td>{{ $key + 1 }}</td>
+                        <td>{{ $dep->account->name ?? 'N/A' }}</td>
+                        <td>{{ number_format($dep->amount, 2) }}</td>
+                        <td>
+                            <form method="POST" action="{{ route('deposit.update.status', $dep->id) }}" id="statusForm{{ $dep->id }}">
+                                @csrf
+                                @method('PATCH')
+                                <input type="hidden" name="status" id="statusInput{{ $dep->id }}">
+                                <select class="form-select form-select-sm" onchange="document.getElementById('statusInput{{ $dep->id }}').value=this.value; document.getElementById('statusForm{{ $dep->id }}').submit();">
+                                    <option value="pending" {{ $dep->status=='pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="approved" {{ $dep->status=='approved' ? 'selected' : '' }}>Approved</option>
+                                    <option value="rejected" {{ $dep->status=='rejected' ? 'selected' : '' }}>Rejected</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td style="width: 150px;">
+                            <div class="d-flex justify-content-end gap-1">
+                                @can('deposit-edit')
+                                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editDepositModal{{ $dep->id }}">Edit</button>
+                                @endcan
+                                @can('deposit-delete')
+                                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteDepositModal{{ $dep->id }}">Delete</button>
+                                @endcan
+                            </div>
+                        </td>
+
+                        <!-- Edit Modal -->
+                        <div class="modal fade" id="editDepositModal{{ $dep->id }}" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Edit Deposit</h4>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form method="POST" action="{{ route('deposit.update', $dep->id) }}" id="editForm{{ $dep->id }}">
+                                            @csrf
+                                            @method('PUT')
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <div class="mb-3">
+                                                        <label for="account_id" class="form-label">Account</label>
+                                                        <select name="account_id" class="form-select" required>
+                                                            @foreach($account as $acc)
+                                                            <option value="{{ $acc->id }}" {{ $dep->account_id == $acc->id ? 'selected' : '' }}>{{ $acc->name }}</option>
+                                                            @endforeach
+                                                        </select>
                                                     </div>
                                                 </div>
-                                                <div class="d-flex justify-content-end">
-                                                    <button class="btn btn-primary" type="submit">Update</button>
+                                                <div class="col-6">
+                                                    <div class="mb-3">
+                                                        <label for="amount" class="form-label">Amount</label>
+                                                        <input type="number" name="amount" value="{{ $dep->amount }}" step="0.01" class="form-control" required>
+                                                    </div>
                                                 </div>
-                                            </form>
-                                        </div>
+                                                <div class="col-6">
+                                                    <div class="mb-3">
+                                                        <label for="status" class="form-label">Status</label>
+                                                        <select name="status" class="form-select">
+                                                            <option value="pending" {{ $dep->status=='pending' ? 'selected' : '' }}>Pending</option>
+                                                            <option value="approved" {{ $dep->status=='approved' ? 'selected' : '' }}>Approved</option>
+                                                            <option value="rejected" {{ $dep->status=='rejected' ? 'selected' : '' }}>Rejected</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-end">
+                                                <button class="btn btn-primary" type="submit">Update</button>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
-                            <!-- Delete Modal -->
-                            <div id="danger-header-modal{{$brandData->id}}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="danger-header-modalLabel{{$brandData->id}}" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header modal-colored-header bg-danger">
-                                            <h4 class="modal-title" id="danger-header-modalLabe{{$brandData->id}}l">Delete</h4>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <h5 class="mt-0">Do you want to Delete this ? </h5>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <a href="{{route('brand.destroy',$brandData->id)}}" class="btn btn-danger">Delete</a>
-                                        </div>
+                        </div>
+
+                        <!-- Delete Modal -->
+                        <div class="modal fade" id="deleteDepositModal{{ $dep->id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header modal-colored-header bg-danger">
+                                        <h4 class="modal-title">Delete Deposit</h4>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <h5>Do you want to delete this deposit?</h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                        <form method="POST" action="{{ route('deposit.destroy', $dep->id) }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="btn btn-danger" type="submit">Delete</button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
-                        </tr>
+                        </div>
+
+                    </tr>
                     @endforeach
-                    </tbody>
-                </table>
-            </div>
+                </tbody>
+            </table>
         </div>
     </div>
-    <!--Add Modal -->
-    <div class="modal fade" id="addNewModalId" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="addNewModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="addNewModalLabel">Add</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="post" action="{{route('brand.store')}}" enctype="multipart/form-data">
-                        @csrf
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label for="name" class="form-label">Name</label>
-                                    <input type="text" id="name" name="name"
-                                           class="form-control" placeholder="Enter Name">
-                                </div>
+</div>
+
+<!-- Add Deposit Modal -->
+<div class="modal fade" id="addDepositModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add Deposit</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ route('deposit.store') }}">
+                    @csrf
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="account_id" class="form-label">Account</label>
+                                <select name="account_id" class="form-select" required>
+                                    <option value="">Select Account</option>
+                                    @foreach($account as $acc)
+                                    <option value="{{ $acc->id }}">{{ $acc->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
-                        <div class="d-flex justify-content-end">
-                            <button class="btn btn-primary" type="submit">Submit</button>
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">Amount</label>
+                                <input type="number" name="amount" step="0.01" class="form-control" required>
+                            </div>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-primary" type="submit">Submit</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Inline Status Update Script -->
+@push('scripts')
+<script>
+    function updateStatus(id, value) {
+        document.getElementById('statusInput' + id).value = value;
+        document.getElementById('statusForm' + id).submit();
+    }
+</script>
+@endpush
+
 @endsection

@@ -24,8 +24,9 @@ class AccountTransferController extends Controller
 
     public function index()
     {
-        $accountTransfer = AccountTransfer::all();
-        return view('admin.pages.accountTransfer.index', compact('accountTransfer'));
+        $accountTransfer = AccountTransfer::with(['fromAccount','toAccount'])->get();
+        $accounts = Account::all();
+        return view('admin.pages.accountTransfer.index', compact('accountTransfer', 'accounts'));
     }
 
     public function store(Request $request)
@@ -68,7 +69,7 @@ class AccountTransferController extends Controller
                 'to_account_id' => 'required',
                 'amount' => 'required',
             ]);
-            $accountTransfer = AccountTransfer::find($id);
+            $accountTransfer = AccountTransfer::findOrFail($id);
 
             $fromAccountInfo = Account::findOrFail($request->from_account_id);
 
@@ -120,7 +121,7 @@ class AccountTransferController extends Controller
         $accountTransfer->status = $status;
         $accountTransfer->update();
 
-        Toastr::error('Transfer status updated successfully.', 'Success');
+        Toastr::success('Transfer status updated successfully.', 'Success');
         return redirect()->back();
     }
 }

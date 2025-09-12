@@ -509,6 +509,24 @@ class SellController extends Controller
         return response()->json(['products' => $productsWithQuantity]);
     }
 
+    public function updateStatus($id, $status)
+    {
+        if (!in_array($status, ['pending', 'approved', 'rejected'])) {
+            return redirect()->route('admin.pages.sell.index')->with('error', 'Invalid status.');
+        }
+
+        $production = Sell::find($id);
+
+        if (!$production) {
+            return redirect()->back()->with('error', 'Production Information not found.');
+        }
+
+        $production->status = $status;
+        $production->update();
+
+        return redirect()->back()->with('success', 'Production status updated successfully.');
+    }
+
     public function showInvoice($id)
     {
         $sell = Sell::with(['customer', 'salesman'])->findOrFail($id);

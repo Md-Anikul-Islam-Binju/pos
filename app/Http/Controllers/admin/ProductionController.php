@@ -51,15 +51,38 @@ class ProductionController extends Controller
     {
         try {
             $request->validate([
-                'production_house_id' => 'required',
-                'showroom_id' => 'required',
-                'account_id' => 'required',
-                'production_date' => 'required',
-                'warehouse_id' => 'required',
+                'production_house_id'       => 'required|exists:production_houses,id',
+                'showroom_id'               => 'required|exists:showrooms,id',
+                'account_id'                => 'required|exists:accounts,id',
+                'production_date'           => 'required|date',
+                'warehouse_id'              => 'required|exists:warehouses,id',
+
+                'payment_type'              => 'required|in:full_paid,partial_paid',
+                'paid_amount'               => 'nullable|numeric|min:0',
+
+                'cost_details.*'            => 'nullable|string|max:255',
+                'cost_amount.*'             => 'nullable|numeric|min:0',
+
+                'raw_material_id.*'         => 'nullable|exists:raw_materials,id',
+                'raw_material_brand_id.*'   => 'nullable|exists:brands,id',
+                'raw_material_size_id.*'    => 'nullable|exists:sizes,id',
+                'raw_material_color_id.*'   => 'nullable|exists:colors,id',
+                'raw_material_warehouse_id.*' => 'nullable|exists:warehouses,id',
+                'raw_material_price.*'      => 'nullable|numeric|min:0',
+                'raw_material_quantity.*'   => 'nullable|numeric|min:0',
+                'raw_material_total_price.*'=> 'nullable|numeric|min:0',
+
+                'product_id.*'              => 'nullable|exists:products,id',
+                'brand_id.*'                => 'nullable|exists:brands,id',
+                'size_id.*'                 => 'nullable|exists:sizes,id',
+                'color_id.*'                => 'nullable|exists:colors,id',
+                'price.*'                   => 'nullable|numeric|min:0',
+                'quantity.*'                => 'nullable|numeric|min:0',
+                'total_price.*'             => 'nullable|numeric|min:0',
             ]);
 
             $costDetails = $request->input('cost_details', []);
-            $costAmounts = $request->input('cost_details', []);
+            $costAmounts = $request->input('cost_amount', []);
 
             $combinedCosts = [];
             $totalCost = 0;
@@ -144,14 +167,121 @@ class ProductionController extends Controller
         }
     }
 
+    public function edit($id)
+    {
+        $production = Production::with(['productionHouse', 'showroom', 'account'])->findOrFail($id);
+
+        // Prepare options for selects (HTML <option> tags with selected)
+        $productionHouseOptions = '';
+        foreach (ProductionHouse::all() as $house) {
+            $selected = $house->id == $production->production_house_id ? 'selected' : '';
+            $productionHouseOptions .= "<option value='{$house->id}' {$selected}>{$house->name}</option>";
+        }
+
+        $showroomOptions = '';
+        foreach (Showroom::all() as $showroom) {
+            $selected = $showroom->id == $production->showroom_id ? 'selected' : '';
+            $showroomOptions .= "<option value='{$showroom->id}' {$selected}>{$showroom->name}</option>";
+        }
+
+        $accountOptions = '';
+        foreach (Account::all() as $account) {
+            $selected = $account->id == $production->account_id ? 'selected' : '';
+            $accountOptions .= "<option value='{$account->id}' {$selected}>{$account->name}</option>";
+        }
+
+        // Cost Details
+        $costDetails = json_decode($production->cost_details, true) ?? [];
+
+        // Raw Materials
+        $rawMaterials = DB::table('production_raw_materials')
+            ->where('production_id', $production->id)
+            ->get()
+            ->map(function($rm) {
+                return [
+                    'raw_material_id' => $rm->raw_material_id,
+                    'brand_id' => $rm->brand_id,
+                    'size_id' => $rm->size_id,
+                    'color_id' => $rm->color_id,
+                    'warehouse_id' => $rm->warehouse_id,
+                    'price' => $rm->price,
+                    'quantity' => $rm->quantity,
+                    'total_price' => $rm->total_price,
+                    // Option HTMLs
+                    'options' => $this->generateOptions(RawMaterialStock::all(), 'id', 'name', $rm->raw_material_id),
+                    'brandOptions' => $this->generateOptions(Brand::all(), 'id', 'name', $rm->brand_id),
+                    'sizeOptions' => $this->generateOptions(Size::all(), 'id', 'name', $rm->size_id),
+                    'colorOptions' => $this->generateOptions(Color::all(), 'id', 'name', $rm->color_id),
+                    'warehouseOptions' => $this->generateOptions(Warehouse::all(), 'id', 'name', $rm->warehouse_id),
+                ];
+            });
+
+        // Products
+        $products = DB::table('production_product')
+            ->where('production_id', $production->id)
+            ->get()
+            ->map(function($p) {
+                return [
+                    'product_id' => $p->product_id,
+                    'brand_id' => $p->brand_id,
+                    'size_id' => $p->size_id,
+                    'color_id' => $p->color_id,
+                    'per_pc_cost' => $p->per_pc_cost,
+                    'quantity' => $p->quantity,
+                    'sub_total' => $p->sub_total,
+                    'options' => $this->generateOptions(Production::all(), 'id', 'name', $p->product_id), // Replace with actual Product model
+                    'brandOptions' => $this->generateOptions(Brand::all(), 'id', 'name', $p->brand_id),
+                    'sizeOptions' => $this->generateOptions(Size::all(), 'id', 'name', $p->size_id),
+                    'colorOptions' => $this->generateOptions(Color::all(), 'id', 'name', $p->color_id),
+                ];
+            });
+
+        return response()->json([
+            'id' => $production->id,
+            'production_date' => $production->production_date,
+            'payment_type' => $production->payment_type,
+            'amount' => $production->amount,
+            'productionHouseOptions' => $productionHouseOptions,
+            'showroomOptions' => $showroomOptions,
+            'accountOptions' => $accountOptions,
+            'cost_details' => $costDetails,
+            'raw_materials' => $rawMaterials,
+            'products' => $products,
+        ]);
+    }
+
     public function update(Request $request, $id)
     {
         try {
             $request->validate([
-                'production_house_id' => 'required',
-                'showroom_id' => 'required',
-                'account_id' => 'required',
-                'production_date' => 'required',
+                'production_house_id'       => 'required|exists:production_houses,id',
+                'showroom_id'               => 'required|exists:showrooms,id',
+                'account_id'                => 'required|exists:accounts,id',
+                'production_date'           => 'required|date',
+                'warehouse_id'              => 'required|exists:warehouses,id',
+
+                'payment_type'              => 'required|in:full_paid,partial_paid',
+                'paid_amount'               => 'nullable|numeric|min:0',
+
+                'cost_details.*'            => 'nullable|string|max:255',
+                'cost_amount.*'             => 'nullable|numeric|min:0',
+
+                'raw_material_id.*'         => 'nullable|exists:raw_materials,id',
+                'raw_material_brand_id.*'   => 'nullable|exists:brands,id',
+                'raw_material_size_id.*'    => 'nullable|exists:sizes,id',
+                'raw_material_color_id.*'   => 'nullable|exists:colors,id',
+                'raw_material_warehouse_id.*' => 'nullable|exists:warehouses,id',
+                'raw_material_price.*'      => 'nullable|numeric|min:0',
+                'raw_material_quantity.*'   => 'nullable|numeric|min:0',
+                'raw_material_total_price.*'=> 'nullable|numeric|min:0',
+
+                'product_id.*'              => 'nullable|exists:products,id',
+                'brand_id.*'                => 'nullable|exists:brands,id',
+                'size_id.*'                 => 'nullable|exists:sizes,id',
+                'color_id.*'                => 'nullable|exists:colors,id',
+                'price.*'                   => 'nullable|numeric|min:0',
+                'quantity.*'                => 'nullable|numeric|min:0',
+                'total_price.*'             => 'nullable|numeric|min:0',
             ]);
 
             $production = Production::find($id);
@@ -195,7 +325,7 @@ class ProductionController extends Controller
                     'size_id' => $request->raw_material_size_id[$index] ?? null,
                     'color_id' => $request->raw_material_color_id[$index] ?? null,
                     'warehouse_id' => $request->raw_material_warehouse_id[$index] ?? null,
-                    'price' => (double) ($request->raw_materials_price[$index] ?? 0), // Ensure it's a float
+                    'price' => (double) ($request->raw_material_price[$index] ?? 0), // Ensure it's a float
                     'quantity' => (double) ($request->raw_material_quantity[$index] ?? 0), // Ensure it's a float
                     'total_price' => (double) ($request->raw_material_total_price[$index] ?? 0), // Ensure it's a float
                 ];
@@ -287,6 +417,8 @@ class ProductionController extends Controller
     {
         try {
             $production = Production::find($id);
+            DB::table('production_raw_materials')->where('production_id', $production->id)->delete();
+            DB::table('production_product')->where('production_id', $production->id)->delete();
             $production->delete();
 
             Toastr::success('Production Deleted Successfully', 'Success');
@@ -325,5 +457,57 @@ class ProductionController extends Controller
     {
         $production = Production::findOrFail($id);
         return view('admin.pages.production.invoice', compact('production'));
+    }
+
+    /**
+     * Helper method to generate <option> tags
+     */
+    private function generateOptions($collection, $valueField, $textField, $selectedId = null)
+    {
+        $options = '';
+        foreach ($collection as $item) {
+            $selected = $item->$valueField == $selectedId ? 'selected' : '';
+            $options .= "<option value='{$item->$valueField}' {$selected}>{$item->$textField}</option>";
+        }
+        return $options;
+    }
+
+    public function editAjax(Production $production)
+    {
+        return response()->json([
+            'id' => $production->id,
+            'production_date' => $production->production_date,
+            'payment_type' => $production->payment_type,
+            'amount' => $production->paid_amount,
+            'productionHouseOptions' => view('admin.partials.house_options', ['selected' => $production->house_id])->render(),
+            'showroomOptions' => view('admin.partials.showroom_options', ['selected' => $production->showroom_id])->render(),
+            'accountOptions' => view('admin.partials.account_options', ['selected' => $production->account_id])->render(),
+            'cost_details' => $production->costDetails->map(function($c) {
+                return ['detail'=>$c->detail, 'amount'=>$c->amount];
+            }),
+            'raw_materials' => $production->rawMaterials->map(function($rm) {
+                return [
+                    'options' => view('admin.partials.material_options', ['selected'=>$rm->material_id])->render(),
+                    'brandOptions' => view('admin.partials.brand_options', ['selected'=>$rm->brand_id])->render(),
+                    'sizeOptions' => view('admin.partials.size_options', ['selected'=>$rm->size_id])->render(),
+                    'colorOptions' => view('admin.partials.color_options', ['selected'=>$rm->color_id])->render(),
+                    'warehouseOptions' => view('admin.partials.warehouse_options', ['selected'=>$rm->warehouse_id])->render(),
+                    'price' => $rm->price,
+                    'quantity' => $rm->quantity,
+                    'total_price' => $rm->total_price,
+                ];
+            }),
+            'products' => $production->products->map(function($p){
+                return [
+                    'options' => view('admin.partials.product_options', ['selected'=>$p->product_id])->render(),
+                    'brandOptions' => view('admin.partials.brand_options', ['selected'=>$p->brand_id])->render(),
+                    'sizeOptions' => view('admin.partials.size_options', ['selected'=>$p->size_id])->render(),
+                    'colorOptions' => view('admin.partials.color_options', ['selected'=>$p->color_id])->render(),
+                    'per_pc_cost' => $p->price,
+                    'quantity' => $p->quantity,
+                    'sub_total' => $p->total_price,
+                ];
+            }),
+        ]);
     }
 }

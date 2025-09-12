@@ -41,25 +41,20 @@ class CustomerRefundController extends Controller
     {
         try {
             $request->validate([
-                'customer_id' => 'required',
-                'account_id' => 'required',
-                'amount' => 'required',
-                'details' => 'required',
-                'date' => 'required',
-                'refund_by' => 'required',
+                'customer_id' => 'required|exists:customers,id',
+                'account_id' => 'required|exists:accounts,id',
+                'amount' => 'required|numeric',
+                'date' => 'required|date',
+                'refund_by' => 'required|string|max:255',
             ]);
-
             $refund = new CustomerRefund();
-
             $refund->customer_id = $request->customer_id;
             $refund->account_id = $request->account_id;
             $refund->amount = $request->amount;
             $refund->date = $request->date;
             $refund->refund_by = $request->refund_by;
             $refund->save();
-
             UpdateCustomerBalance::dispatch();
-
             Toastr::success('Refund Added Successfully', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {
@@ -72,16 +67,14 @@ class CustomerRefundController extends Controller
     {
         try {
             $request->validate([
-                'customer_id' => 'required',
-                'account_id' => 'required',
-                'amount' => 'required',
-                'details' => 'required',
-                'date' => 'required',
-                'refund_by' => 'required',
+                'customer_id' => 'required|exists:customers,id',
+                'account_id' => 'required|exists:accounts,id',
+                'amount' => 'required|numeric',
+                'date' => 'required|date',
+                'refund_by' => 'required|string|max:255',
+                'status' => 'required|in:pending,approved,rejected',
             ]);
-
             $refund = CustomerRefund::find($id);
-
             $refund->customer_id = $request->customer_id;
             $refund->account_id = $request->account_id;
             $refund->amount = $request->amount;
@@ -89,9 +82,7 @@ class CustomerRefundController extends Controller
             $refund->refund_by = $request->refund_by;
             $refund->status = $request->status;
             $refund->save();
-
             UpdateCustomerBalance::dispatch();
-
             Toastr::success('Refund Updated Successfully', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {
@@ -104,6 +95,7 @@ class CustomerRefundController extends Controller
         try {
             $refund = CustomerRefund::find($id);
             $refund->delete();
+            UpdateCustomerBalance::dispatch();
             Toastr::success('Refund Deleted Successfully', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {
@@ -116,18 +108,13 @@ class CustomerRefundController extends Controller
         if (!in_array($status, ['pending', 'approved', 'rejected'])) {
             return redirect()->route('admin.pages.customer-refund.index')->with('error', 'Invalid status.');
         }
-
         $refund = CustomerRefund::find($id);
-
         if (!$refund) {
             return redirect()->back()->with('error', 'Payment not found.');
         }
-
         $refund->status = $status;
         $refund->update();
-
         UpdateCustomerBalance::dispatch();
-
         return redirect()->back()->with('success', 'Refund status updated successfully.');
     }
 }

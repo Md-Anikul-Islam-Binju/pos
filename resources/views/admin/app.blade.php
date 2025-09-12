@@ -94,551 +94,158 @@
             </span>
         </a>
 
-        <div class="h-100" id="leftside-menu-container" data-simplebar>
-            <ul class="side-nav">
-                <li class="side-nav-title">Main</li>
+        <ul class="side-nav">
+            <li class="side-nav-title">Main</li>
+
+            {{-- Dashboard --}}
+            <li class="side-nav-item">
+                <a href="{{route('dashboard')}}" class="side-nav-link">
+                    <i class="ri-dashboard-3-line"></i>
+                    <span> Dashboard </span>
+                </a>
+            </li>
+
+            {{-- Inventory --}}
+            @can('resource-list')
                 <li class="side-nav-item">
-                    <a href="{{route('dashboard')}}" class="side-nav-link">
-                        <i class="ri-dashboard-3-line"></i>
-                        <span> Dashboard </span>
-                    </a>
-                </li>
-{{--                @can('resource-list')--}}
-{{--                <li class="side-nav-item">--}}
-{{--                    <a data-bs-toggle="collapse" href="#sidebarPages" aria-expanded="false" aria-controls="sidebarPages" class="side-nav-link">--}}
-{{--                        <i class="ri-pages-line"></i>--}}
-{{--                        <span> Resource </span>--}}
-{{--                        <span class="menu-arrow"></span>--}}
-{{--                    </a>--}}
-{{--                    <div class="collapse" id="sidebarPages">--}}
-{{--                        <ul class="side-nav-second-level">--}}
-
-{{--                            <li>--}}
-{{--                                <a href="#">Test</a>--}}
-{{--                            </li>--}}
-
-{{--                        </ul>--}}
-{{--                    </div>--}}
-{{--                </li>--}}
-{{--                @endcan--}}
-
-                @can('slider-list')
-                <li class="side-nav-item">
-                    <a href="{{route('slider.section')}}" class="side-nav-link">
-                        <i class="ri-slideshow-line"></i>
-                        <span> Slider </span>
-                    </a>
-                </li>
-                @endcan
-
-                @can('resource-list')
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#raw-material" aria-expanded="false" aria-controls="sidebarPages" class="side-nav-link">
-                            <i class="ri-pages-line"></i>
-                            <span> Raw Material </span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse" id="raw-material">
-                            <ul class="side-nav-second-level">
-
-                                @can('material-list')
-                                    <li>
-                                        <a href="#">Raw Material</a>
-                                    </li>
-                                @endcan
-
-                                @can('material-category-list')
-                                    <li>
-                                        <a href="#">Raw Material Category</a>
-                                    </li>
-                                @endcan
-
-                                @can('material-purchase-list')
-                                    <li>
-                                        <a href="#">Raw Material Purchase</a>
-                                    </li>
-                                @endcan
-
-                                @can('material-stock-list')
-                                    <li>
-                                        <a href="#">Raw Material Stock</a>
-                                    </li>
-                                @endcan
-
-                            </ul>
-                        </div>
-                    </li>
-                @endcan
-
-                @can('customer-list')
-                    <li class="side-nav-item">
-                        <a href="#" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Customer </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('supplier-list')
-                    <li class="side-nav-item">
-                        <a href="#" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Supplier </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('payment-method-list')
-                    <li class="side-nav-item">
-                        <a href="#" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Payment Method </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('warehouse-list')
-                    <li class="side-nav-item">
-                        <a href="#" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Warehouse </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('unit-list')
-                    <li class="side-nav-item">
-                        <a href="#" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Unit </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('size-list')
-                    <li class="side-nav-item">
-                        <a href="#" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Size </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('brand-list')
-                    <li class="side-nav-item">
-                        <a href="{{route('brand.section')}}" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Brand </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('color-list')
-                    <li class="side-nav-item">
-                        <a href="{{route('color.section')}}" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Color </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('department-list')
-                    <li class="side-nav-item">
-                        <a href="{{route('department.section')}}" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Department </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('showroom-list')
-                    <li class="side-nav-item">
-                        <a href="{{route('showroom.section')}}" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Showroom </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('currency-list')
-                    <li class="side-nav-item">
-                        <a href="{{route('currency.section')}}" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Currency </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('customer-list')
-                    <li class="side-nav-item">
-                        <a href="{{route('customer.section')}}" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Customer </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('employee-list')
-                    <li class="side-nav-item">
-                        <a href="{{route('employee.section')}}" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Employee </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('expense-category-list')
-                    <li class="side-nav-item">
-                        <a href="{{route('expense.category.section')}}" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Expense Category </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('resource-list')
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#product" aria-expanded="false" aria-controls="sidebarPages" class="side-nav-link">
-                            <i class="ri-pages-line"></i>
-                            <span> Product </span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse" id="product">
-                            <ul class="side-nav-second-level">
-
-                                @can('product-category-list')
-                                    <li>
-                                        <a href="#">Product Category</a>
-                                    </li>
-                                @endcan
-
-                                @can('product-list')
-                                    <li>
-                                        <a href="#">Product</a>
-                                    </li>
-                                @endcan
-
-                                @can('production-house-list')
-                                    <li>
-                                        <a href="#">Production House</a>
-                                    </li>
-                                @endcan
-
-                                @can('product-stock-list')
-                                    <li>
-                                        <a href="#">Product Stock</a>
-                                    </li>
-                                @endcan
-
-                            </ul>
-                        </div>
-                    </li>
-                @endcan
-
-                @can('resource-list')
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#finance" aria-expanded="false" aria-controls="sidebarPages" class="side-nav-link">
-                            <i class="ri-pages-line"></i>
-                            <span> Finance </span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse" id="finance">
-                            <ul class="side-nav-second-level">
-
-                                @can('account-list')
-                                    <li>
-                                        <a href="#">Account</a>
-                                    </li>
-                                @endcan
-
-                                @can('deposit-list')
-                                    <li>
-                                        <a href="#">Deposit</a>
-                                    </li>
-                                @endcan
-
-                                @can('withdraw-list')
-                                    <li>
-                                        <a href="#">Withdraw</a>
-                                    </li>
-                                @endcan
-
-                                @can('customer-payment-list')
-                                    <li>
-                                        <a href="#">Customer Payment</a>
-                                    </li>
-                                @endcan
-
-                                @can('customer-refund-list')
-                                    <li>
-                                        <a href="#">Customer Refund</a>
-                                    </li>
-                                @endcan
-
-                                @can('supplier-payment-list')
-                                    <li>
-                                        <a href="#">Supplier Payment</a>
-                                    </li>
-                                @endcan
-
-                                @can('supplier-refund-list')
-                                    <li>
-                                        <a href="#">Supplier Refund</a>
-                                    </li>
-                                @endcan
-
-                                @can('production-payment-list')
-                                    <li>
-                                        <a href="#">Production Payment</a>
-                                    </li>
-                                @endcan
-
-                                @can('account-transfer-list')
-                                    <li>
-                                        <a href="#">Account Transfer</a>
-                                    </li>
-                                @endcan
-
-                            </ul>
-                        </div>
-                    </li>
-                @endcan
-
-                @can('resource-list')
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#expense" aria-expanded="false" aria-controls="sidebarPages" class="side-nav-link">
-                            <i class="ri-pages-line"></i>
-                            <span> Expense </span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse" id="expense">
-                            <ul class="side-nav-second-level">
-
-                                @can('expense-list')
-                                    <li>
-                                        <a href="#">Expense</a>
-                                    </li>
-                                @endcan
-
-                                @can('expense-category-list')
-                                    <li>
-                                        <a href="#">Expense Category</a>
-                                    </li>
-                                @endcan
-
-                            </ul>
-                        </div>
-                    </li>
-                @endcan
-
-                @can('resource-list')
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#asset" aria-expanded="false" aria-controls="sidebarPages" class="side-nav-link">
-                            <i class="ri-pages-line"></i>
-                            <span> Asset </span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse" id="asset">
-                            <ul class="side-nav-second-level">
-
-                                @can('asset-list')
-                                    <li>
-                                        <a href="#">Asset</a>
-                                    </li>
-                                @endcan
-
-                                @can('asset-category-list')
-                                    <li>
-                                        <a href="#">Asset Category</a>
-                                    </li>
-                                @endcan
-
-                            </ul>
-                        </div>
-                    </li>
-                @endcan
-
-                @can('production-list')
-                    <li class="side-nav-item">
-                        <a href="#" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Production </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('currency-list')
-                    <li class="side-nav-item">
-                        <a href="#" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Currency </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('sell-list')
-                    <li class="side-nav-item">
-                        <a href="#" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Sell </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('product-stock-transfer')
-                    <li class="side-nav-item">
-                        <a href="#" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Product Stock Transfer </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('raw-material-stock-transfer-list')
-                    <li class="side-nav-item">
-                        <a href="#" class="side-nav-link">
-                            <i class="ri-slideshow-line"></i>
-                            <span> Raw Material Stock Transfer </span>
-                        </a>
-                    </li>
-                @endcan
-
-                @can('resource-list')
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#report" aria-expanded="false" aria-controls="sidebarPages" class="side-nav-link">
-                            <i class="ri-pages-line"></i>
-                            <span> Report </span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse" id="report">
-                            <ul class="side-nav-second-level">
-
-                                @can('material-stock-report-list')
-                                    <li>
-                                        <a href="#">Raw Material Stock</a>
-                                    </li>
-                                @endcan
-
-                                @can('product-stock-report-list')
-                                    <li>
-                                        <a href="#">Product Stock</a>
-                                    </li>
-                                @endcan
-
-                                @can('sell-report-list')
-                                    <li>
-                                        <a href="#">Sell</a>
-                                    </li>
-                                @endcan
-
-                                @can('asset-report-list')
-                                    <li>
-                                        <a href="#">Asset</a>
-                                    </li>
-                                @endcan
-
-                                @can('expense-report-list')
-                                    <li>
-                                        <a href="#">Expense</a>
-                                    </li>
-                                @endcan
-
-                                @can('material-purchase-report-list')
-                                    <li>
-                                        <a href="#">Raw Material Purchase</a>
-                                    </li>
-                                @endcan
-
-                                @can('balance-sheet-list')
-                                    <li>
-                                        <a href="#">Account Balance Sheet</a>
-                                    </li>
-                                @endcan
-
-                                @can('deposit-balance-list')
-                                    <li>
-                                        <a href="#">Deposit Balance</a>
-                                    </li>
-                                @endcan
-
-                                @can('withdraw-balance-list')
-                                    <li>
-                                        <a href="#">Withdraw Balance</a>
-                                    </li>
-                                @endcan
-
-                                @can('transfer-balance-list')
-                                    <li>
-                                        <a href="#">Transfer Balance</a>
-                                    </li>
-                                @endcan
-
-                                @can('product-transfer-report-list')
-                                    <li>
-                                        <a href="#">Product Transfer</a>
-                                    </li>
-                                @endcan
-
-                                @can('material-transfer-report-list')
-                                    <li>
-                                        <a href="#">Raw Material Transfer</a>
-                                    </li>
-                                @endcan
-
-                                @can('sell-profit-loss-list')
-                                    <li>
-                                        <a href="#">Sell Profit / Loss</a>
-                                    </li>
-                                @endcan
-
-                                @can('cron-job-log-list')
-                                    <li>
-                                        <a href="#">Cron Job Log</a>
-                                    </li>
-                                @endcan
-
-                            </ul>
-                        </div>
-                    </li>
-                @endcan
-
-                @can('site-setting')
-                    <li class="side-nav-item">
-                        <a href="{{route('site.setting')}}" class="side-nav-link">
-                            <i class="ri-drag-move-fill"></i>
-                            <span> Site Setting </span>
-                        </a>
-                    </li>
-                @endcan
-
-
-                @can('role-and-permission-list')
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarPages1" aria-expanded="false" aria-controls="sidebarPages" class="side-nav-link">
-                        <i class="ri-rotate-lock-line"></i>
-                        <span>Permission Manage </span>
+                    <a data-bs-toggle="collapse" href="#inventory" class="side-nav-link">
+                        <i class="ri-box-3-line"></i>
+                        <span> Inventory </span>
                         <span class="menu-arrow"></span>
                     </a>
-                    <div class="collapse" id="sidebarPages1">
+                    <div class="collapse" id="inventory">
                         <ul class="side-nav-second-level">
-                            @can('user-list')
-                            <li>
-                                <a href="{{url('users')}}">Create User</a>
-                            </li>
-                            @endcan
-
-                            @can('role-list')
-                            <li>
-                                <a href="{{url('roles')}}">Role & Permission</a>
-                            </li>
-                            @endcan
+                            @can('material-list') <li><a href="{{ route('raw.material.section') }}">Raw Material</a></li>@endcan
+                            @can('material-category-list') <li><a href="{{ route('raw.material.category.section') }}">Raw Material Category</a></li>@endcan
+                            @can('material-purchase-list') <li><a href="{{ route('raw.material.purchase.section') }}">Raw Material Purchase</a></li>@endcan
+                            @can('material-stock-list') <li><a href="{{ route('raw.material.stock.section') }}">Raw Material Stock</a></li>@endcan
+                            @can('product-category-list') <li><a href="{{ route('product.category.section') }}">Product Category</a></li>@endcan
+                            @can('product-list') <li><a href="{{ route('product.section') }}">Product</a></li>@endcan
+                            @can('production-house-list') <li><a href="{{ route('production.house.section') }}">Production House</a></li>@endcan
+                            @can('product-stock-list') <li><a href="{{ route('product.stock.section') }}">Product Stock</a></li>@endcan
+                            @can('warehouse-list') <li><a href="{{ route('warehouse.section') }}">Warehouse</a></li>@endcan
+                            @can('unit-list') <li><a href="{{ route('unit.section') }}">Unit</a></li>@endcan
+                            @can('size-list') <li><a href="{{ route('size.section') }}">Size</a></li>@endcan
+                            @can('brand-list') <li><a href="{{route('brand.section')}}">Brand</a></li>@endcan
+                            @can('color-list') <li><a href="{{route('color.section')}}">Color</a></li>@endcan
+                            @can('product-stock-transfer') <li><a href="{{ route('product.stock.transfer.section') }}">Product Stock Transfer</a></li>@endcan
+                            @can('raw-material-stock-transfer-list') <li><a href="{{ route('raw.material.stock.transfer.section') }}">Raw Material Stock Transfer</a></li>@endcan
                         </ul>
                     </div>
                 </li>
-                @endcan
-            </ul>
-            <div class="clearfix"></div>
-        </div>
+            @endcan
+
+            {{-- Finance --}}
+            @can('resource-list')
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#finance" class="side-nav-link">
+                        <i class="ri-bank-line"></i>
+                        <span> Finance </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="finance">
+                        <ul class="side-nav-second-level">
+                            @can('account-list') <li><a href="{{ route('account.section') }}">Account</a></li>@endcan
+                            @can('deposit-list') <li><a href="{{ route('deposit.section') }}">Deposit</a></li>@endcan
+                            @can('withdraw-list') <li><a href="{{ route('withdraw.section') }}">Withdraw</a></li>@endcan
+                            @can('account-transfer-list') <li><a href="{{ route('account.transfer.section') }}">Account Transfer</a></li>@endcan
+                            @can('customer-payment-list') <li><a href="{{ route('customer.payment.section') }}">Customer Payment</a></li>@endcan
+                            @can('customer-refund-list') <li><a href="{{ route('customer.refund.section') }}">Customer Refund</a></li>@endcan
+                            @can('supplier-payment-list') <li><a href="{{ route('supplier.payment.section') }}">Supplier Payment</a></li>@endcan
+                            @can('supplier-refund-list') <li><a href="{{ route('supplier.refund.section') }}">Supplier Refund</a></li>@endcan
+                            @can('production-payment-list') <li><a href="{{ route('production.payment.section') }}">Production Payment</a></li>@endcan
+                            @can('expense-list') <li><a href="{{ route('expense.section') }}">Expense</a></li>@endcan
+                            @can('expense-category-list') <li><a href="{{ route('expense.category.section') }}">Expense Category</a></li>@endcan
+                        </ul>
+                    </div>
+                </li>
+            @endcan
+
+            {{-- People --}}
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#people" class="side-nav-link">
+                    <i class="ri-group-line"></i>
+                    <span> People </span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="people">
+                    <ul class="side-nav-second-level">
+                        @can('customer-list') <li><a href="{{route('customer.section')}}">Customer</a></li>@endcan
+                        @can('supplier-list') <li><a href="{{ route('supplier.section') }}">Supplier</a></li>@endcan
+                        @can('employee-list') <li><a href="{{route('employee.section')}}">Employee</a></li>@endcan
+                        @can('department-list') <li><a href="{{route('department.section')}}">Department</a></li>@endcan
+                        @can('showroom-list') <li><a href="{{route('showroom.section')}}">Showroom</a></li>@endcan
+                    </ul>
+                </div>
+            </li>
+
+            {{-- Assets --}}
+            @can('resource-list')
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#asset" class="side-nav-link">
+                        <i class="ri-home-8-line"></i>
+                        <span> Assets </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="asset">
+                        <ul class="side-nav-second-level">
+                            @can('asset-list') <li><a href="{{ route('asset.section') }}">Asset</a></li>@endcan
+                            @can('asset-category-list') <li><a href="{{ route('asset.category.section') }}">Asset Category</a></li>@endcan
+                        </ul>
+                    </div>
+                </li>
+            @endcan
+
+            {{-- Reports --}}
+            @can('resource-list')
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#report" class="side-nav-link">
+                        <i class="ri-bar-chart-2-line"></i>
+                        <span> Reports </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="report">
+                        <ul class="side-nav-second-level">
+                            @can('material-stock-report-list') <li><a href="{{ route('raw.material.stock.report') }}">Raw Material Stock</a></li>@endcan
+                            @can('product-stock-report-list') <li><a href="{{ route('product.stock.report') }}">Product Stock</a></li>@endcan
+                            @can('sell-report-list') <li><a href="{{ route('sell.report') }}">Sell</a></li>@endcan
+                            @can('asset-report-list') <li><a href="{{ route('asset.report') }}">Asset</a></li>@endcan
+                            @can('expense-report-list') <li><a href="{{ route('expense.report') }}">Expense</a></li>@endcan
+                            @can('material-purchase-report-list') <li><a href="{{ route('raw.material.purchase.report') }}">Raw Material Purchase</a></li>@endcan
+                            @can('balance-sheet-list') <li><a href="{{ route('balance.sheet.report') }}">Account Balance Sheet</a></li>@endcan
+                            @can('deposit-balance-list') <li><a href="{{ route('deposit.balance.sheet.report') }}">Deposit Balance</a></li>@endcan
+                            @can('withdraw-balance-list') <li><a href="{{ route('withdraw.balance.sheet.report') }}">Withdraw Balance</a></li>@endcan
+                            @can('transfer-balance-list') <li><a href="{{ route('transfer.balance.sheet.report') }}">Transfer Balance</a></li>@endcan
+                            @can('product-transfer-report-list') <li><a href="{{ route('product.transfer.report') }}">Product Transfer</a></li>@endcan
+                            @can('material-transfer-report-list') <li><a href="{{ route('raw.material.transfer.report') }}">Raw Material Transfer</a></li>@endcan
+                            @can('sell-profit-loss-list') <li><a href="{{ route('sell.profit.loss.report') }}">Sell Profit / Loss</a></li>@endcan
+                            @can('cron-job-log-list') <li><a href="{{ route('cron.job.logs.report') }}">Cron Job Log</a></li>@endcan
+                        </ul>
+                    </div>
+                </li>
+            @endcan
+
+            {{-- Settings --}}
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#settings" class="side-nav-link">
+                    <i class="ri-settings-3-line"></i>
+                    <span> Settings </span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="settings">
+                    <ul class="side-nav-second-level">
+                        @can('payment-method-list') <li><a href="{{ route('payment.method.section') }}">Payment Method</a></li>@endcan
+                        @can('currency-list') <li><a href="{{route('currency.section')}}">Currency</a></li>@endcan
+                        @can('site-setting') <li><a href="{{route('site.setting')}}">Site Setting</a></li>@endcan
+                        @can('role-and-permission-list')
+                            <li><a href="{{url('users')}}">Create User</a></li>
+                            <li><a href="{{url('roles')}}">Role & Permission</a></li>
+                        @endcan
+                    </ul>
+                </div>
+            </li>
+        </ul>
+
     </div>
 
     <div class="content-page">

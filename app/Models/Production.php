@@ -45,6 +45,6 @@ class Production extends Model
 
     public function products()
     {
-        return $this->hasMany(ProductionProduct::class,);
+        return $this->hasMany(ProductionProduct::class);
     }
 }

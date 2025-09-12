@@ -46,7 +46,6 @@ class CustomerRefund extends Model
 
     public function accountTransaction(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return $this->hasOne(AccountTransaction::class, 'model_id')
-            ->where('model', '=', get_class($this));
+        return $this->hasOne(AccountTransaction::class, 'model_id')->where('model', '=', get_class($this));
     }
 }

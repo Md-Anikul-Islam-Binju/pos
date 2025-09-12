@@ -66,14 +66,15 @@ class ExpenseController extends Controller
                 'category_id' => 'required',
                 'account_id' => 'required',
                 'amount' => 'required',
+                'status' => 'required|in:pending,approved,rejected',
             ]);
 
-            $expense = Expense::find($id);
+            $expense = Expense::findOrFail($id);
             $expense->title = $request->title;
             $expense->category_id = $request->category_id;
             $expense->account_id = $request->account_id;
             $expense->amount = $request->amount;
-            $expense->status = $request->status;
+            $expense->status = $request->status ?? $expense->status;
             $expense->save();
 
             Toastr::success('Expense Updated Successfully', 'Success');
@@ -86,7 +87,7 @@ class ExpenseController extends Controller
     public function destroy($id)
     {
         try {
-            $expense = Expense::find($id);
+            $expense = Expense::findOrFail($id);
             $expense->delete();
             Toastr::success('Expense Deleted Successfully', 'Success');
             return redirect()->back();
@@ -98,18 +99,15 @@ class ExpenseController extends Controller
     public function updateStatus($id, $status): RedirectResponse
     {
         if (!in_array($status, ['pending', 'approved', 'rejected'])) {
-            return redirect()->route('admin.pages.expense.index')->with('error', 'Invalid status.');
+            return redirect()->route('expense.section')->with('error', 'Invalid status.');
         }
-
         $expense = Expense::find($id);
 
         if (!$expense) {
             return redirect()->back()->with('error', 'Expense not found.');
         }
-
         $expense->status = $status;
         $expense->update();
-
         return redirect()->back()->with('success', 'Expense status updated successfully.');
     }
 }

@@ -46,9 +46,15 @@ class ProductController extends Controller
                 'density' => 'required',
             ]);
 
+            $slug = Str::slug($request->name);
+            if (Product::where('slug', $slug)->where('id', '!=', $id ?? null)->exists()) {
+                Toastr::error('Slug already exists', 'Error');
+                return redirect()->back();
+            }
+
             $product = new Product();
             $product->name = $request->name;
-            $product->slug = Str::slug($request->name);
+            $product->slug = $slug;
             $product->category_id = $request->category_id;
             $product->sku = $request->sku;
             $product->unit_id = $request->unit_id;
@@ -80,7 +86,16 @@ class ProductController extends Controller
 
             $product = Product::find($id);
             $product->name = $request->name;
-            $product->slug = $product->name === $request->name ? $product->slug : Str::slug($request->name);
+            if($product->name === $request->name) {
+                $product->slug = $product->slug;
+            } else {
+                $slug = Str::slug($request->name);
+                if (Product::where('slug', $slug)->where('id', '!=', $id ?? null)->exists()) {
+                    Toastr::error('Slug already exists', 'Error');
+                    return redirect()->back();
+                }
+                $product->slug = $slug;
+            }
             $product->category_id = $request->category_id;
             $product->sku = $request->sku;
             $product->unit_id = $request->unit_id;

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('deposits', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('account_id');
-            $table->double('amount', 16,2)->default(0);
+            $table->decimal('amount', 16,2)->default(0);
             $table->string('status')->default('pending');
             $table->timestamps();
 

@@ -32,6 +32,6 @@ class Product extends Model
 
     public function sell()
     {
-        return $this->belongsTo(Sell::class, 'product_id');
+        return $this->hasMany(Sell::class, 'product_id');
     }
 }

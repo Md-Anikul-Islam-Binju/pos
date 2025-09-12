@@ -16,8 +16,12 @@ return new class extends Migration
             $table->unsignedBigInteger('from_account_id');
             $table->unsignedBigInteger('to_account_id');
             $table->string('status')->default('pending');
-            $table->double('amount', 16, 2)->default(0);
+            $table->decimal('amount', 16, 2)->default(0);
             $table->timestamps();
+
+            $table->foreign('from_account_id')->references('id')->on('accounts')->cascadeOnDelete();
+            $table->foreign('to_account_id')->references('id')->on('accounts')->cascadeOnDelete();
+
         });
     }
 

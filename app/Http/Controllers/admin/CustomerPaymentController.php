@@ -28,7 +28,6 @@ class CustomerPaymentController extends Controller
 
     public function index()
     {
-        UpdateCustomerBalance::dispatch();
         $payment = CustomerPayment::all();
         $account = Account::all();
         $customer = Customer::all();
@@ -42,7 +41,6 @@ class CustomerPaymentController extends Controller
                 'customer_id' => 'required',
                 'account_id' => 'required',
                 'amount' => 'required',
-                'details' => 'required',
                 'date' => 'required',
                 'received_by' => 'required',
             ]);
@@ -72,13 +70,12 @@ class CustomerPaymentController extends Controller
                 'customer_id' => 'required',
                 'account_id' => 'required',
                 'amount' => 'required',
-                'details' => 'required',
                 'date' => 'required',
                 'received_by' => 'required',
             ]);
 
             $payment = CustomerPayment::find($id);
-
+            if (!$payment) return redirect()->back()->with('error', 'Payment not found.');
             $payment->customer_id = $request->customer_id;
             $payment->account_id = $request->account_id;
             $payment->amount = $request->amount;
@@ -100,7 +97,9 @@ class CustomerPaymentController extends Controller
     {
         try {
             $payment = CustomerPayment::find($id);
+            if (!$payment) return redirect()->back()->with('error', 'Payment not found.');
             $payment->delete();
+            UpdateCustomerBalance::dispatch();
             Toastr::success('Payment Deleted Successfully', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {
@@ -111,20 +110,15 @@ class CustomerPaymentController extends Controller
     public function updateStatus($id, $status): RedirectResponse
     {
         if (!in_array($status, ['pending', 'approved', 'rejected'])) {
-            return redirect()->route('admin.pages.customer-payment.index')->with('error', 'Invalid status.');
+            return redirect()->route('customer.payment.section')->with('error', 'Invalid status.');
         }
-
         $payment = CustomerPayment::find($id);
-
         if (!$payment) {
             return redirect()->back()->with('error', 'Payment not found.');
         }
-
         $payment->status = $status;
         $payment->update();
-
         UpdateCustomerBalance::dispatch();
-
         return redirect()->back()->with('success', 'Payment status updated successfully.');
     }
 }

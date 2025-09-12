@@ -156,9 +156,9 @@ class RawMaterialStockTransferController extends Controller
         }
     }
 
-    public function getRawMaterialStocksByWarehouse($warehouse_id)
+    public function getRawMaterialStocksByWarehouse($id)
     {
-        $rawMaterialStocks = RawMaterialStock::where('warehouse_id', $warehouse_id)
+        $rawMaterialStocks = RawMaterialStock::where('warehouse_id', $id)
             ->with(['raw_material', 'warehouse'])
             ->get()
             ->map(function ($rawMaterialStock) {

@@ -13,15 +13,19 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
-            $table->unsignedBigInteger('category_id')->nullable();
-            $table->string('sku')->nullable();
-            $table->unsignedBigInteger('unit_id')->nullable();
-            $table->double('width',16,2)->nullable();
-            $table->double('length',16,2)->nullable();
-            $table->double('density',16.2)->nullable();
-            $table->string('slug')->unique()->nullable();
+            $table->string('name');
+            $table->unsignedBigInteger('category_id');
+            $table->string('sku');
+            $table->unsignedBigInteger('unit_id');
+            $table->double('width',16,2);
+            $table->double('length',16,2);
+            $table->double('density',16, 2);
+            $table->string('slug')->unique();
             $table->timestamps();
+
+            $table->foreign('category_id')->references('id')->on('product_categories')->onDelete('cascade');
+            $table->foreign('unit_id')->references('id')->on('units')->onDelete('cascade');
+
         });
     }
 

@@ -24,7 +24,7 @@ class ProductCategoryController extends Controller
 
     public function index()
     {
-        $productCategory = ProductCategory::all();
+        $productCategory = ProductCategory::orderBy('name')->get();
         return view('admin.pages.product-category.index', compact('productCategory'));
     }
 
@@ -33,7 +33,7 @@ class ProductCategoryController extends Controller
         try {
             $request->validate([
                 'name' => 'required',
-                'parent_id' => 'required',
+                'parent_id' => 'nullable|exists:product_categories,id',
             ]);
 
             $productCategory = new ProductCategory();
@@ -54,7 +54,7 @@ class ProductCategoryController extends Controller
         try {
             $request->validate([
                 'name' => 'required',
-                'parent_id' => 'required',
+                'parent_id' => 'nullable|exists:product_categories,id',
             ]);
 
             $productCategory = ProductCategory::find($id);
