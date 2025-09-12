@@ -7,6 +7,7 @@ use App\Models\Account;
 use App\Models\AccountTransfer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Yoeunes\Toastr\Facades\Toastr;
 
 class AccountTransferController extends Controller
 {

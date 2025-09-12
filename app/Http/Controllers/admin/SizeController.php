@@ -6,6 +6,7 @@ use App\Models\Size;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
+use Yoeunes\Toastr\Facades\Toastr;
 
 class SizeController extends Controller
 {

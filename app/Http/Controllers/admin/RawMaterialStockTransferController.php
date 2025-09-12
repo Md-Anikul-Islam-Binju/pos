@@ -8,6 +8,7 @@ use App\Models\RawMaterialStock;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use App\Models\RawMaterialStockTransfer;
+use Yoeunes\Toastr\Facades\Toastr;
 
 class RawMaterialStockTransferController extends Controller
 {

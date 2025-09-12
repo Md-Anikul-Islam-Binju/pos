@@ -8,6 +8,7 @@ use App\Models\Deposit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Yoeunes\Toastr\Facades\Toastr;
 
 class DepositController extends Controller
 {

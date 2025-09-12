@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Gate;
 use Yoeunes\Toastr\Facades\Toastr;
 use Illuminate\Support\Str;
 
+
 class ProductController extends Controller
 {
     public function __construct()

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ExpenseCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Yoeunes\Toastr\Facades\Toastr;
 
 class ExpenseCategoryController extends Controller
 {

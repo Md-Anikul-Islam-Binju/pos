@@ -18,6 +18,7 @@ use App\Jobs\UpdateCustomerBalance;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use App\Jobs\UpdateAccountBalanceJob;
+use Yoeunes\Toastr\Facades\Toastr;
 
 class SellController extends Controller
 {

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Jobs\UpdateSupplierBalance;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
+use Yoeunes\Toastr\Facades\Toastr;
 
 class SupplierController extends Controller
 {

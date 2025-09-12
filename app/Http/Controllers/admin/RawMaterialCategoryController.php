@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\RawMaterialCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Yoeunes\Toastr\Facades\Toastr;
 
 class RawMaterialCategoryController extends Controller
 {
@@ -59,7 +60,7 @@ class RawMaterialCategoryController extends Controller
             $category->status = $request->status;
             $category->save();
 
-            Toastr::success('Brand Updated Successfully', 'Success');
+            Toastr::success('Category Updated Successfully', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
@@ -72,7 +73,7 @@ class RawMaterialCategoryController extends Controller
             $category = RawMaterialCategory::find($id);
             $category->delete();
 
-            Toastr::success('Brand Deleted Successfully', 'Success');
+            Toastr::success('Category Deleted Successfully', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
