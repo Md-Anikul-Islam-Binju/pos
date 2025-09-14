@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Yoeunes\Toastr\Facades\Toastr;
+use App\Models\Product;
 
 class ProductionController extends Controller
 {
@@ -43,8 +44,11 @@ class ProductionController extends Controller
         $brand = Brand::all();
         $color = Color::all();
         $size = Size::all();
+        $product = Product::all();
         $rawMaterialStock = RawMaterialStock::all();
-        return view('admin.pages.production.index', compact('production', 'productionHouse', 'showroom', 'account', 'warehouse', 'brand', 'color', 'size', 'rawMaterialStock'));
+        return view('admin.pages.production.index',
+            compact('production', 'productionHouse', 'showroom',
+                'account', 'warehouse', 'brand', 'color', 'size', 'product', 'rawMaterialStock'));
     }
 
     public function store(Request $request)
@@ -59,7 +63,7 @@ class ProductionController extends Controller
             ]);
 
             $costDetails = $request->input('cost_details', []);
-            $costAmounts = $request->input('cost_details', []);
+            $costAmounts = $request->input('cost_amount', []);
 
             $combinedCosts = [];
             $totalCost = 0;
@@ -91,31 +95,51 @@ class ProductionController extends Controller
             $production->save();
 
             foreach ($request->raw_material_id as $index => $rawMaterial) {
+                $price = isset($request->raw_material_price[$index]) && is_numeric($request->raw_material_price[$index])
+                    ? (double) $request->raw_material_price[$index] : 0;
+
+                $quantity = isset($request->raw_material_quantity[$index]) && is_numeric($request->raw_material_quantity[$index])
+                    ? (double) $request->raw_material_quantity[$index] : 0;
+
+                $totalPrice = isset($request->raw_material_total_price[$index]) && is_numeric($request->raw_material_total_price[$index])
+                    ? (double) $request->raw_material_total_price[$index] : 0;
+
                 DB::table('production_raw_materials')->insert([
                     'production_id' => $production->id,
                     'raw_material_id' => $rawMaterial,
-                    'brand_id' => isset($request->raw_material_brand_id[$index]) ? $request->raw_material_brand_id[$index] : null,
-                    'size_id' => isset($request->raw_material_size_id[$index]) ? $request->raw_material_size_id[$index] : null,
-                    'color_id' => isset($request->raw_material_color_id[$index]) ? $request->raw_material_color_id[$index] : null,
-                    'warehouse_id' => isset($request->raw_material_warehouse_id[$index]) ? $request->raw_material_warehouse_id[$index] : null,
-                    'price' => isset($request->raw_material_price[$index]) ? $request->raw_material_price[$index] : 0,
-                    'quantity' => isset($request->raw_material_quantity[$index]) ? $request->raw_material_quantity[$index] : 0,
-                    'total_price' => isset($request->raw_material_total_price[$index]) ? (float) $request->raw_material_total_price[$index] : 0,
+                    'brand_id' => $request->raw_material_brand_id[$index] ?? null,
+                    'size_id' => $request->raw_material_size_id[$index] ?? null,
+                    'color_id' => $request->raw_material_color_id[$index] ?? null,
+                    'warehouse_id' => $request->raw_material_warehouse_id[$index] ?? null,
+                    'price' => $price,
+                    'quantity' => $quantity,
+                    'total_price' => $totalPrice,
                 ]);
             }
 
+
             foreach ($request->product_id as $index => $product) {
+                $perPcCost = isset($request->price[$index]) && is_numeric($request->price[$index])
+                    ? (double) $request->price[$index] : 0;
+
+                $quantity = isset($request->quantity[$index]) && is_numeric($request->quantity[$index])
+                    ? (double) $request->quantity[$index] : 0;
+
+                $subTotal = isset($request->total_price[$index]) && is_numeric($request->total_price[$index])
+                    ? (double) $request->total_price[$index] : 0;
+
                 DB::table('production_product')->insert([
                     'production_id' => $production->id,
                     'product_id' => $product,
-                    'brand_id' => isset($request->brand_id[$index]) ? $request->brand_id[$index] : null,
-                    'size_id' => isset($request->size_id[$index]) ? $request->size_id[$index] : null,
-                    'color_id' => isset($request->color_id[$index]) ? $request->color_id[$index] : null,
-                    'per_pc_cost' => isset($request->price[$index]) ? $request->price[$index] : 0,
-                    'quantity' => isset($request->quantity[$index]) ? $request->quantity[$index] : 0,
-                    'sub_total' => isset($request->total_price[$index]) ? (float) $request->total_price[$index] : 0,
+                    'brand_id' => $request->brand_id[$index] ?? null,
+                    'size_id' => $request->size_id[$index] ?? null,
+                    'color_id' => $request->color_id[$index] ?? null,
+                    'per_pc_cost' => $perPcCost,
+                    'quantity' => $quantity,
+                    'sub_total' => $subTotal,
                 ]);
             }
+
 
             $totalRawMaterialCost = DB::table('production_raw_materials')
                 ->where('production_id', $production->id)
@@ -152,9 +176,10 @@ class ProductionController extends Controller
                 'showroom_id' => 'required',
                 'account_id' => 'required',
                 'production_date' => 'required',
+                'warehouse_id' => 'required',
             ]);
 
-            $production = Production::find($id);
+            $production = Production::findOrFail($id);
 
             $costDetails = $request->input('cost_details', []);
             $costAmounts = $request->input('cost_amount', []);
@@ -189,15 +214,24 @@ class ProductionController extends Controller
             $newRawMaterials = $request->raw_material_id ?? [];
 
             foreach ($newRawMaterials as $index => $rawMaterial) {
+                $price = isset($request->raw_material_price[$index]) && is_numeric($request->raw_material_price[$index])
+                    ? (double) $request->raw_material_price[$index] : 0;
+
+                $quantity = isset($request->raw_material_quantity[$index]) && is_numeric($request->raw_material_quantity[$index])
+                    ? (double) $request->raw_material_quantity[$index] : 0;
+
+                $totalPrice = isset($request->raw_material_total_price[$index]) && is_numeric($request->raw_material_total_price[$index])
+                    ? (double) $request->raw_material_total_price[$index] : 0;
+
                 $data = [
                     'raw_material_id' => $rawMaterial,
                     'brand_id' => $request->raw_material_brand_id[$index] ?? null,
                     'size_id' => $request->raw_material_size_id[$index] ?? null,
                     'color_id' => $request->raw_material_color_id[$index] ?? null,
                     'warehouse_id' => $request->raw_material_warehouse_id[$index] ?? null,
-                    'price' => (double) ($request->raw_materials_price[$index] ?? 0), // Ensure it's a float
-                    'quantity' => (double) ($request->raw_material_quantity[$index] ?? 0), // Ensure it's a float
-                    'total_price' => (double) ($request->raw_material_total_price[$index] ?? 0), // Ensure it's a float
+                    'price' => $price,
+                    'quantity' => $quantity,
+                    'total_price' => $totalPrice,
                 ];
 
                 $existingMaterial = $existingRawMaterials->firstWhere('raw_material_id', $rawMaterial);
@@ -228,14 +262,23 @@ class ProductionController extends Controller
             $newProducts = $request->product_id ?? [];
 
             foreach ($newProducts as $index => $product) {
+                $perPcCost = isset($request->price[$index]) && is_numeric($request->price[$index])
+                    ? (double) $request->price[$index] : 0;
+
+                $quantity = isset($request->quantity[$index]) && is_numeric($request->quantity[$index])
+                    ? (double) $request->quantity[$index] : 0;
+
+                $subTotal = isset($request->total_price[$index]) && is_numeric($request->total_price[$index])
+                    ? (double) $request->total_price[$index] : 0;
+
                 $productData = [
                     'product_id' => $product,
                     'brand_id' => $request->brand_id[$index] ?? null,
                     'size_id' => $request->size_id[$index] ?? null,
                     'color_id' => $request->color_id[$index] ?? null,
-                    'per_pc_cost' => (double) ($request->price[$index] ?? 0), // Ensure it's a float
-                    'quantity' => (double) ($request->quantity[$index] ?? 0), // Ensure it's a float
-                    'sub_total' => (double) ($request->total_price[$index] ?? 0), // Ensure it's a float
+                    'per_pc_cost' => $perPcCost,
+                    'quantity' => $quantity,
+                    'sub_total' => $subTotal,
                 ];
 
                 $existingProduct = $existingProducts->firstWhere('product_id', $product);
@@ -306,7 +349,7 @@ class ProductionController extends Controller
     public function updateStatus($id, $status): RedirectResponse
     {
         if (!in_array($status, ['pending', 'approved', 'rejected'])) {
-            return redirect()->route('admin.pages.production.index')->with('error', 'Invalid status.');
+            return redirect()->route('production.section')->with('error', 'Invalid status.');
         }
 
         $production = Production::find($id);

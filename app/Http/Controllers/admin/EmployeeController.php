@@ -21,21 +21,21 @@ class EmployeeController extends Controller
             return $next($request);
         })->only('index');
     }
+
     public function index()
     {
         $employee = Employee::all();
         return view('admin.pages.employee.index', compact('employee'));
     }
+
     public function store(Request $request)
     {
         try {
             $request->validate([
                 'name' => 'required',
                 'phone' => 'required',
-                'email' => 'required',
                 'address' => 'required',
                 'dob' => 'required',
-                'registration_date' => 'required',
             ]);
             $employee = new employee();
             $employee->name = $request->name;
@@ -60,10 +60,8 @@ class EmployeeController extends Controller
             $request->validate([
                 'name' => 'required',
                 'phone' => 'required',
-                'email' => 'required',
                 'address' => 'required',
                 'dob' => 'required',
-                'registration_date' => 'required',
             ]);
             $employee = Employee::find($id);
             $employee->name = $request->name;

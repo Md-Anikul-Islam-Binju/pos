@@ -21,16 +21,17 @@ class ColorController extends Controller
             return $next($request);
         })->only('index');
     }
+
     public function index()
     {
         $color = Color::all();
         return view('admin.pages.color.index', compact('color'));
     }
+
     public function store(Request $request)
     {
         try {
             $request->validate([
-                'color_code' => 'required',
                 'name' => 'required',
             ]);
             $color = new Color();
@@ -50,7 +51,6 @@ class ColorController extends Controller
 
         try {
             $request->validate([
-                'color_code' => 'required',
                 'name' => 'required',
             ]);
             $color = Color::find($id);

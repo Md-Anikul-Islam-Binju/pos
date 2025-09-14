@@ -54,6 +54,7 @@
                                 @endcan
                             </div>
                         </td>
+
                         <!--Edit Modal -->
                         <div class="modal fade" id="editNewModalId{{$colorData->id}}" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="editNewModalLabel{{$colorData->id}}" aria-hidden="true">
                             <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -83,7 +84,7 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-6">
+                                                <div class="col-12">
                                                     <div class="mb-3">
                                                         <label for="example-select" class="form-label">Status</label>
                                                         <select name="status" class="form-select">
@@ -126,6 +127,7 @@
             </div>
         </div>
     </div>
+
     <!--Add Modal -->
     <div class="modal fade" id="addNewModalId" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="addNewModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">

@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('production_houses', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
-            $table->text('address')->nullable();
-            $table->string('phone')->nullable();
+            $table->string('name');
+            $table->text('address');
+            $table->string('phone');
             $table->string('email')->nullable();
             $table->double('balance', 16, 2)->default(0);
             $table->tinyInteger('status')->default(1);

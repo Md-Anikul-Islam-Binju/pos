@@ -43,9 +43,8 @@
                         <td>{{ $dep->account->name ?? 'N/A' }}</td>
                         <td>{{ number_format($dep->amount, 2) }}</td>
                         <td>
-                            <form method="POST" action="{{ route('deposit.update.status', $dep->id) }}" id="statusForm{{ $dep->id }}">
+                            <form method="POST" action="{{ route('deposit.update.status', ['id' => $dep->id, 'status' => $dep->status]) }}" id="statusForm{{ $dep->id }}">
                                 @csrf
-                                @method('PATCH')
                                 <input type="hidden" name="status" id="statusInput{{ $dep->id }}">
                                 <select class="form-select form-select-sm" onchange="document.getElementById('statusInput{{ $dep->id }}').value=this.value; document.getElementById('statusForm{{ $dep->id }}').submit();">
                                     <option value="pending" {{ $dep->status=='pending' ? 'selected' : '' }}>Pending</option>
@@ -127,11 +126,7 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                        <form method="POST" action="{{ route('deposit.destroy', $dep->id) }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-danger" type="submit">Delete</button>
-                                        </form>
+                                        <a href="{{ route('deposit.destroy',$dep->id) }}" class="btn btn-danger">Delete</a>
                                     </div>
                                 </div>
                             </div>

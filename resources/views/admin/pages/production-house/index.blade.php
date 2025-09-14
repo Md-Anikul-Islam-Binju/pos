@@ -8,10 +8,10 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">CoderNetix POS</a></li>
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Resource</a></li>
-                        <li class="breadcrumb-item active">Brand!</li>
+                        <li class="breadcrumb-item active">Production House!</li>
                     </ol>
                 </div>
-                <h4 class="page-title">Brand!</h4>
+                <h4 class="page-title">Production House!</h4>
             </div>
         </div>
     </div>
@@ -21,7 +21,7 @@
             <div class="card-header">
                 <div class="d-flex justify-content-end">
                     <!-- Large modal -->
-                    @can('brand-create')
+                    @can('production-house-create')
                         <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewModalId">Add New</button>
                     @endcan
                 </div>
@@ -32,52 +32,83 @@
                     <tr>
                         <th>S/N</th>
                         <th>Name</th>
+                        <th>Address</th>
+                        <th>Phone</th>
+                        <th>Email</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($brand as $key=>$brandData)
+                    @foreach($productionHouse as $key=>$productionHouseData)
                         <tr>
-                            <td>{{$key+1}}</td>
-                            <td>{{$brandData->name}}</td>
-                            <td>{{$brandData->status==1? 'Active':'Inactive'}}</td>
+                            <td>{{ $key+1 }}</td>
+                            <td>{{ $productionHouseData->name }}</td>
+                            <td>{{ $productionHouseData->address }}</td>
+                            <td>{{ $productionHouseData->phone }}</td>
+                            <td>{{ $productionHouseData->email }}</td>
+                            <td>{{ $productionHouseData->status == 1 ? 'Active' : 'Inactive' }}</td>
                             <td style="width: 100px;">
                                 <div class="d-flex justify-content-end gap-1">
-                                    @can('brand-edit')
-                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editNewModalId{{$brandData->id}}">Edit</button>
+                                    @can('production-house-edit')
+                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editNewModalId{{ $productionHouseData->id }}">Edit</button>
                                     @endcan
-                                    @can('brand-delete')
-                                        <a href="{{route('brand.destroy',$brandData->id)}}" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#danger-header-modal{{$brandData->id}}">Delete</a>
+                                    @can('production-house-delete')
+                                        <a href="{{ route('production.house.destroy', $productionHouseData->id) }}" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#danger-header-modal{{ $productionHouseData->id }}">Delete</a>
                                     @endcan
                                 </div>
                             </td>
                             <!--Edit Modal -->
-                            <div class="modal fade" id="editNewModalId{{$brandData->id}}" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="editNewModalLabel{{$brandData->id}}" aria-hidden="true">
+                            <div class="modal fade" id="editNewModalId{{ $productionHouseData->id }}" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="editNewModalLabel{{ $productionHouseData->id }}" aria-hidden="true">
                                 <div class="modal-dialog modal-lg modal-dialog-centered">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h4 class="modal-title" id="addNewModalLabel{{$brandData->id}}">Edit</h4>
+                                            <h4 class="modal-title" id="addNewModalLabel{{ $productionHouseData->id }}">Edit</h4>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
-                                            <form method="post" action="{{route('brand.update',$brandData->id)}}" enctype="multipart/form-data">
+                                            <form method="post" action="{{ route('production.house.update', $productionHouseData->id) }}" enctype="multipart/form-data">
                                                 @csrf
                                                 @method('PUT')
                                                 <div class="row">
                                                     <div class="col-6">
                                                         <div class="mb-3">
                                                             <label for="name" class="form-label">Name</label>
-                                                            <input type="text" id="name" name="name" value="{{$brandData->name}}"
+                                                            <input type="text" id="name" name="name" value="{{ $productionHouseData->name }}"
                                                                    class="form-control" placeholder="Enter Name" required>
                                                         </div>
                                                     </div>
                                                     <div class="col-6">
                                                         <div class="mb-3">
+                                                            <label for="address" class="form-label">Address</label>
+                                                            <input type="text" id="address" name="address" value="{{ $productionHouseData->address }}"
+                                                                   class="form-control" placeholder="Enter Address" required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <div class="mb-3">
+                                                            <label for="phone" class="form-label">Phone</label>
+                                                            <input type="tel" id="phone" name="phone" value="{{ $productionHouseData->phone }}"
+                                                                   class="form-control" placeholder="Enter Phone" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="mb-3">
+                                                            <label for="email" class="form-label">Email</label>
+                                                            <input type="email" id="email" name="email" value="{{ $productionHouseData->email }}"
+                                                                   class="form-control" placeholder="Enter Email">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <div class="mb-3">
                                                             <label for="example-select" class="form-label">Status</label>
                                                             <select name="status" class="form-select">
-                                                                <option value="1" {{ $brandData->status === 1 ? 'selected' : '' }}>Active</option>
-                                                                <option value="0" {{ $brandData->status === 0 ? 'selected' : '' }}>Inactive</option>
+                                                                <option value="1" {{ $productionHouseData->status === 1 ? 'selected' : '' }}>Active</option>
+                                                                <option value="0" {{ $productionHouseData->status === 0 ? 'selected' : '' }}>Inactive</option>
                                                             </select>
                                                         </div>
                                                     </div>
@@ -91,11 +122,11 @@
                                 </div>
                             </div>
                             <!-- Delete Modal -->
-                            <div id="danger-header-modal{{$brandData->id}}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="danger-header-modalLabel{{$brandData->id}}" aria-hidden="true">
+                            <div id="danger-header-modal{{ $productionHouseData->id }}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="danger-header-modalLabel{{ $productionHouseData->id }}" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
                                         <div class="modal-header modal-colored-header bg-danger">
-                                            <h4 class="modal-title" id="danger-header-modalLabe{{$brandData->id}}l">Delete</h4>
+                                            <h4 class="modal-title" id="danger-header-modalLabe{{ $productionHouseData->id }}l">Delete</h4>
                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
@@ -103,7 +134,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <a href="{{route('brand.destroy',$brandData->id)}}" class="btn btn-danger">Delete</a>
+                                            <a href="{{ route('production.house.destroy',$productionHouseData->id) }}" class="btn btn-danger">Delete</a>
                                         </div>
                                     </div>
                                 </div>
@@ -124,14 +155,37 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" action="{{route('brand.store')}}" enctype="multipart/form-data">
+                    <form method="post" action="{{ route('production.house.store') }}" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-12">
                                 <div class="mb-3">
                                     <label for="name" class="form-label">Name</label>
                                     <input type="text" id="name" name="name"
-                                           class="form-control" placeholder="Enter Name">
+                                           class="form-control" placeholder="Enter Name" required>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">Address</label>
+                                    <input type="text" id="address" name="address"
+                                           class="form-control" placeholder="Enter Address" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Phone</label>
+                                    <input type="tel" id="phone" name="phone"
+                                           class="form-control" placeholder="Enter Phone" required>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" id="email" name="email"
+                                           class="form-control" placeholder="Enter Email">
                                 </div>
                             </div>
                         </div>

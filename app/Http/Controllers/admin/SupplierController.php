@@ -33,9 +33,8 @@ class SupplierController extends Controller
         try {
             $request->validate([
                 'name' => 'required',
-                'phone' => 'required',
-                'email' => 'required',
                 'contact_person' => 'required',
+                'phone' => 'required',
                 'address' => 'required',
             ]);
 
@@ -61,13 +60,12 @@ class SupplierController extends Controller
         try {
             $request->validate([
                 'name' => 'required',
-                'phone' => 'required',
-                'email' => 'required',
                 'contact_person' => 'required',
+                'phone' => 'required',
                 'address' => 'required',
             ]);
             $supplier = Supplier::find($id);
-            $$supplier->name = $request->name;
+            $supplier->name = $request->name;
             $supplier->phone = $request->phone;
             $supplier->email = $request->email;
             $supplier->contact_person = $request->contact_person;

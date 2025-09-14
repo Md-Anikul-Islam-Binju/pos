@@ -59,6 +59,7 @@ class ProductCategoryController extends Controller
 
             $productCategory = ProductCategory::find($id);
             $productCategory->name = $request->name;
+            $productCategory->parent_id = $request->parent_id;
             $productCategory->status = $request->status;
             $productCategory->save();
 

@@ -13,13 +13,18 @@ return new class extends Migration
     {
         Schema::create('production_payments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('house_id')->nullable();
             $table->double('amount');
             $table->unsignedBigInteger('account_id');
             $table->date('date')->nullable();
             $table->string('received_by')->nullable();
             $table->string('status')->default('pending');
             $table->timestamps();
+
+            $table->unsignedBigInteger('house_id')->nullable();
+            $table->foreign('house_id')
+                ->references('id')
+                ->on('production_houses')
+                ->nullOnDelete();
         });
     }
 

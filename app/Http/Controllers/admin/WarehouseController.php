@@ -32,9 +32,7 @@ class WarehouseController extends Controller
         try {
             $request->validate([
                 'name' => 'required|unique:warehouses,name',
-                'address' => 'nullable|string',
-                'phone' => 'nullable|string',
-                'email' => 'nullable|email',
+                'phone' => 'required|string',
             ]);
 
             $warehouse = new Warehouse();
@@ -57,9 +55,7 @@ class WarehouseController extends Controller
         try {
             $request->validate([
                 'name' => 'required|unique:warehouses,name',
-                'address' => 'required',
                 'phone' => 'required',
-                'email' => 'required',
                 'status' => 'required',
             ]);
             $warehouse = Warehouse::find($id);

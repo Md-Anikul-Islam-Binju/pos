@@ -46,7 +46,7 @@
                                         <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{{$method->id}}">Edit</button>
                                     @endcan
                                     @can('payment-method-delete')
-                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{$method->id}}">Delete</button>
+                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#danger-header-modal{{$method->id}}">Delete</button>
                                     @endcan
                                 </div>
                             </td>
@@ -90,23 +90,19 @@
                             </div>
 
                             <!-- Delete Modal -->
-                            <div class="modal fade" id="deleteModal{{$method->id}}" tabindex="-1" aria-labelledby="deleteModalLabel{{$method->id}}" aria-hidden="true">
+                            <div id="danger-header-modal{{ $method->id }}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="danger-header-modalLabel{{ $method->id }}" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
-                                        <div class="modal-header bg-danger text-white">
-                                            <h4 class="modal-title" id="deleteModalLabel{{$method->id}}">Delete Payment Method</h4>
+                                        <div class="modal-header modal-colored-header bg-danger">
+                                            <h4 class="modal-title" id="danger-header-modalLabe{{ $method->id }}l">Delete</h4>
                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
-                                            <h5>Do you want to delete this payment method?</h5>
+                                            <h5 class="mt-0">Do you want to Delete this ? </h5>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <form method="POST" action="{{ route('payment.method.destroy', $method->id) }}">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger">Delete</button>
-                                            </form>
+                                            <a href="{{ route('payment.method.destroy',$method->id) }}" class="btn btn-danger">Delete</a>
                                         </div>
                                     </div>
                                 </div>

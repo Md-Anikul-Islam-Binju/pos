@@ -146,6 +146,7 @@
             </div>
         </div>
     </div>
+
     <!--Add Modal -->
     <div class="modal fade" id="addNewModalId" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="addNewModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -155,20 +156,20 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" action="{{route('showroom.store')}}" enctype="multipart/form-data">
+                    <form method="post" action="{{ route('showroom.store') }}" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-6">
                                 <div class="mb-3">
                                     <label for="name" class="form-label">Name</label>
                                     <input type="text" id="name" name="name"
-                                           class="form-control" placeholder="Enter Name">
+                                           class="form-control" placeholder="Enter Name" required>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="mb-3">
                                     <label for="address" class="form-label">Address</label>
-                                    <input type="address" id="address" name="address"
+                                    <input type="text" id="address" name="address"
                                            class="form-control" placeholder="Enter Address">
                                 </div>
                             </div>
@@ -178,7 +179,7 @@
                                 <div class="mb-3">
                                     <label for="phone" class="form-label">Phone</label>
                                     <input type="tel" id="phone" name="phone"
-                                           class="form-control" placeholder="Enter Phone">
+                                           class="form-control" placeholder="Enter Phone" required>
                                 </div>
                             </div>
                             <div class="col-6">

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('units', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique()->nullable();
-            $table->string('name')->nullable();
+            $table->string('code')->unique();
+            $table->string('name')->unique();
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });

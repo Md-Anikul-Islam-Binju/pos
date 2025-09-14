@@ -190,7 +190,7 @@ Route::middleware('auth')->group(callback: function () {
     Route::post('/expense-store', [ExpenseController::class, 'store'])->name('expense.store');
     Route::put('/expense-update/{id}', [ExpenseController::class, 'update'])->name('expense.update');
     Route::get('/expense-delete/{id}', [ExpenseController::class, 'destroy'])->name('expense.destroy');
-    Route::get('/expense-update-status/{id}/{status}', [ExpenseController::class, 'updateStatus'])->name('expense.update.status');
+    Route::post('/expense-update-status/{id}/{status}', [ExpenseController::class, 'updateStatus'])->name('expense.update.status');
 
     // Asset Category
     Route::get('/asset-category-section', [AssetCategoryController::class, 'index'])->name('asset.category.section');
@@ -203,7 +203,7 @@ Route::middleware('auth')->group(callback: function () {
     Route::post('/asset-store', [AssetController::class, 'store'])->name('asset.store');
     Route::put('/asset-update/{id}', [AssetController::class, 'update'])->name('asset.update');
     Route::get('/asset-delete/{id}', [AssetController::class, 'destroy'])->name('asset.destroy');
-    Route::get('/asset-update-status/{id}/{status}', [AssetController::class, 'updateStatus'])->name('asset.update.status');
+    Route::post('/asset-update-status/{id}/{status}', [AssetController::class, 'updateStatus'])->name('asset.update.status');
 
     // Unit
     Route::get('/unit-section', [UnitController::class, 'index'])->name('unit.section');
@@ -253,7 +253,7 @@ Route::middleware('auth')->group(callback: function () {
     Route::post('/raw-material-purchase-store', [RawMaterialPurchaseController::class, 'store'])->name('raw.material.purchase.store');
     Route::put('/raw-material-purchase-update/{id}', [RawMaterialPurchaseController::class, 'update'])->name('raw.material.purchase.update');
     Route::get('/raw-material-purchase-delete/{id}', [RawMaterialPurchaseController::class, 'destroy'])->name('raw.material.purchase.destroy');
-    Route::get('/raw-material-purchase-update-status/{id}/{status}', [RawMaterialPurchaseController::class, 'updateStatus'])->name('raw.material.purchase.update.status');
+    Route::post('/raw-material-purchase-update-status/{id}/{status}', [RawMaterialPurchaseController::class, 'updateStatus'])->name('raw.material.purchase.update.status');
     Route::get('/raw-material-purchase-print/{id}', [RawMaterialPurchaseController::class, 'printRawMaterialPurchase'])->name('raw.material.purchase.print');
 
     // Product Category
@@ -277,21 +277,21 @@ Route::middleware('auth')->group(callback: function () {
     Route::post('/deposit-store', [DepositController::class, 'store'])->name('deposit.store');
     Route::put('/deposit-update/{id}', [DepositController::class, 'update'])->name('deposit.update');
     Route::get('/deposit-delete/{id}', [DepositController::class, 'destroy'])->name('deposit.destroy');
-    Route::get('/deposit-update-status/{id}/{status}', [DepositController::class, 'updateStatus'])->name('deposit.update.status');
+    Route::post('/deposit-update-status/{id}/{status}', [DepositController::class, 'updateStatus'])->name('deposit.update.status');
 
     // Withdraw (5)
     Route::get('/withdraw-section', [WithdrawController::class, 'index'])->name('withdraw.section');
     Route::post('/withdraw-store', [WithdrawController::class, 'store'])->name('withdraw.store');
     Route::put('/withdraw-update/{id}', [WithdrawController::class, 'update'])->name('withdraw.update');
     Route::get('/withdraw-delete/{id}', [WithdrawController::class, 'destroy'])->name('withdraw.destroy');
-    Route::get('/withdraw-update-status/{id}/{status}', [WithdrawController::class, 'updateStatus'])->name('withdraw.update.status');
+    Route::post('/withdraw-update-status/{id}/{status}', [WithdrawController::class, 'updateStatus'])->name('withdraw.update.status');
 
     // Account Transfer (5)
     Route::get('/account-transfer-section', [AccountTransferController::class, 'index'])->name('account.transfer.section');
     Route::post('/account-transfer-store', [AccountTransferController::class, 'store'])->name('account.transfer.store');
     Route::put('/account-transfer-update/{id}', [AccountTransferController::class, 'update'])->name('account.transfer.update');
     Route::get('/account-transfer-delete/{id}', [AccountTransferController::class, 'destroy'])->name('account.transfer.destroy');
-    Route::get('/account-transfer-update-status/{id}/{status}', [AccountTransferController::class, 'updateStatus'])->name('account.transfer.update.status');
+    Route::post('/account-transfer-update-status/{id}/{status}', [AccountTransferController::class, 'updateStatus'])->name('account.transfer.update.status');
 
     // Production House
     Route::get('/production-house-section', [ProductionHouseController::class, 'index'])->name('production.house.section');
@@ -299,22 +299,21 @@ Route::middleware('auth')->group(callback: function () {
     Route::put('/production-house-update/{id}', [ProductionHouseController::class, 'update'])->name('production.house.update');
     Route::get('/production-house-delete/{id}', [ProductionHouseController::class, 'destroy'])->name('production.house.destroy');
 
-    // Production (8)
+    // Production (7)
     Route::get('/production-section', [ProductionController::class, 'index'])->name('production.section');
     Route::post('/production-store', [ProductionController::class, 'store'])->name('production.store');
     Route::put('/production-update/{id}', [ProductionController::class, 'update'])->name('production.update');
     Route::get('/production-delete/{id}', [ProductionController::class, 'destroy'])->name('production.destroy');
-    Route::get('/production-update-status/{id}/{status}', [ProductionController::class, 'updateStatus'])->name('production.update.status');
+    Route::post('/production-update-status/{id}/{status}', [ProductionController::class, 'updateStatus'])->name('production.update.status');
     Route::get('/production-print/{id}', [ProductionController::class, 'printProduction'])->name('production.print');
     Route::get('/get-raw-materials/by-warehouse', [ProductionController::class, 'getRawMaterialsByWarehouse'])->name('raw.materials.by.warehouse');
-    Route::get('/admin/production/{production}/edit', [ProductionController::class, 'editAjax'])->name('production.edit.ajax');
 
     // Sell (8)
     Route::get('/sell-section', [SellController::class, 'index'])->name('sell.section');
     Route::post('/sell-store', [SellController::class, 'store'])->name('sell.store');
     Route::put('/sell-update/{id}', [SellController::class, 'update'])->name('sell.update');
     Route::get('/sell-delete/{id}', [SellController::class, 'destroy'])->name('sell.destroy');
-    Route::get('/sell-update-status/{id}/{status}', [SellController::class, 'updateStatus'])->name('sell.update.status');
+    Route::post('/sell-update-status/{id}/{status}', [SellController::class, 'updateStatus'])->name('sell.update.status');
     Route::get('/sell-invoice/{id}', [SellController::class, 'showInvoice'])->name('sell.invoice');
     Route::get('/get-products/by-category', [SellController::class, 'getProductsByCategory'])->name('products.by.category');
     Route::get('/get-all-products', [SellController::class, 'getAllProducts'])->name('get.all.products');
@@ -359,35 +358,35 @@ Route::middleware('auth')->group(callback: function () {
     Route::post('/customer-payment-store', [CustomerPaymentController::class, 'store'])->name('customer.payment.store');
     Route::put('/customer-payment-update/{id}', [CustomerPaymentController::class, 'update'])->name('customer.payment.update');
     Route::get('/customer-payment-delete/{id}', [CustomerPaymentController::class, 'destroy'])->name('customer.payment.destroy');
-    Route::get('/customer-payment-update-status/{id}/{status}', [CustomerPaymentController::class, 'updateStatus'])->name('customer.payment.update.status');
+    Route::post('/customer-payment-update-status/{id}/{status}', [CustomerPaymentController::class, 'updateStatus'])->name('customer.payment.update.status');
 
     // SupplierPayments (5)
     Route::get('/supplier-payment-section', [SupplierPaymentController::class, 'index'])->name('supplier.payment.section');
     Route::post('/supplier-payment-store', [SupplierPaymentController::class, 'store'])->name('supplier.payment.store');
     Route::put('/supplier-payment-update/{id}', [SupplierPaymentController::class, 'update'])->name('supplier.payment.update');
     Route::get('/supplier-payment-delete/{id}', [SupplierPaymentController::class, 'destroy'])->name('supplier.payment.destroy');
-    Route::get('/supplier-payment-update-status/{id}/{status}', [SupplierPaymentController::class, 'updateStatus'])->name('supplier.payment.update.status');
+    Route::post('/supplier-payment-update-status/{id}/{status}', [SupplierPaymentController::class, 'updateStatus'])->name('supplier.payment.update.status');
 
     // ProductionPayments (5)
     Route::get('/production-payment-section', [ProductionPaymentController::class, 'index'])->name('production.payment.section');
     Route::post('/production-payment-store', [ProductionPaymentController::class, 'store'])->name('production.payment.store');
     Route::put('/production-payment-update/{id}', [ProductionPaymentController::class, 'update'])->name('production.payment.update');
     Route::get('/production-payment-delete/{id}', [ProductionPaymentController::class, 'destroy'])->name('production.payment.destroy');
-    Route::get('/production-payment-update-status/{id}/{status}', [ProductionPaymentController::class, 'updateStatus'])->name('production.payment.update.status');
+    Route::post('/production-payment-update-status/{id}/{status}', [ProductionPaymentController::class, 'updateStatus'])->name('production.payment.update.status');
 
     // CustomerRefunds (5)
     Route::get('/customer-refund-section', [CustomerRefundController::class, 'index'])->name('customer.refund.section');
     Route::post('/customer-refund-store', [CustomerRefundController::class, 'store'])->name('customer.refund.store');
     Route::put('/customer-refund-update/{id}', [CustomerRefundController::class, 'update'])->name('customer.refund.update');
     Route::get('/customer-refund-delete/{id}', [CustomerRefundController::class, 'destroy'])->name('customer.refund.destroy');
-    Route::get('/customer-refund-update-status/{id}/{status}', [CustomerRefundController::class, 'updateStatus'])->name('customer.refund.update.status');
+    Route::post('/customer-refund-update-status/{id}/{status}', [CustomerRefundController::class, 'updateStatus'])->name('customer.refund.update.status');
 
     // SupplierRefunds (5)
     Route::get('/supplier-refund-section', [SupplierRefundController::class, 'index'])->name('supplier.refund.section');
     Route::post('/supplier-refund-store', [SupplierRefundController::class, 'store'])->name('supplier.refund.store');
     Route::put('/supplier-refund-update/{id}', [SupplierRefundController::class, 'update'])->name('supplier.refund.update');
     Route::get('/supplier-refund-delete/{id}', [SupplierRefundController::class, 'destroy'])->name('supplier.refund.destroy');
-    Route::get('/supplier-refund-update-status/{id}/{status}', [SupplierRefundController::class, 'updateStatus'])->name('supplier.refund.update.status');
+    Route::post('/supplier-refund-update-status/{id}/{status}', [SupplierRefundController::class, 'updateStatus'])->name('supplier.refund.update.status');
 
     // Product Sell Price
     Route::get('/product-stocks/{stock}/get-sell-price-data', [ProductSellPriceController::class, 'getSellPriceData'])->name('product.stock.get.sell.price.data');

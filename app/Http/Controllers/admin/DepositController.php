@@ -23,12 +23,14 @@ class DepositController extends Controller
             return $next($request);
         })->only('index');
     }
+
     public function index()
     {
         $deposit = Deposit::all();
         $account = Account::all();
         return view('admin.pages.deposit.index', compact('deposit', 'account'));
     }
+
     public function store(Request $request)
     {
         try {
@@ -62,7 +64,7 @@ class DepositController extends Controller
             $deposit = Deposit::findOrFail($id);
             $deposit->account_id = $request->account_id ?? $deposit->account_id;
             $deposit->amount = $request->amount;
-            $deposit->status = $request->status;
+            $deposit->status = $request->status ?? 'pending';
             $deposit->save();
 
             Toastr::success('Deposit Updated Successfully', 'Success');
@@ -76,6 +78,10 @@ class DepositController extends Controller
     {
         try {
             $deposit = Deposit::findOrFail($id);
+            if ($deposit->status === 'approved') {
+                Toastr::error('Approved deposit cannot be deleted', 'Error');
+                return redirect()->route('deposit.section'); // redirect back to index page
+            }
             $deposit->delete();
             Toastr::success('Deposit Deleted Successfully', 'Success');
             return redirect()->back();
@@ -84,17 +90,28 @@ class DepositController extends Controller
         }
     }
 
-    public function updateStatus($id, $status): RedirectResponse
+    public function updateStatus(Request $request, $id)
     {
-        if (!in_array($status, ['pending', 'approved', 'rejected'])) {
-            return redirect()->route('admin.pages.deposit.index')->with('error', 'Invalid status.');
-        }
         $deposit = Deposit::findOrFail($id);
-        if (!$deposit) {
-            return redirect()->back()->with('error', 'Deposit not found.');
+        $originalStatus = $deposit->status;
+        $newStatus = $request->status;
+
+        if (!in_array($newStatus, ['pending', 'approved', 'rejected'])) {
+            return redirect()->back()->with('error', 'Invalid status.');
         }
-        $deposit->status = $status;
-        $deposit->update();
+
+        $deposit->status = $newStatus;
+        $deposit->save();
+
+        // Trigger transaction/job if needed
+        if (($originalStatus === 'pending' || $originalStatus === 'rejected') && $newStatus === 'approved') {
+            $deposit->handleAccountTransaction($deposit, $deposit->account_id, $deposit->amount);
+        }
+
+        if ($originalStatus === 'approved' && ($newStatus === 'pending' || $newStatus === 'rejected')) {
+            $deposit->handleAccountTransaction($deposit, $deposit->account_id, $deposit->amount);
+        }
+
         return redirect()->back()->with('success', 'Deposit status updated successfully.');
     }
 }

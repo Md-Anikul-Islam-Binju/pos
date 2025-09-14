@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Warehouse extends Model
 {
@@ -17,7 +18,7 @@ class Warehouse extends Model
         'status'
     ];
 
-    public function raw_material_stocks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function raw_material_stocks(): HasMany
     {
         return $this->hasMany(RawMaterialStock::class);
     }

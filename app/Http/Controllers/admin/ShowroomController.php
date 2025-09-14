@@ -21,19 +21,19 @@ class ShowroomController extends Controller
             return $next($request);
         })->only('index');
     }
+
     public function index()
     {
         $showroom = Showroom::all();
         return view('admin.pages.showroom.index', compact('showroom'));
     }
+
     public function store(Request $request)
     {
         try {
             $request->validate([
                 'name' => 'required|unique:showrooms,name',
-                'address' => 'required|string',
                 'phone' => 'required|string',
-                'email' => 'nullable|email',
             ]);
             $showroom = new Showroom();
             $showroom->name = $request->name;
@@ -55,9 +55,7 @@ class ShowroomController extends Controller
         try {
             $request->validate([
                 'name' => 'required|unique:showrooms,name',
-                'address' => 'required|string',
                 'phone' => 'required|string',
-                'email' => 'nullable|email',
             ]);
             $showroom = Showroom::find($id);
             $showroom->name = $request->name;

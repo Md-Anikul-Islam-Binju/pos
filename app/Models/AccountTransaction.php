@@ -17,6 +17,10 @@ class AccountTransaction extends Model
         'transaction_id',
         'unique_id',
         'status',
+        'transaction_type',
+        'model',
+        'model_id',
+        'reference'
     ];
 
     public function account() {

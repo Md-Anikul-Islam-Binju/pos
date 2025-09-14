@@ -26,7 +26,6 @@ class ProductionHouseController extends Controller
     public function index()
     {
         UpdateProductionHouseBalance::dispatch();
-
         $productionHouse = ProductionHouse::all();
         return view('admin.pages.production-house.index', compact('productionHouse'));
     }
@@ -38,18 +37,14 @@ class ProductionHouseController extends Controller
                 'name' => 'required',
                 'address' => 'required',
                 'phone' => 'required',
-                'email' => 'required',
             ]);
-
             $productionHouse = new ProductionHouse();
             $productionHouse->name = $request->name;
             $productionHouse->address = $request->address;
             $productionHouse->phone = $request->phone;
             $productionHouse->email = $request->email;
             $productionHouse->save();
-
             UpdateProductionHouseBalance::dispatch();
-
             Toastr::success('Production House Added Successfully', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {
@@ -65,21 +60,16 @@ class ProductionHouseController extends Controller
                 'name' => 'required',
                 'address' => 'required',
                 'phone' => 'required',
-                'email' => 'required|email',
                 'status' => 'required',
             ]);
-
             $productionHouse = ProductionHouse::find($id);
             $productionHouse->name = $request->name;
             $productionHouse->address = $request->address;
             $productionHouse->phone = $request->phone;
             $productionHouse->email = $request->email;
             $productionHouse->status = $request->status;
-
             $productionHouse->save();
-
             UpdateProductionHouseBalance::dispatch();
-
             Toastr::success('Production House Updated Successfully', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {
@@ -91,11 +81,8 @@ class ProductionHouseController extends Controller
     {
         try {
             $productionHouse = ProductionHouse::find($id);
-
             $productionHouse->delete();
-
             UpdateProductionHouseBalance::dispatch();
-
             Toastr::success('Production House Deleted Successfully', 'Success');
             return redirect()->back();
         } catch (\Exception $e) {

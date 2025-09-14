@@ -166,6 +166,7 @@
             </div>
         </div>
     </div>
+
     <!--Add Modal -->
     <div class="modal fade" id="addNewModalId" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="addNewModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -175,7 +176,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post" action="{{route('customer.store')}}" enctype="multipart/form-data">
+                    <form method="post" action="{{ route('customer.store') }}" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-6">
@@ -188,7 +189,7 @@
                             <div class="col-6">
                                 <div class="mb-3">
                                     <label for="phone" class="form-label">Phone</label>
-                                    <input type="text" id="phone" name="phone"
+                                    <input type="tel" id="phone" name="phone"
                                            class="form-control" placeholder="Enter Phone Number" required>
                                 </div>
                             </div>
