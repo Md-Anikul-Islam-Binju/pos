@@ -23,7 +23,7 @@ class AssetCategoryController extends Controller
     public function index()
     {
         $assetCategory = AssetCategory::all();
-        return view('admin.pages.assetCategory.index', compact('assetCategory'));
+        return view('admin.pages.asset-category.index', compact('assetCategory'));
     }
     public function store(Request $request)
     {
@@ -35,8 +35,7 @@ class AssetCategoryController extends Controller
             $assetCategory = new AssetCategory();
             $assetCategory->name = $request->name;
             $assetCategory->save();
-            Toastr::success('Asset Category Added Successfully', 'Success');
-            return redirect()->back();
+            return redirect()->back()->with('success', 'Asset Category Added Successfully');
         } catch (\Exception $e) {
             // Handle the exception here
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
@@ -54,8 +53,7 @@ class AssetCategoryController extends Controller
             $assetCategory->name = $request->name;
             $assetCategory->status = $request->status;
             $assetCategory->save();
-            Toastr::success('Asset Category Updated Successfully', 'Success');
-            return redirect()->back();
+            return redirect()->back()->with('success', 'Asset Category Updated Successfully');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
@@ -66,8 +64,7 @@ class AssetCategoryController extends Controller
         try {
             $assetCategory = AssetCategory::findOrFail($id);
             $assetCategory->delete();
-            Toastr::success('Asset Category Deleted Successfully', 'Success');
-            return redirect()->back();
+            return redirect()->back()->with('success', 'Asset Category Deleted Successfully');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }

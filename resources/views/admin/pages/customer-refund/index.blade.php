@@ -47,11 +47,16 @@
                         <td>{{ $r->date }}</td>
                         <td>{{ $r->refund_by }}</td>
                         <td>
-                            <select class="form-select form-select-sm" onchange="if(this.value) window.location='{{ url('/customer-refund-update-status/'.$r->id) }}/'+this.value;">
-                                <option value="pending" {{ $r->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="approved" {{ $r->status == 'approved' ? 'selected' : '' }}>Approved</option>
-                                <option value="rejected" {{ $r->status == 'rejected' ? 'selected' : '' }}>Rejected</option>
-                            </select>
+                            <form action="{{ route('customer.refund.update.status', [$r->id, $r->status]) }}" method="POST">
+                                @csrf
+                                <select class="form-select form-select-sm"
+                                        name="status"
+                                        onchange="this.form.submit()">
+                                    <option value="pending" {{ $pay->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="approved" {{ $pay->status == 'approved' ? 'selected' : '' }}>Approved</option>
+                                    <option value="rejected" {{ $pay->status == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                </select>
+                            </form>
                         </td>
                         <td style="width: 120px;">
                             <div class="d-flex justify-content-end gap-1">

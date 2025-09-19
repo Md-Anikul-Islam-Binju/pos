@@ -12,10 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('assets', function (Blueprint $table) {
-            $table->id();$table->string('name')->nullable();
-            $table->unsignedBigInteger('asset_category_id')->nullable();
+            $table->id();
+            $table->string('name');
+            $table->unsignedBigInteger('asset_category_id');
             $table->double('amount', 16, 2)->default(0);
+            $table->string('details')->nullable();
             $table->unsignedBigInteger('account_id')->nullable();
+            $table->string('images')->nullable();
             $table->string('status')->default('pending');
             $table->timestamps();
 

@@ -15,6 +15,7 @@ class Production extends Model
         'account_id',
         'balance',
         'production_date',
+        'cost_details',
         'total_cost',
         'total_raw_material_cost',
         'total_product_cost',

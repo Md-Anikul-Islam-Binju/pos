@@ -15,7 +15,7 @@ class ProductStockTransfer extends Model
         'status',
         'from_showroom_id',
         'to_showroom_id',
-        'user_id',
+        'admin_id',
     ];
 
     protected static function booted()

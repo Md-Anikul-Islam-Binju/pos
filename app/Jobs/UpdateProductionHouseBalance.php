@@ -38,19 +38,15 @@ class UpdateProductionHouseBalance implements ShouldQueue
 
             // Get the total sales and payments for each customer
             $totalProduction = Production::where('house_id', $house->id)
-                ->whereNull('deleted_at') // Optional: ensure no deleted records are included
                 ->sum('net_total');
 
             $totalProductionPaid = Production::where('house_id', $house->id)
-                ->whereNull('deleted_at') // Optional: ensure no deleted records are included
                 ->sum('amount');
 
             $totalPayments = ProductionPayment::where('house_id', $house->id)
-                ->whereNull('deleted_at') // Optional: ensure no deleted records are included
                 ->sum('amount');
 
             $totalRefunds = ProductionPayment::where('house_id', $house->id)
-                ->whereNull('deleted_at') // Optional: ensure no deleted records are included
                 ->sum('amount');
 
             // Calculate the new balance

@@ -16,7 +16,9 @@ return new class extends Migration
             $table->string('title');
             $table->unsignedBigInteger('expense_category_id')->nullable();
             $table->unsignedBigInteger('account_id')->nullable();
-            $table->decimal('amount', 16, 2)->default(0);
+            $table->double('amount', 16, 2)->default(0);
+            $table->string('details')->nullable();
+            $table->string('images')->nullable();
             $table->string('status')->default('pending');
             $table->timestamps();
 

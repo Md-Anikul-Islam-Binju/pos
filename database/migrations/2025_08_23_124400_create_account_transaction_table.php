@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('account_transaction', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('account_id')->nullable();
-            $table->decimal('amount', 15, 2)->nullable();
-            $table->date('date')->nullable();
-            $table->string('status')->nullable();
-            $table->enum('type', ['Deposit', 'Withdraw', 'Expense', 'In', 'Out'])->nullable();
-            $table->string('transaction_id')->unique()->nullable();
-            $table->string('unique_id')->nullable();
+            $table->unsignedBigInteger('account_id');
+            $table->decimal('amount', 15, 2);
+            $table->text('description')->nullable();
+            $table->date('date');
+            $table->string('status');
+            $table->enum('type', ['Deposit', 'Withdraw', 'Expense', 'In', 'Out']);
+            $table->string('transaction_id')->unique();
+            $table->string('unique_id');
             $table->timestamps();
 
             // Ensure the combination of account_id and unique_id is unique

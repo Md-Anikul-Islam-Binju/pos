@@ -14,8 +14,10 @@ class ProductionPayment extends Model
         'house_id',
         'amount',
         'account_id',
+        'details',
         'date',
         'received_by',
+        'image',
         'status'
     ];
 

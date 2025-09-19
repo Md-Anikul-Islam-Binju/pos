@@ -4,70 +4,44 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\admin\OttController;
-use App\Http\Controllers\admin\MenuController;
-use App\Http\Controllers\admin\NewsController;
 use App\Http\Controllers\admin\SellController;
 use App\Http\Controllers\admin\SizeController;
-use App\Http\Controllers\admin\TeamController;
 use App\Http\Controllers\admin\UnitController;
-use App\Http\Controllers\admin\AboutController;
 use App\Http\Controllers\admin\AssetController;
 use App\Http\Controllers\admin\BrandController;
 use App\Http\Controllers\admin\ColorController;
-use App\Http\Controllers\admin\VenueController;
 use App\Http\Controllers\admin\ReportController;
 use App\Http\Controllers\admin\SliderController;
 use App\Http\Controllers\admin\AccountController;
-use App\Http\Controllers\admin\CounterController;
 use App\Http\Controllers\admin\DepositController;
 use App\Http\Controllers\admin\ExpenseController;
 use App\Http\Controllers\admin\ProductController;
-use App\Http\Controllers\admin\ProjectController;
 use App\Http\Controllers\admin\CurrencyController;
 use App\Http\Controllers\admin\CustomerController;
 use App\Http\Controllers\admin\EmployeeController;
-use App\Http\Controllers\admin\LabSetupController;
-use App\Http\Controllers\admin\ShowcaseController;
 use App\Http\Controllers\admin\ShowroomController;
 use App\Http\Controllers\admin\SupplierController;
-use App\Http\Controllers\admin\TrainingController;
 use App\Http\Controllers\admin\WithdrawController;
 use App\Http\Controllers\admin\WarehouseController;
-use App\Http\Controllers\frontend\NoticeController;
 use App\Http\Controllers\admin\DepartmentController;
 use App\Http\Controllers\admin\ProductionController;
-use App\Http\Controllers\admin\NoticeBoardController;
-use App\Http\Controllers\admin\ProjectFileController;
 use App\Http\Controllers\admin\RawMaterialController;
 use App\Http\Controllers\admin\SiteSettingController;
-use App\Http\Controllers\admin\UserMessageController;
-use App\Http\Controllers\frontend\HomePageController;
-use App\Http\Controllers\frontend\NewsPageController;
 use App\Http\Controllers\admin\ProductStockController;
-use App\Http\Controllers\frontend\AboutPageController;
-use App\Http\Controllers\frontend\ContactUsController;
 use App\Http\Controllers\admin\AssetCategoryController;
 use App\Http\Controllers\admin\PaymentMethodController;
-use App\Http\Controllers\frontend\TeamMemberController;
 use App\Http\Controllers\admin\AdminDashboardController;
 use App\Http\Controllers\admin\CustomerRefundController;
 use App\Http\Controllers\admin\SupplierRefundController;
-use App\Http\Controllers\frontend\ProjectPageController;
 use App\Http\Controllers\admin\AccountTransferController;
 use App\Http\Controllers\admin\CustomerPaymentController;
 use App\Http\Controllers\admin\ExpenseCategoryController;
-use App\Http\Controllers\admin\ObjectOfProjectController;
 use App\Http\Controllers\admin\ProductCategoryController;
 use App\Http\Controllers\admin\ProductionHouseController;
-use App\Http\Controllers\admin\ProjectCategoryController;
 use App\Http\Controllers\admin\SupplierPaymentController;
-use App\Http\Controllers\frontend\TrainingPageController;
 use App\Http\Controllers\admin\ProductSellPriceController;
 use App\Http\Controllers\admin\RawMaterialStockController;
-use App\Http\Controllers\admin\TrainingCategoryController;
 use App\Http\Controllers\admin\ProductionPaymentController;
-use App\Http\Controllers\admin\ProjectFileCategoryController;
 use App\Http\Controllers\admin\RawMaterialCategoryController;
 use App\Http\Controllers\admin\RawMaterialPurchaseController;
 use App\Http\Controllers\admin\ProductStockTransferController;
@@ -92,6 +66,41 @@ Route::get('/', function () {
 Route::middleware('auth')->group(callback: function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/unauthorized-action', [AdminDashboardController::class, 'unauthorized'])->name('unauthorized.action');
+
+    // Accounts
+    Route::get('/account-section', [AccountController::class, 'index'])->name('account.section');
+    Route::post('/account-store', [AccountController::class, 'store'])->name('account.store');
+    Route::put('/account-update/{id}', [AccountController::class, 'update'])->name('account.update');
+    Route::get('/account-show/{id}', [AccountController::class, 'show'])->name('account.show');
+    Route::get('/account-delete/{id}', [AccountController::class, 'destroy'])->name('account.destroy');
+
+    // Assets
+    Route::get('/asset-section', [AssetController::class, 'index'])->name('asset.section')->middleware('permission:asset-list');
+    Route::post('/asset-section-store', [AssetController::class, 'store'])->name('asset.store')->middleware('permission:asset-create');
+    Route::put('/asset-section-update/{asset}', [AssetController::class, 'update'])->name('asset.update')->middleware('permission:asset-edit');
+    Route::get('/asset-section-delete/{asset}', [AssetController::class, 'destroy'])->name('asset.destroy')->middleware('permission:asset-delete');
+    Route::get('/asset/{asset}/status/{status}',[AssetController::class, 'updateStatus'])->middleware('permission:asset-update-status')->name('asset.update.status');
+
+    // Deposit
+    Route::get('/deposit-section', [DepositController::class, 'index'])->name('deposit.section')->middleware('permission:deposit-list');
+    Route::post('/deposit-section-store', [DepositController::class, 'store'])->name('deposit.store')->middleware('permission:deposit-create');
+    Route::put('/deposit-section-update/{deposit}', [DepositController::class, 'update'])->name('deposit.update')->middleware('permission:deposit-edit');
+    Route::get('/deposit-section-delete/{deposit}', [DepositController::class, 'destroy'])->name('deposit.destroy')->middleware('permission:deposit-delete');
+    Route::get('/deposit/{deposit}/status/{status}',[DepositController::class, 'updateStatus'])->middleware('permission:deposit-update-status')->name('deposit.update.status');
+
+    // Expense
+    Route::get('/expense-section', [ExpenseController::class, 'index'])->name('expense.section')->middleware('permission:expense-list');
+    Route::post('/expense-section-store', [ExpenseController::class, 'store'])->name('expense.store')->middleware('permission:expense-create');
+    Route::put('/expense-section-update/{expense}', [ExpenseController::class, 'update'])->name('expense.update')->middleware('permission:expense-edit');
+    Route::get('/expense-section-delete/{expense}', [ExpenseController::class, 'destroy'])->name('expense.destroy')->middleware('permission:expense-delete');
+    Route::get('/expenses/{expense}/status/{status}',[ExpenseController::class, 'updateStatus'])->middleware('permission:expense-update-status')->name('expense.update.status');
+
+    // Withdraw
+    Route::get('/withdraw-section', [WithdrawController::class, 'index'])->name('withdraw.section')->middleware('permission:withdraw-list');
+    Route::post('/withdraw-section-store', [WithdrawController::class, 'store'])->name('withdraw.store')->middleware('permission:withdraw-create');
+    Route::put('/withdraw-section-update/{withdraw}', [WithdrawController::class, 'update'])->name('withdraw.update')->middleware('permission:withdraw-edit');
+    Route::get('/withdraw-section-delete/{withdraw}', [WithdrawController::class, 'destroy'])->name('withdraw.destroy')->middleware('permission:withdraw-delete');
+    Route::get('/withdraw/{withdraw}/status/{status}',[WithdrawController::class, 'updateStatus'])->middleware('permission:withdraw-update-status')->name('withdraw.update.status');
 
     // Slider Section
     Route::get('/slider-section', [SliderController::class, 'index'])->name('slider.section');
@@ -155,55 +164,11 @@ Route::middleware('auth')->group(callback: function () {
     Route::put('/expense-category-update/{id}', [ExpenseCategoryController::class, 'update'])->name('expense.category.update');
     Route::get('/expense-category-delete/{id}', [ExpenseCategoryController::class, 'destroy'])->name('expense.category.destroy');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Account
-    Route::get('/account-section', [AccountController::class, 'index'])->name('account.section');
-    Route::post('/account-store', [AccountController::class, 'store'])->name('account.store');
-    Route::put('/account-update/{id}', [AccountController::class, 'update'])->name('account.update');
-    Route::get('/account-delete/{id}', [AccountController::class, 'destroy'])->name('account.destroy');
-
-    // Expense (5)
-    Route::get('/expense-section', [ExpenseController::class, 'index'])->name('expense.section');
-    Route::post('/expense-store', [ExpenseController::class, 'store'])->name('expense.store');
-    Route::put('/expense-update/{id}', [ExpenseController::class, 'update'])->name('expense.update');
-    Route::get('/expense-delete/{id}', [ExpenseController::class, 'destroy'])->name('expense.destroy');
-    Route::post('/expense-update-status/{id}/{status}', [ExpenseController::class, 'updateStatus'])->name('expense.update.status');
-
     // Asset Category
     Route::get('/asset-category-section', [AssetCategoryController::class, 'index'])->name('asset.category.section');
     Route::post('/asset-category-store', [AssetCategoryController::class, 'store'])->name('asset.category.store');
     Route::put('/asset-category-update/{id}', [AssetCategoryController::class, 'update'])->name('asset.category.update');
     Route::get('/asset-category-delete/{id}', [AssetCategoryController::class, 'destroy'])->name('asset.category.destroy');
-
-    // Asset (5)
-    Route::get('/asset-section', [AssetController::class, 'index'])->name('asset.section');
-    Route::post('/asset-store', [AssetController::class, 'store'])->name('asset.store');
-    Route::put('/asset-update/{id}', [AssetController::class, 'update'])->name('asset.update');
-    Route::get('/asset-delete/{id}', [AssetController::class, 'destroy'])->name('asset.destroy');
-    Route::post('/asset-update-status/{id}/{status}', [AssetController::class, 'updateStatus'])->name('asset.update.status');
 
     // Unit
     Route::get('/unit-section', [UnitController::class, 'index'])->name('unit.section');
@@ -241,101 +206,17 @@ Route::middleware('auth')->group(callback: function () {
     Route::put('/raw-material-category-update/{id}', [RawMaterialCategoryController::class, 'update'])->name('raw.material.category.update');
     Route::get('/raw-material-category-delete/{id}', [RawMaterialCategoryController::class, 'destroy'])->name('raw.material.category.destroy');
 
-    // Raw Material (5)
-    Route::get('/raw-material-section', [RawMaterialController::class, 'index'])->name('raw.material.section');
-    Route::post('/raw-material-store', [RawMaterialController::class, 'store'])->name('raw.material.store');
-    Route::put('/raw-material-update/{id}', [RawMaterialController::class, 'update'])->name('raw.material.update');
-    Route::get('/raw-material-delete/{id}', [RawMaterialController::class, 'destroy'])->name('raw.material.destroy');
-    Route::get('/all-raw-materials', [RawMaterialController::class, 'getAllMaterials'])->name('raw.material.all');
-
-    // Raw Material Purchase (6)
-    Route::get('/raw-material-purchase-section', [RawMaterialPurchaseController::class, 'index'])->name('raw.material.purchase.section');
-    Route::post('/raw-material-purchase-store', [RawMaterialPurchaseController::class, 'store'])->name('raw.material.purchase.store');
-    Route::put('/raw-material-purchase-update/{id}', [RawMaterialPurchaseController::class, 'update'])->name('raw.material.purchase.update');
-    Route::get('/raw-material-purchase-delete/{id}', [RawMaterialPurchaseController::class, 'destroy'])->name('raw.material.purchase.destroy');
-    Route::post('/raw-material-purchase-update-status/{id}/{status}', [RawMaterialPurchaseController::class, 'updateStatus'])->name('raw.material.purchase.update.status');
-    Route::get('/raw-material-purchase-print/{id}', [RawMaterialPurchaseController::class, 'printRawMaterialPurchase'])->name('raw.material.purchase.print');
-
     // Product Category
     Route::get('/product-category-section', [ProductCategoryController::class, 'index'])->name('product.category.section');
     Route::post('/product-category-store', [ProductCategoryController::class, 'store'])->name('product.category.store');
     Route::put('/product-category-update/{id}', [ProductCategoryController::class, 'update'])->name('product.category.update');
     Route::get('/product-category-delete/{id}', [ProductCategoryController::class, 'destroy'])->name('product.category.destroy');
 
-    // Product (5)
-    Route::get('/product-section', [ProductController::class, 'index'])->name('product.section');
-    Route::post('/product-store', [ProductController::class, 'store'])->name('product.store');
-    Route::put('/product-update/{id}', [ProductController::class, 'update'])->name('product.update');
-    Route::get('/product-delete/{id}', [ProductController::class, 'destroy'])->name('product.destroy');
-    Route::get('/all-products', [ProductController::class, 'getAllProducts'])->name('product.all');
-
-    // Raw Material Stock
-    Route::get('/raw-material-stock-section', [RawMaterialStockController::class, 'index'])->name('raw.material.stock.section');
-
-    // Deposit (5)
-    Route::get('/deposit-section', [DepositController::class, 'index'])->name('deposit.section');
-    Route::post('/deposit-store', [DepositController::class, 'store'])->name('deposit.store');
-    Route::put('/deposit-update/{id}', [DepositController::class, 'update'])->name('deposit.update');
-    Route::get('/deposit-delete/{id}', [DepositController::class, 'destroy'])->name('deposit.destroy');
-    Route::post('/deposit-update-status/{id}/{status}', [DepositController::class, 'updateStatus'])->name('deposit.update.status');
-
-    // Withdraw (5)
-    Route::get('/withdraw-section', [WithdrawController::class, 'index'])->name('withdraw.section');
-    Route::post('/withdraw-store', [WithdrawController::class, 'store'])->name('withdraw.store');
-    Route::put('/withdraw-update/{id}', [WithdrawController::class, 'update'])->name('withdraw.update');
-    Route::get('/withdraw-delete/{id}', [WithdrawController::class, 'destroy'])->name('withdraw.destroy');
-    Route::post('/withdraw-update-status/{id}/{status}', [WithdrawController::class, 'updateStatus'])->name('withdraw.update.status');
-
-    // Account Transfer (5)
-    Route::get('/account-transfer-section', [AccountTransferController::class, 'index'])->name('account.transfer.section');
-    Route::post('/account-transfer-store', [AccountTransferController::class, 'store'])->name('account.transfer.store');
-    Route::put('/account-transfer-update/{id}', [AccountTransferController::class, 'update'])->name('account.transfer.update');
-    Route::get('/account-transfer-delete/{id}', [AccountTransferController::class, 'destroy'])->name('account.transfer.destroy');
-    Route::post('/account-transfer-update-status/{id}/{status}', [AccountTransferController::class, 'updateStatus'])->name('account.transfer.update.status');
-
     // Production House
     Route::get('/production-house-section', [ProductionHouseController::class, 'index'])->name('production.house.section');
     Route::post('/production-house-store', [ProductionHouseController::class, 'store'])->name('production.house.store');
     Route::put('/production-house-update/{id}', [ProductionHouseController::class, 'update'])->name('production.house.update');
     Route::get('/production-house-delete/{id}', [ProductionHouseController::class, 'destroy'])->name('production.house.destroy');
-
-    // Production (7)
-    Route::get('/production-section', [ProductionController::class, 'index'])->name('production.section');
-    Route::post('/production-store', [ProductionController::class, 'store'])->name('production.store');
-    Route::put('/production-update/{id}', [ProductionController::class, 'update'])->name('production.update');
-    Route::get('/production-delete/{id}', [ProductionController::class, 'destroy'])->name('production.destroy');
-    Route::post('/production-update-status/{id}/{status}', [ProductionController::class, 'updateStatus'])->name('production.update.status');
-    Route::get('/production-print/{id}', [ProductionController::class, 'printProduction'])->name('production.print');
-    Route::get('/get-raw-materials/by-warehouse', [ProductionController::class, 'getRawMaterialsByWarehouse'])->name('raw.materials.by.warehouse');
-
-    // Sell (8)
-    Route::get('/sell-section', [SellController::class, 'index'])->name('sell.section');
-    Route::post('/sell-store', [SellController::class, 'store'])->name('sell.store');
-    Route::put('/sell-update/{id}', [SellController::class, 'update'])->name('sell.update');
-    Route::get('/sell-delete/{id}', [SellController::class, 'destroy'])->name('sell.destroy');
-    Route::post('/sell-update-status/{id}/{status}', [SellController::class, 'updateStatus'])->name('sell.update.status');
-    Route::get('/sell-invoice/{id}', [SellController::class, 'showInvoice'])->name('sell.invoice');
-    Route::get('/get-products/by-category', [SellController::class, 'getProductsByCategory'])->name('products.by.category');
-    Route::get('/get-all-products', [SellController::class, 'getAllProducts'])->name('get.all.products');
-
-    // Product Stock
-    Route::get('/product-stock-section', [ProductStockController::class, 'index'])->name('product.stock.section');
-
-    // Product Stock Transfer (6)
-    Route::get('/product-stock-transfer-section', [ProductStockTransferController::class, 'index'])->name('product.stock.transfer.section');
-    Route::post('/product-stock-transfer-store', [ProductStockTransferController::class, 'store'])->name('product.stock.transfer.store');
-    Route::put('/product-stock-transfer-update/{id}', [ProductStockTransferController::class, 'update'])->name('product.stock.transfer.update');
-    Route::get('/product-stock-transfer-delete/{id}', [ProductStockTransferController::class, 'destroy'])->name('product.stock.transfer.destroy');
-    Route::get('/product-stocks/{id}', [ProductStockTransferController::class, 'getProductStocksByShowroom'])->name('product.stocks.by.showroom');
-    Route::get('/product-stock-transfer-change-status/{id}/{status}', [ProductStockTransferController::class, 'changeStatus'])->name('product.stock.transfer.change.status');
-
-    // Raw Material Stock Transfer (6)
-    Route::get('/raw-material-stock-transfer-section', [RawMaterialStockTransferController::class, 'index'])->name('raw.material.stock.transfer.section');
-    Route::post('/raw-material-stock-transfer-store', [RawMaterialStockTransferController::class, 'store'])->name('raw.material.stock.transfer.store');
-    Route::put('/raw-material-stock-transfer-update/{id}', [RawMaterialStockTransferController::class, 'update'])->name('raw.material.stock.transfer.update');
-    Route::get('/raw-material-stock-transfer-delete/{id}', [RawMaterialStockTransferController::class, 'destroy'])->name('raw.material.stock.transfer.destroy');
-    Route::get('/raw-material-stocks/{id}', [RawMaterialStockTransferController::class, 'getRawMaterialStocksByWarehouse'])->name('raw.material.stocks.by.warehouse');
-    Route::get('/raw-material-stock-transfer-change-status/{id}/{status}', [RawMaterialStockTransferController::class, 'changeStatus'])->name('raw.material.stock.transfer.change.status');
 
     // Reports
     Route::get('/raw-material-stock-report', [ReportController::class, 'rawMaterialStockReports'])->name('raw.material.stock.report');
@@ -353,44 +234,83 @@ Route::middleware('auth')->group(callback: function () {
     Route::get('/sell-profit-loss', [ReportController::class, 'sellProfitLoss'])->name('sell.profit.loss.report');
     Route::get('/cron-job-logs', [ReportController::class, 'cronJobLogs'])->name('cron.job.logs.report');
 
-    // CustomerPayments (5)
-    Route::get('/customer-payment-section', [CustomerPaymentController::class, 'index'])->name('customer.payment.section');
-    Route::post('/customer-payment-store', [CustomerPaymentController::class, 'store'])->name('customer.payment.store');
-    Route::put('/customer-payment-update/{id}', [CustomerPaymentController::class, 'update'])->name('customer.payment.update');
-    Route::get('/customer-payment-delete/{id}', [CustomerPaymentController::class, 'destroy'])->name('customer.payment.destroy');
-    Route::post('/customer-payment-update-status/{id}/{status}', [CustomerPaymentController::class, 'updateStatus'])->name('customer.payment.update.status');
 
-    // SupplierPayments (5)
-    Route::get('/supplier-payment-section', [SupplierPaymentController::class, 'index'])->name('supplier.payment.section');
-    Route::post('/supplier-payment-store', [SupplierPaymentController::class, 'store'])->name('supplier.payment.store');
-    Route::put('/supplier-payment-update/{id}', [SupplierPaymentController::class, 'update'])->name('supplier.payment.update');
-    Route::get('/supplier-payment-delete/{id}', [SupplierPaymentController::class, 'destroy'])->name('supplier.payment.destroy');
-    Route::post('/supplier-payment-update-status/{id}/{status}', [SupplierPaymentController::class, 'updateStatus'])->name('supplier.payment.update.status');
 
-    // ProductionPayments (5)
-    Route::get('/production-payment-section', [ProductionPaymentController::class, 'index'])->name('production.payment.section');
-    Route::post('/production-payment-store', [ProductionPaymentController::class, 'store'])->name('production.payment.store');
-    Route::put('/production-payment-update/{id}', [ProductionPaymentController::class, 'update'])->name('production.payment.update');
-    Route::get('/production-payment-delete/{id}', [ProductionPaymentController::class, 'destroy'])->name('production.payment.destroy');
-    Route::post('/production-payment-update-status/{id}/{status}', [ProductionPaymentController::class, 'updateStatus'])->name('production.payment.update.status');
 
-    // CustomerRefunds (5)
-    Route::get('/customer-refund-section', [CustomerRefundController::class, 'index'])->name('customer.refund.section');
-    Route::post('/customer-refund-store', [CustomerRefundController::class, 'store'])->name('customer.refund.store');
-    Route::put('/customer-refund-update/{id}', [CustomerRefundController::class, 'update'])->name('customer.refund.update');
-    Route::get('/customer-refund-delete/{id}', [CustomerRefundController::class, 'destroy'])->name('customer.refund.destroy');
-    Route::post('/customer-refund-update-status/{id}/{status}', [CustomerRefundController::class, 'updateStatus'])->name('customer.refund.update.status');
 
-    // SupplierRefunds (5)
-    Route::get('/supplier-refund-section', [SupplierRefundController::class, 'index'])->name('supplier.refund.section');
-    Route::post('/supplier-refund-store', [SupplierRefundController::class, 'store'])->name('supplier.refund.store');
-    Route::put('/supplier-refund-update/{id}', [SupplierRefundController::class, 'update'])->name('supplier.refund.update');
-    Route::get('/supplier-refund-delete/{id}', [SupplierRefundController::class, 'destroy'])->name('supplier.refund.destroy');
-    Route::post('/supplier-refund-update-status/{id}/{status}', [SupplierRefundController::class, 'updateStatus'])->name('supplier.refund.update.status');
 
-    // Product Sell Price
-    Route::get('/product-stocks/{stock}/get-sell-price-data', [ProductSellPriceController::class, 'getSellPriceData'])->name('product.stock.get.sell.price.data');
-    Route::post('/product-stocks/{stock}/update-sell-price', [ProductSellPriceController::class, 'updateSellPrice'])->name('product.stock.update.sell.price');
+
+
+
+
+
+
+
+
+
+
+    // Raw Materials
+    Route::resource('/materials', RawMaterialController::class)->middleware('permission:materials.list');
+
+    // RawMaterialPurchase
+    Route::get('/raw-material-purchases/{raw_material_purchase}/status/{status}', [RawMaterialPurchaseController::class, 'updateStatus'])->name('raw-material-purchases.updateStatus');
+    Route::get('/raw-material-purchases/{raw_material_purchase}/print', [RawMaterialPurchaseController::class, 'printRawMaterialPurchase'])->name('raw-material-purchases.print');
+    Route::resource('/raw-material-purchases', RawMaterialPurchaseController::class)->middleware('permission:rawMaterialPurchases.list');
+
+    // Product
+    Route::delete('/products/{product}/image/{key}', [ProductController::class, 'deleteImage'])->name('products.deleteImage');
+    Route::delete('/products/{product}/thumbnail', [ProductController::class, 'deleteThumb'])->name('products.deleteThumb');
+    Route::resource('/products', ProductController::class)->middleware('permission:products.list');
+
+    // Raw Material Stock
+    Route::resource('/raw-material-stocks', RawMaterialStockController::class)->middleware('permission:rawMaterialStocks.list');
+
+    // Account Transfer
+    Route::get('/account-transfers/{account_transfer}/status/{status}',[AccountTransferController::class, 'updateStatus'])->name('account-transfers.updateStatus')->middleware('permission:account_transfers.updateStatus');
+    Route::resource('/account-transfers', AccountTransferController::class)->middleware('permission:account_transfers.list');
+
+    // Production
+    Route::get('/productions/{production}/status/{status}',[ProductionController::class, 'updateStatus'])->name('productions.updateStatus')->middleware('permission:productions.updateStatus');
+    Route::get('/productions/{production}/print',[ProductionController::class, 'printProduction'])->name('productions.print');
+    Route::resource('/productions', ProductionController::class)->middleware('permission:productions.list');
+
+    // Sell
+    Route::get('/sells/{sell}/status/{status}',[SellController::class, 'updateStatus'])->name('sells.updateStatus')->middleware('permission:sells.updateStatus');
+    Route::get('/sells/{id}/invoice', [SellController::class, 'showInvoice'])->name('sells.invoiceTemplate');
+    Route::resource('/sells', SellController::class)->middleware('permission:sells.list');
+
+    // Product Stock
+    Route::resource('/product-stocks', ProductStockController::class)->middleware('permission:productStocks.list');
+
+    // ShowroomTransfer
+    Route::get('/product-stock-transfers/{product_stock_transfer}/status',[ProductStockTransferController::class, 'changeStatus'])->name('product-stock-transfers.changeStatus');
+    Route::resource('/product-stock-transfers', ProductStockTransferController::class)->middleware('permission:productStockTransfers.list');
+
+    // WarehouseTransfer
+    Route::get('/raw-material-stock-transfers/{raw_material_stock_transfer}/status',[RawMaterialStockTransferController::class, 'changeStatus'])->name('raw-material-stock-transfers.changeStatus');
+    Route::resource('/raw-material-stock-transfers', RawMaterialStockTransferController::class)->middleware('permission:rawMaterialStockTransfers.list');
+
+    // CustomerPayments
+    Route::get('/customer-payments/{customer_payment}/status/{status}',[CustomerPaymentController::class, 'updateStatus'])->name('customer-payments.updateStatus')->middleware('permission:customerPayments.updateStatus');
+    Route::resource('/customer-payments', CustomerPaymentController::class)->middleware('permission:customerPayments.list');
+
+    // SupplierPayments
+    Route::get('/supplier-payments/{supplier_payment}/status/{status}',[SupplierPaymentController::class, 'updateStatus'])->name('supplier-payments.updateStatus')->middleware('permission:supplierPayments.updateStatus');
+    Route::resource('/supplier-payments', SupplierPaymentController::class)->middleware('permission:supplierPayments.list');
+
+    // ProductionPayments
+    Route::get('/production-payments/{production_payment}/status/{status}',[ProductionPaymentController::class, 'updateStatus'])->name('production-payments.updateStatus')->middleware('permission:productionPayments.updateStatus');
+    Route::resource('/production-payments', ProductionPaymentController::class)->middleware('permission:productionPayments.list');
+
+    // CustomerRefunds
+    Route::get('/customer-refunds/{customer_refund}/status/{status}',[CustomerRefundController::class, 'updateStatus'])->name('customer-refunds.updateStatus')->middleware('permission:customerRefunds.updateStatus');
+    Route::resource('/customer-refunds', CustomerRefundController::class)->middleware('permission:customerRefunds.list');
+
+    // SupplierRefunds
+    Route::get('/supplier-refunds/{supplier_refund}/status/{status}',[SupplierRefundController::class, 'updateStatus'])->name('supplier-refunds.updateStatus')->middleware('permission:customerRefunds.updateStatus');
+    Route::resource('/supplier-refunds', SupplierRefundController::class)->middleware('permission:supplierRefunds.list');
+
 });
+
 
 require __DIR__.'/auth.php';

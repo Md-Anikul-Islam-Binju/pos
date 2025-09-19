@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('sells', function (Blueprint $table) {
             $table->id();
-            $table->string('unique_sell_id')->unique()->nullable();
-            $table->foreignId('customer_id')->nullable();
-            $table->foreignId('salesman_id')->nullable();
-            $table->foreignId('account_id')->nullable();
-            $table->foreignId('currency_id')->nullable();
+            $table->string('unique_sale_id')->unique()->nullable();
+            $table->foreignId('customer_id');
+            $table->foreignId('salesman_id');
+            $table->foreignId('account_id');
+            $table->foreignId('currency_id');
             $table->double('total_amount', 16, 2)->default(0);
             $table->double('discount_amount', 16, 2)->default(0);
             $table->double('net_total', 16, 2)->default(0);

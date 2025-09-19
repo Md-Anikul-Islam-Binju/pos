@@ -14,8 +14,10 @@ class SupplierRefund extends Model
         'supplier_id',
         'amount',
         'account_id',
+        'details',
         'date',
         'refund_by',
+        'image',
         'status'
     ];
 

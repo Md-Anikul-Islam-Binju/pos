@@ -31,25 +31,21 @@ class UpdateCustomerBalance implements ShouldQueue
     public function handle(): void
     {
         Log::info('UpdateCustomerBalance job started.');
-        
+
         // Loop through each customer
         $customers = Customer::all();
 
         foreach ($customers as $customer) {
             // Get the total sales and payments for each customer
             $totalSales = Sell::where('customer_id', $customer->id)
-                ->whereNull('deleted_at') // Optional: ensure no deleted records are included
                 ->sum('net_total');
 
             $totalSalesPaid = Sell::where('customer_id', $customer->id)
-                ->whereNull('deleted_at') // Optional: ensure no deleted records are included
                 ->sum('paid_amount');
 
             $totalPayments = CustomerPayment::where('customer_id', $customer->id)
-                ->whereNull('deleted_at') // Optional: ensure no deleted records are included
                 ->sum('amount'); // Sum of all payments made by the customer
             $totalRefunds = CustomerRefund::where('customer_id', $customer->id)
-                ->whereNull('deleted_at') // Optional: ensure no deleted records are included
                 ->sum('amount');
 
             // Calculate the new balance (total sales - total payments)

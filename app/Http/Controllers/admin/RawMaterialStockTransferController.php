@@ -2,164 +2,33 @@
 
 namespace App\Http\Controllers\admin;
 
-use App\Models\Warehouse;
-use Illuminate\Http\Request;
-use App\Models\RawMaterialStock;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Gate;
+use App\Models\User;
+use App\Models\AdminActivity;
+use App\Models\RawMaterialStock;
 use App\Models\RawMaterialStockTransfer;
-use Yoeunes\Toastr\Facades\Toastr;
+use App\Models\Warehouse;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class RawMaterialStockTransferController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (!Gate::allows('brand-list')) {
-                return redirect()->route('unauthorized.action');
-            }
-            return $next($request);
-        })->only('index');
+    public function index() {
+        $transfers = RawMaterialStockTransfer::all();
+        return view('admin.pages.raw-material-stock-transfer.index', compact('transfers'));
     }
 
-    public function index()
-    {
-        $transfer = RawMaterialStockTransfer::all();
-        return view('admin.pages.raw-material-stock-transfer.index', compact('transfer'));
-    }
-
-    public function create()
-    {
-        $warehouse = Warehouse::all();
-        return view('admin.pages.raw-material-stock-transfer.create', compact('warehouse'));
-    }
-
-    public function store(Request $request)
-    {
-        try {
-            $request->validate([
-                'date' => 'required|date',
-                'from_warehouse_id' => 'required|exists:warehouses,id',
-                'to_warehouse_id' => 'required|exists:warehouses,id|different:from_warehouse_id',
-                'selected_raw_materials' => 'required|array',
-                'transfer_quantities' => 'required|array',
-                'transfer_quantities.*' => 'required|integer|min:1',
-            ]);
-
-            // Create the main RawMaterialStockTransfer entry
-            $rawMaterialStockTransfer = RawMaterialStockTransfer::create([
-                'date' => $request->date,
-                'status' => 'pending',
-                'from_warehouse_id' => $request->from_warehouse_id,
-                'to_warehouse_id' => $request->to_warehouse_id,
-                'note' => $request->note,
-                'admin_id' => auth()->id(),
-            ]);
-
-            // Check if selected raw materials and transfer quantities are equal in count
-            if (count($request->selected_raw_materials) !== count($request->transfer_quantities)) {
-                return redirect()->back()->with('error', 'Mismatch between selected raw materials and transfer quantities.');
-            }
-
-            // Loop through each selected raw material and store the relation in the pivot table
-            foreach ($request->selected_raw_materials as $index => $rawMaterialStockId) {
-                $quantity = $request->transfer_quantities[$rawMaterialStockId];
-                // Attach the raw material stock with the transfer in the pivot table
-                $rawMaterialStockTransfer->rawMaterialStocks()->attach($rawMaterialStockId, ['quantity' => $quantity]);
-            }
-
-            Toastr::success('Brand Added Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            // Handle the exception here
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
-        }
-    }
-
-    public function edit($id)
-    {
-        $transfer = RawMaterialStockTransfer::with(['rawMaterialStocks.raw_material'])->findOrFail($id);
-        // Get the 'from_warehouse_id' and fetch products for that warehouse
-        $warehouseId = $transfer->from_warehouse_id;
-        $warehouseRawMaterials = RawMaterialStock::where('warehouse_id', $warehouseId)->get();
+    public function create() {
         $warehouses = Warehouse::all();
-        return view('admin.pages.raw-material-stock-transfer.edit', compact('warehouses', 'transfer', 'warehouseRawMaterials'));
+        return view('admin.pages.raw-material-stock-transfer.create', compact('warehouses'));
     }
 
-    public function update(Request $request, $id)
+    public function getrawMaterialStocksByWarehouse($warehouse_id)
     {
-        try {
-            $rawMaterialStockTransfer = RawMaterialStockTransfer::findOrFail($id);
-            // Check if the status is 'completed'. If it's not 'pending', prevent update.
-            if ($rawMaterialStockTransfer->status !== 'pending') {
-                return redirect()->route('admin.raw-material-stock-transfers.index')
-                    ->with('error', 'You cannot update a transfer that is not pending.');
-            }
-            $request->validate([
-                'date' => 'required|date',
-                'from_warehouse_id' => 'required|exists:warehouses,id',
-                'to_warehouse_id' => 'required|exists:warehouses,id|different:from_warehouse_id',
-                'selected_raw_materials' => 'required|array',
-                'transfer_quantities' => 'required|array',
-                'transfer_quantities.*' => 'required|integer|min:1',
-            ]);
-
-            // Update the ProductStockTransfer record
-            $rawMaterialStockTransfer->update([
-                'date' => $request->date,
-                'status' => 'pending',
-                'from_warehouse_id' => $request->from_warehouse_id,
-                'to_warehouse_id' => $request->to_warehouse_id,
-                'note' => $request->note,
-                'admin_id' => auth()->id(),
-            ]);
-
-            // Sync the product stocks in the pivot table
-            $rawMaterialStockTransfer->rawMaterialStocks()->sync([]);
-
-            foreach ($request->selected_raw_materials as $index => $rawMaterialStockId) {
-                $quantity = $request->transfer_quantities[$rawMaterialStockId];
-
-                // Sync the transfer quantities with the pivot table
-                $rawMaterialStockTransfer->rawMaterialStocks()->syncWithoutDetaching([
-                    $rawMaterialStockId => ['quantity' => $quantity],
-                ]);
-            }
-
-            Toastr::success('Raw Material Stock Updated Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
-        }
-    }
-
-    public function show($id)
-    {
-        $transfer = RawMaterialStockTransfer::with(['rawMaterialStocks', 'rawMaterialStocks.raw_material'])->findOrFail($id);
-        return view('admin.pages.raw-material-stock-transfer.show', compact('transfer'));
-    }
-
-    public function destroy($id)
-    {
-        try {
-            $rawMaterialStockTransfer = RawMaterialStockTransfer::findOrFail($id);
-            // Check if the status is approved, prevent soft delete if already approved
-            if ($rawMaterialStockTransfer->status === 'approved') {
-                return redirect()->route('admin.raw-material-stock-transfers.index')->with('error', 'Approved transfers cannot be deleted.');
-            }
-            $rawMaterialStockTransfer->delete();
-
-            Toastr::success('Brand Deleted Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
-        }
-    }
-
-    public function getRawMaterialStocksByWarehouse($id)
-    {
-        $rawMaterialStocks = RawMaterialStock::where('warehouse_id', $id)
+        $rawMaterialStocks = RawMaterialStock::where('warehouse_id', $warehouse_id)
             ->with(['raw_material', 'warehouse'])
             ->get()
             ->map(function ($rawMaterialStock) {
@@ -172,6 +41,102 @@ class RawMaterialStockTransferController extends Controller
             });
 
         return response()->json($rawMaterialStocks);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'date' => 'required|date',
+            'from_warehouse_id' => 'required|exists:warehouses,id',
+            'to_warehouse_id' => 'required|exists:warehouses,id|different:from_warehouse_id',
+            'selected_raw_materials' => 'required|array',
+            'transfer_quantities' => 'required|array',
+            'transfer_quantities.*' => 'required|integer|min:1',
+        ]);
+
+        // Create the main RawMaterialStockTransfer entry
+        $rawMaterialStockTransfer = RawMaterialStockTransfer::create([
+            'date' => $request->date,
+            'status' => 'pending',
+            'from_warehouse_id' => $request->from_warehouse_id,
+            'to_warehouse_id' => $request->to_warehouse_id,
+            'note' => $request->note,
+            'admin_id' => auth()->id(),
+        ]);
+
+        // Check if selected raw materials and transfer quantities are equal in count
+        if (count($request->selected_raw_materials) !== count($request->transfer_quantities)) {
+            return redirect()->back()->with('error', 'Mismatch between selected raw materials and transfer quantities.');
+        }
+
+        // Loop through each selected raw material and store the relation in the pivot table
+        foreach ($request->selected_raw_materials as $index => $rawMaterialStockId) {
+            $quantity = $request->transfer_quantities[$rawMaterialStockId];
+            // Attach the raw material stock with the transfer in the pivot table
+            $rawMaterialStockTransfer->rawMaterialStocks()->attach($rawMaterialStockId, ['quantity' => $quantity]);
+        }
+
+        return redirect()->route('raw-material-stock-transfers.index')->with('success', 'Raw material stock transfer created successfully.');
+    }
+
+    public function edit($id) {
+        $transfer = RawMaterialStockTransfer::with(['rawMaterialStocks.raw_material'])->findOrFail($id);
+        // Get the 'from_warehouse_id' and fetch products for that warehouse
+        $warehouseId = $transfer->from_warehouse_id;
+        $warehouseRawMaterials = RawMaterialStock::where('warehouse_id', $warehouseId)->get();
+        $warehouses = Warehouse::all();
+        return view('admin.pages.raw-material-stock-transfer.edit', compact('warehouses', 'transfer', 'warehouseRawMaterials'));
+    }
+
+    public function update(Request $request, RawMaterialStockTransfer $rawMaterialStockTransfer)
+    {
+        // Check if the status is 'completed'. If it's not 'pending', prevent update.
+        if ($rawMaterialStockTransfer->status !== 'pending') {
+            return redirect()->route('raw-material-stock-transfers.index')
+                ->with('error', 'You cannot update a transfer that is not pending.');
+        }
+
+        // Validate the incoming request data
+        $request->validate([
+            'date' => 'required|date',
+            'from_warehouse_id' => 'required|exists:warehouses,id',
+            'to_warehouse_id' => 'required|exists:warehouses,id|different:from_warehouse_id',
+            'selected_raw_materials' => 'required|array',
+            'transfer_quantities' => 'required|array',
+            'transfer_quantities.*' => 'required|integer|min:1',
+        ]);
+
+        // Update the ProductStockTransfer record
+        $rawMaterialStockTransfer->update([
+            'date' => $request->date,
+            'status' => 'pending',
+            'from_warehouse_id' => $request->from_warehouse_id,
+            'to_warehouse_id' => $request->to_warehouse_id,
+            'note' => $request->note,
+            'admin_id' => auth()->id(),
+        ]);
+
+        // Sync the product stocks in the pivot table
+        $rawMaterialStockTransfer->rawMaterialStocks()->sync([]);
+
+        foreach ($request->selected_raw_materials as $index => $rawMaterialStockId) {
+            $quantity = $request->transfer_quantities[$rawMaterialStockId];
+
+            // Sync the transfer quantities with the pivot table
+            $rawMaterialStockTransfer->rawMaterialStocks()->syncWithoutDetaching([
+                $rawMaterialStockId => ['quantity' => $quantity],
+            ]);
+        }
+
+        // Redirect back with a success message
+        return redirect()->route('raw-material-stock-transfers.index')->with('success', 'Raw material stock transfer updated successfully.');
+    }
+
+    public function show($id) {
+        $transfer = RawMaterialStockTransfer::with(['rawMaterialStocks','rawMaterialStocks.raw_material'])->findOrFail($id);
+        $admins = User::all();
+        $activities = AdminActivity::getActivities(RawMaterialStockTransfer::class, $id)->orderBy('created_at', 'desc')->take(10)->get();
+        return view('admin.pages.raw-material-stock-transfer.show', compact(['transfer','admins','activities']));
     }
 
     public function changeStatus(Request $request, RawMaterialStockTransfer $rawMaterialStockTransfer)
@@ -195,11 +160,11 @@ class RawMaterialStockTransferController extends Controller
                 // Rollback stock changes (if any were made)
                 $this->rollbackStock($rawMaterialStockTransfer);
 
-                return redirect()->route('admin.raw-material-stock-transfers.index')
+                return redirect()->route('raw-material-stock-transfers.index')
                     ->with('success', 'Raw material stock transfer status changed back to pending successfully.');
             }
 
-            return redirect()->route('admin.raw-material-stock-transfers.index')
+            return redirect()->route('raw-material-stock-transfers.index')
                 ->with('error', 'Approved status cannot be changed directly to rejected.');
         }
 
@@ -213,7 +178,7 @@ class RawMaterialStockTransferController extends Controller
                 // Update stock quantities (decrease from 'from_warehouse' and increase in 'to_warehouse')
                 $this->updateStock($rawMaterialStockTransfer);
 
-                return redirect()->route('admin.raw-material-stock-transfers.index')
+                return redirect()->route('raw-material-stock-transfers.index')
                     ->with('success', 'Raw material stock transfer approved successfully and stock updated.');
             }
 
@@ -223,7 +188,7 @@ class RawMaterialStockTransferController extends Controller
                     'status' => 'rejected',
                 ]);
 
-                return redirect()->route('admin.raw-material-stock-transfers.index')
+                return redirect()->route('raw-material-stock-transfers.index')
                     ->with('success', 'Raw material stock transfer rejected successfully.');
             }
         }
@@ -237,7 +202,7 @@ class RawMaterialStockTransferController extends Controller
                 // Update stock quantities (decrease from 'from_warehouse' and increase in 'to_warehouse')
                 $this->updateStock($rawMaterialStockTransfer);
 
-                return redirect()->route('admin.raw-material-stock-transfers.index')
+                return redirect()->route('raw-material-stock-transfers.index')
                     ->with('success', 'Raw material stock transfer approved successfully and stock updated.');
             }
 
@@ -247,13 +212,13 @@ class RawMaterialStockTransferController extends Controller
                     'status' => 'pending',
                 ]);
 
-                return redirect()->route('admin.raw-material-stock-transfers.index')
+                return redirect()->route('raw-material-stock-transfers.index')
                     ->with('success', 'Raw material stock transfer pending successfully.');
             }
         }
 
         // Handle invalid status change request
-        return redirect()->route('admin.raw-material-stock-transfers.index')
+        return redirect()->route('raw-material-stock-transfers.index')
             ->with('error', 'Invalid status change operation.');
     }
 
@@ -343,5 +308,16 @@ class RawMaterialStockTransferController extends Controller
                 }
             }
         }
+    }
+
+    public function destroy(RawMaterialStockTransfer $rawMaterialStockTransfer)
+    {
+        // Check if the status is approved, prevent soft delete if already approved
+        if ($rawMaterialStockTransfer->status === 'approved') {
+            return redirect()->route('raw-material-stock-transfers.index') ->with('error', 'Approved transfers cannot be deleted.');
+        }
+        // Soft delete the transfer
+        $rawMaterialStockTransfer->delete();
+        return redirect()->route('raw-material-stock-transfers.index')->with('success', 'Raw material stock transfer deleted successfully.');
     }
 }

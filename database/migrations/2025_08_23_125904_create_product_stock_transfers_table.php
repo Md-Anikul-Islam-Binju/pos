@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('product_stock_transfers', function (Blueprint $table) {
             $table->id();
             $table->string('unique_id')->unique()->nullable();
-            $table->date('date')->nullable();
+            $table->date('date');
             $table->string('status');
             $table->foreignId('from_showroom_id')->constrained('showrooms')->onDelete('cascade');
             $table->foreignId('to_showroom_id')->constrained('showrooms')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->text('note')->nullable();
+            $table->foreignId('admin_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

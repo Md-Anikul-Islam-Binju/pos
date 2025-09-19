@@ -2,96 +2,78 @@
 
 namespace App\Http\Controllers\admin;
 
-use App\Models\User;
-use App\Models\Account;
-use Illuminate\Http\Request;
-use App\Models\AccountTransfer;
-use App\Models\AccountTransaction;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Gate;
-use Yoeunes\Toastr\Facades\Toastr;
+use App\Models\Account;
+use App\Models\AccountTransaction;
+use App\Models\AccountTransfer;
+use App\Models\AdminActivity;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 
 class AccountController extends Controller
 {
-    public function __construct()
+    public function index(): View|Factory|Application
     {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (!Gate::allows('account-list')) {
-                return redirect()->route('unauthorized.action');
-            }
-
-            return $next($request);
-        })->only('index');
+        $account = Account::orderBy('id', 'DESC')->get();
+        $admins = User::all();
+        return view('admin.pages.account.index', compact('account', 'admins'));
     }
 
-    public function index()
+    public function store(Request $request): RedirectResponse
     {
-        $account = Account::all();
-        $user = User::all();
-        return view('admin.pages.account.index', compact('account', 'user'));
+        $request->validate([
+            'name' => 'required|unique:accounts',
+            'type' => 'required',
+            'admin_id' => 'required|integer',
+            'status' => 'required',
+        ]);
+
+        $account = Account::create([
+            'name' => $request->name,
+            'type' => $request->type,
+            'admin_id' => $request->admin_id,
+            'status' => $request->status,
+        ]);
+        return redirect()->route('account.section')->with('success', 'Account has been created');
     }
 
-    public function store(Request $request)
+    public function update(Request $request, $id): RedirectResponse
     {
-        try {
-            $request->validate([
-                'name' => 'required',
-                'type' => 'required',
-                'user_id' => 'required',
-            ]);
+        $account = Account::find($id);
+        $request->validate([
+            'name' => 'required',
+            'type' => 'required',
+            'admin_id' => 'required',
+            'status' => 'required',
+        ]);
 
-            $account = new Account();
-            $account->name = $request->name;
-            $account->type = $request->type;
-            $account->user_id = $request->user_id;
-            $account->save();
-            Toastr::success('Account Added Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            // Handle the exception here
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
-        }
+        $account->update([
+            'name' => $request->name,
+            'type' => $request->type,
+            'admin_id' => $request->admin_id,
+            'status' => $request->status,
+        ]);
+
+        return redirect()->route('account.section')->with('success', 'Account has been updated');
     }
 
-    public function update(Request $request, $id)
+    public function destroy($id): RedirectResponse
     {
-
-        try {
-            $request->validate([
-                'name' => 'required',
-                'type' => 'required',
-                'user_id' => 'required',
-                'status' => 'required|in:active,inactive,pending'
-            ]);
-            $account = Account::findOrFail($id);
-            $account->name = $request->name;
-            $account->type = $request->type;
-            $account->user_id = $request->user_id;
-            $account->status = $request->status;
-            $account->save();
-            Toastr::success('Account Updated Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
-        }
+        $account = Account::find($id);
+        $account->delete();
+        return redirect()->route('account.section')->with('success', 'Account has been deleted');
     }
 
-    public function destroy($id)
+    public function show($id): View|Factory|Application
     {
-        try {
-            $account = Account::findOrFail($id);
-            $account->delete();
-            Toastr::success('Account Deleted Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
-        }
-    }
-
-    public function showTransaction($id) {
         $account = Account::findOrFail($id);
+        $admins = User::all();
+        $activities = AdminActivity::getActivities(Account::class, $id)->orderBy('created_at', 'desc')->take(10)->get();
 
         $totalDebit = AccountTransaction::where('account_id', $id)
             ->where('transaction_type', 'out')
@@ -172,7 +154,15 @@ class AccountController extends Controller
         $transactionInfo = DB::table('account_transactions')->where('account_id', $account->id)->get();
         $pendingTransactions = AccountTransfer::where('from_account_id', $id)->where('status', '=', 'pending')->get();
         $accounts = Account::all();
-        return view('admin.pages.account.showTransaction', compact('account', 'data', 'lineChartData', 'transactionInfo', 'accounts', 'pendingTransactions'));
+        return view('admin.pages.account.show', compact('account',
+                'admins',
+                'activities',
+                'data',
+                'lineChartData',
+                'transactionInfo',
+                'accounts',
+                'pendingTransactions'
+            ));
     }
 
     public function getMonthlyModelWiseTransactions($accountId)
@@ -217,4 +207,5 @@ class AccountController extends Controller
             'monthlyData' => $monthlyData,
         ];
     }
+
 }

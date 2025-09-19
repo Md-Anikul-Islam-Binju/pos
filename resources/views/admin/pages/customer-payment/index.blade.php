@@ -47,9 +47,11 @@
                         <td>{{ $pay->date }}</td>
                         <td>{{ $pay->received_by }}</td>
                         <td>
-                            <form action="{{ route('customer.payment.update.status', [$pay->id, $pay->status]) }}" method="GET">
+                            <form action="{{ route('customer.payment.update.status', [$pay->id, $pay->status]) }}" method="POST">
                                 @csrf
-                                <select class="form-select form-select-sm" onchange="if(this.value) window.location='{{ url('/customer-payment-update-status/'.$pay->id) }}/'+this.value;">
+                                <select class="form-select form-select-sm"
+                                        name="status"
+                                        onchange="this.form.submit()">
                                     <option value="pending" {{ $pay->status == 'pending' ? 'selected' : '' }}>Pending</option>
                                     <option value="approved" {{ $pay->status == 'approved' ? 'selected' : '' }}>Approved</option>
                                     <option value="rejected" {{ $pay->status == 'rejected' ? 'selected' : '' }}>Rejected</option>

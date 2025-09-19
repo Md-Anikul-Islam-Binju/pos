@@ -4,138 +4,164 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Account;
+use App\Models\User;
+use App\Models\AdminActivity;
 use App\Models\ProductionHouse;
 use App\Models\ProductionPayment;
+use App\Models\Supplier;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
-use Yoeunes\Toastr\Facades\Toastr;
 
 class ProductionPaymentController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (!Gate::allows('production-payment-list')) {
-                return redirect()->route('unauthorized.action');
-            }
-
-            return $next($request);
-        })->only('index');
+        $this->middleware('checkModelStatus:App\Models\ProductionPayment,production_payment')
+            ->only(['edit', 'update', 'updateStatus', 'destroy']);
     }
 
-    public function index()
+    public function index(): View|Factory|Application
     {
-        $productionPayment = ProductionPayment::all();
-        $account = Account::all();
-        $productionHouse = ProductionHouse::all();
-        return view('admin.pages.production-payment.index', compact('productionPayment', 'account', 'productionHouse'));
+        $payments = ProductionPayment::orderBy('id', 'DESC')->get();
+        return view('admin.pages.production-payment.index', compact('payments'));
+    }
+
+    public function create(): View|Factory|Application
+    {
+        $accounts = Account::all();
+        $houses = ProductionHouse::all();
+        return view('admin.pages.production-payment.create', compact('accounts', 'houses'));
     }
 
     public function store(Request $request)
     {
-        try {
-            $request->validate([
-                'production_house_id' => 'required',
-                'account_id' => 'required',
-                'amount' => 'required',
-                'date' => 'required',
-                'received_by' => 'required',
-            ]);
-
-            $account = Account::findOrFail($request->account_id);
-            if ($account->balance < $request->amount) {
-                if ($request->ajax()) {
-                    return response()->json(['message' => 'Insufficient Balance'], 400);
-                }
-                return redirect()->back()->with('error', 'Insufficient Balance');
-            }
-
-            $productionPayment = new ProductionPayment();
-            $productionPayment->production_house_id = $request->production_house_id;
-            $productionPayment->account_id = $request->account_id;
-            $productionPayment->amount = $request->amount;
-            $productionPayment->date = $request->date;
-            $productionPayment->received_by = $request->received_by;
-
-            $productionPayment->save();
-
-            Toastr::success('Production Payment Added Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            // Handle the exception here
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        $request->validate([
+            'house_id' => 'required',
+            'account_id' => 'required',
+            'amount' => 'required',
+            'details' => 'nullable',
+            'date' => 'required',
+            'received_by' => 'nullable',
+            'image' => 'nullable',
+        ]);
+        $image = '';
+        if ($request->hasFile('photo')) {
+            $image = $request->file('photo')->store('ProductionPayment-photo');
         }
+        $account = Account::findOrFail($request->account_id);
+        if ($account->balance < $request->amount) {
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Insufficient Balance'], 400);
+            }
+            return redirect()->back()->with('error', 'Insufficient Balance');
+        }
+        ProductionPayment::create([
+            'house_id' => $request->house_id,
+            'account_id' => $request->account_id,
+            'amount' => $request->amount,
+            'details' => $request->details,
+            'date' => $request->date,
+            'received_by' => $request->received_by,
+            'image' => $image ? 'uploads/' . $image : null
+        ]);
+        return redirect()->route('production-payments.index')->with('success','Payment created successfully.');
+    }
+
+    public function edit($id): View|Factory|Application
+    {
+        $payment = ProductionPayment::find($id);
+        $houses = ProductionHouse::all();
+        $accounts = Account::all();
+        return view('admin.pages.production-payment.edit', compact('payment', 'accounts', 'houses'));
     }
 
     public function update(Request $request, $id)
     {
-        try {
-            $request->validate([
-                'production_house_id' => 'required',
-                'account_id' => 'required',
-                'amount' => 'required',
-                'date' => 'required',
-                'received_by' => 'required',
-            ]);
-
-            $productionPayment = ProductionPayment::find($id);
-            $account = Account::findOrFail($request->account_id);
-
-            if ($account->balance < $request->amount) {
-                if ($request->ajax()) {
-                    return response()->json(['message' => 'Insufficient Balance'], 400);
+        $payment = ProductionPayment::find($id);
+        $request->validate([
+            'house_id' => 'required',
+            'account_id' => 'required',
+            'amount' => 'required',
+            'details' => 'nullable',
+            'date' => 'required',
+            'received_by' => 'nullable',
+            'image' => 'nullable',
+            'status' => 'required'
+        ]);
+        $image = $payment->image ?? null;
+        if ($request->hasFile('photo')) {
+            if($payment->image) {
+                $prev_image = $payment->image;
+                if (file_exists($prev_image)) {
+                    unlink($prev_image);
                 }
-                return redirect()->back()->with('error', 'Insufficient Balance');
             }
-
-            $accountId = $request->account_id ?? $productionPayment->account_id;
-
-            $productionPayment->production_house_id = $request->production_house_id;
-            $productionPayment->account_id = $request->account_id;
-            $productionPayment->amount = $request->amount;
-            $productionPayment->date = $request->date;
-            $productionPayment->received_by = $request->received_by;
-            $productionPayment->status = $request->status;
-
-            $productionPayment->save();
-
-            Toastr::success('Production payment Updated Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+            $image = 'uploads/' . $request->file('photo')->store('ProductionPayment-photo');
         }
+        $account = Account::findOrFail($request->account_id);
+        if ($account->balance < $request->amount) {
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Insufficient Balance'], 400);
+            }
+            return redirect()->back()->with('error', 'Insufficient Balance');
+        }
+        $accountId = $request->account_id ?? $payment->account_id;
+        $payment->update([
+            'house_id' => $request->house_id,
+            'account_id' => $request->account_id,
+            'amount' => $request->amount,
+            'details' => $request->details,
+            'date' => $request->date,
+            'received_by' => $request->received_by,
+            'image' => $image ? 'uploads/' . $image : null,
+            'status' => $request->status,
+        ]);
+        return redirect()->route('production-payments.index')->with('success','Payment updated successfully.');
     }
 
-    public function destroy($id)
+    public function destroy($id): RedirectResponse
     {
-        try {
-            $productionPayment = ProductionPayment::find($id);
-            $productionPayment->delete();
-
-            Toastr::success('Production Payment Deleted Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        $payment = ProductionPayment::find($id);
+        if ($payment->image) {
+            $previousImages = json_decode($payment->image, true);
+            if ($previousImages) {
+                foreach ($previousImages as $previousImage) {
+                    $imagePath = public_path('uploads/' . $previousImage);
+                    if (file_exists($imagePath)) {
+                        unlink($imagePath);
+                    }
+                }
+            }
         }
+        $payment->delete();
+        return redirect()->route('production-payments.index')->with('success','Payment deleted successfully.');
+    }
+
+    public function show($id): View|Factory|Application
+    {
+        $payment = ProductionPayment::findOrFail($id);
+        $admins = User::all();
+        $activities = AdminActivity::getActivities(ProductionPayment::class, $id)
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+        return view('admin.pages.production-payment.show', compact('payment', 'admins', 'activities'));
     }
 
     public function updateStatus($id, $status): RedirectResponse
     {
         if (!in_array($status, ['pending', 'approved', 'rejected'])) {
-            return redirect()->route('admin.pages.production-payment.index')->with('error', 'Invalid status.');
+            return redirect()->route('production-payments.index')->with('error', 'Invalid status.');
         }
-
-        $productionPayment = ProductionPayment::find($id);
-
-        if (!$productionPayment) {
+        $payment = ProductionPayment::find($id);
+        if (!$payment) {
             return redirect()->back()->with('error','Payment not found.');
         }
-
-        $productionPayment->status = $status;
-        $productionPayment->update();
-
-        return redirect()->back()->with('success','Production Payment status updated successfully.');
+        $payment->status = $status;
+        $payment->update();
+        return redirect()->back()->with('success','Payment status updated successfully.');
     }
 }

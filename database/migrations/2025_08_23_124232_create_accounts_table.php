@@ -16,11 +16,11 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('type')->nullable();
             $table->double('balance', 16, 2)->default(0);
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('admin_id')->nullable();
             $table->string('status')->default('pending');
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('admin_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

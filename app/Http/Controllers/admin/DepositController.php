@@ -4,114 +4,138 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Account;
+use App\Models\AdminActivity;
 use App\Models\Deposit;
-use Illuminate\Http\RedirectResponse;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
-use Yoeunes\Toastr\Facades\Toastr;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
 
 class DepositController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (!Gate::allows('deposit-list')) {
-                return redirect()->route('unauthorized.action');
-            }
-
-            return $next($request);
-        })->only('index');
+        $this->middleware('checkModelStatus:App\Models\Deposit,deposit')
+            ->only(['edit', 'update', 'updateStatus', 'destroy']);
     }
 
-    public function index()
+    public function index(): View|Factory|Application
     {
-        $deposit = Deposit::all();
+        $deposit = Deposit::orderBy('id', 'DESC')->get();
         $account = Account::all();
         return view('admin.pages.deposit.index', compact('deposit', 'account'));
     }
 
-    public function store(Request $request)
+//    public function create(): View|Factory|Application
+//    {
+//        $accounts = Account::all();
+//        return view('admin.pages.deposit.create', compact('accounts'));
+//    }
+
+    public function store(Request $request): RedirectResponse
     {
-        try {
-            $request->validate([
-                'account_id' => 'required',
-                'amount' => 'required|numeric|min:0',
-            ]);
-
-            $deposit = new Deposit();
-            $deposit->account_id = $request->account_id;
-            $deposit->amount = $request->amount;
-            $deposit->save();
-
-            Toastr::success('Deposit Added Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            // Handle the exception here
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        $request->validate([
+            'account_id' => 'required',
+            'amount' => 'required',
+            'notes' => 'nullable',
+            'image' => 'nullable',
+        ]);
+        $image = '';
+        if ($request->hasFile('photo')) {
+            $image = $request->file('photo')->store('deposit-photo');
         }
+        Deposit::create([
+            'account_id' => $request->account_id,
+            'amount' => $request->amount,
+            'notes' => $request->notes,
+            'image' => $image ? 'uploads/' . $image : null
+        ]);
+        return redirect()->route('deposit.section')->with('success', 'Deposit created successfully.');
     }
 
-    public function update(Request $request, $id)
+//    public function edit($id): View|Factory|Application
+//    {
+//        $deposit = Deposit::find($id);
+//        $accounts = Account::all();
+//        return view('admin.pages.deposit.edit', compact('deposit', 'accounts'));
+//    }
+
+    public function update(Request $request, $id): RedirectResponse
     {
-        try {
-            $request->validate([
-                'account_id' => 'required',
-                'amount' => 'required|numeric|min:0',
-                'status' => 'required',
-            ]);
-
-            $deposit = Deposit::findOrFail($id);
-            $deposit->account_id = $request->account_id ?? $deposit->account_id;
-            $deposit->amount = $request->amount;
-            $deposit->status = $request->status ?? 'pending';
-            $deposit->save();
-
-            Toastr::success('Deposit Updated Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
-        }
-    }
-
-    public function destroy($id)
-    {
-        try {
-            $deposit = Deposit::findOrFail($id);
-            if ($deposit->status === 'approved') {
-                Toastr::error('Approved deposit cannot be deleted', 'Error');
-                return redirect()->route('deposit.section'); // redirect back to index page
+        $deposit = Deposit::find($id);
+        $request->validate([
+            'account_id' => 'required',
+            'amount' => 'required',
+            'notes' => 'nullable',
+            'image' => 'nullable',
+            'status' => 'required'
+        ]);
+        $image = $deposit->image ?? null;
+        if ($request->hasFile('photo')) {
+            if($deposit->image) {
+                $prev_image = $deposit->image;
+                if (file_exists($prev_image)) {
+                    unlink($prev_image);
+                }
             }
-            $deposit->delete();
-            Toastr::success('Deposit Deleted Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+            $image = 'uploads/' . $request->file('photo')->store('deposit-photo');
         }
+        $accountId = $request->account_id ?? $deposit->account_id;
+        $deposit->update([
+            'account_id' => $accountId,
+            'amount' => $request->amount,
+            'notes' => $request->notes,
+            'image' =>  $image,
+            'status' => $request->status,
+        ]);
+        return redirect()->route('deposit.section')->with('success', 'Deposit updated successfully.');
     }
 
-    public function updateStatus(Request $request, $id)
+    public function destroy($id): RedirectResponse
+    {
+        $deposit = Deposit::find($id);
+        if($deposit->status == 'approved') {
+            return redirect()->back()->with('error', "Approved deposit can't be deleted.");
+        }
+        if ($deposit->image) {
+            $previousImages = json_decode($deposit->images, true);
+            if ($previousImages) {
+                foreach ($previousImages as $previousImage) {
+                    $imagePath = public_path('uploads/' . $previousImage);
+                    if (file_exists($imagePath)) {
+                        unlink($imagePath); // Delete the image file
+                    }
+                }
+            }
+        }
+        $deposit->delete();
+        return redirect()->route('deposit.section')->with('success', 'Deposit deleted successfully.');
+    }
+
+    public function show($id): View|Factory|Application
     {
         $deposit = Deposit::findOrFail($id);
-        $originalStatus = $deposit->status;
-        $newStatus = $request->status;
+        $admins = User::all();
+        $activities = AdminActivity::getActivities(Deposit::class, $id)
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+        return view('admin.pages.deposit.show', compact('deposit', 'admins', 'activities'));
+    }
 
-        if (!in_array($newStatus, ['pending', 'approved', 'rejected'])) {
-            return redirect()->back()->with('error', 'Invalid status.');
+    public function updateStatus($id, $status): RedirectResponse
+    {
+        if (!in_array($status, ['pending', 'approved', 'rejected'])) {
+            return redirect()->route('deposit.section')->with('error', 'Invalid status.');
         }
-
-        $deposit->status = $newStatus;
-        $deposit->save();
-
-        // Trigger transaction/job if needed
-        if (($originalStatus === 'pending' || $originalStatus === 'rejected') && $newStatus === 'approved') {
-            $deposit->handleAccountTransaction($deposit, $deposit->account_id, $deposit->amount);
+        $deposit = Deposit::find($id);
+        if (!$deposit) {
+            return redirect()->back()->with('error', 'Deposit not found.');
         }
-
-        if ($originalStatus === 'approved' && ($newStatus === 'pending' || $newStatus === 'rejected')) {
-            $deposit->handleAccountTransaction($deposit, $deposit->account_id, $deposit->amount);
-        }
-
+        $deposit->status = $status;
+        $deposit->update();
         return redirect()->back()->with('success', 'Deposit status updated successfully.');
     }
 }

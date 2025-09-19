@@ -4,110 +4,130 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Account;
+use App\Models\User;
+use App\Models\AdminActivity;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
-use Yoeunes\Toastr\Facades\Toastr;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
 
 class ExpenseController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (!Gate::allows('expense-list')) {
-                return redirect()->route('unauthorized.action');
+        $this->middleware('checkModelStatus:App\Models\Expense,expense')
+            ->only(['edit', 'update', 'updateStatus', 'destroy']);
+    }
+
+    public function index(): View|Factory|Application
+    {
+        $expense = Expense::orderBy('id', 'DESC')->latest()->get();
+        $categories = ExpenseCategory::orderBy('id', 'DESC')->get();
+        $accounts = Account::where('status', '=', 'active')->orderBy('id', 'DESC')->get();
+        return view('admin.pages.expense.index', compact('expense', 'categories', 'accounts'));
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'title' => 'required',
+            'category_id' => 'required',
+            'account_id' => 'required',
+            'amount' => 'required',
+            'details' => 'nullable',
+            'images' => 'nullable',
+        ]);
+        $image = '';
+        if ($request->hasFile('photo')) {
+            $image = $request->file('photo')->store('expense-photo');
+        }
+        $expense = Expense::create([
+            'title' => $request->title,
+            'expense_category_id' => $request->category_id,
+            'account_id' => $request->account_id,
+            'amount' => $request->amount,
+            'details' => $request->details,
+            'images' => $image ? 'uploads/' . $image : null
+        ]);
+        return redirect()->route('expense.section')->with('success', 'Expense Created Successfully');
+    }
+
+    public function update(Request $request, $id): RedirectResponse
+    {
+        $expense = Expense::find($id);
+        $request->validate([
+            'title' => 'required',
+            'category_id' => 'required',
+            'account_id' => 'required',
+            'details' => 'nullable',
+            'status' => 'required',
+            'images' => 'nullable',
+        ]);
+        $image = $expense->images ?? null;
+        if ($request->hasFile('photo')) {
+            // Delete previous image
+            if($expense->images) {
+                $prev_image = $expense->images;
+                if (file_exists($prev_image)) {
+                    unlink($prev_image);
+                }
             }
-
-            return $next($request);
-        })->only('index');
-    }
-
-    public function index()
-    {
-        $expense = Expense::all();
-        $expenseCategory = ExpenseCategory::all();
-        $account = Account::all();
-        return view('admin.pages.expense.index', compact('expense', 'expenseCategory', 'account'));
-    }
-
-    public function store(Request $request)
-    {
-        try {
-            $request->validate([
-                'title' => 'required',
-                'category_id' => 'required',
-                'account_id' => 'required',
-                'amount' => 'required',
-            ]);
-
-            $expense = new Expense();
-            $expense->title = $request->title;
-            $expense->category_id = $request->category_id;
-            $expense->account_id = $request->account_id;
-            $expense->amount = $request->amount;
-            $expense->save();
-
-            Toastr::success('Expense Added Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            // Handle the exception here
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+            $image = 'uploads/' . $request->file('photo')->store('expense-photo');
         }
+
+        $accountId = $request->account_id ?? $expense->account_id;
+
+        $expense->update([
+            'title' => $request->title,
+            'expense_category_id' => $request->category_id,
+            'account_id' => $accountId,
+            'amount' => $request->amount,
+            'status' => $request->status,
+            'details' => $request->details,
+            'images' => 'uploads/' . $image,
+        ]);
+
+        return redirect()->route('expense.section')->with('success', 'Expense Updated Successfully');
     }
 
-    public function update(Request $request, $id)
+    public function destroy($id): RedirectResponse
     {
-        try {
-            $request->validate([
-                'title' => 'required',
-                'category_id' => 'required',
-                'account_id' => 'required',
-                'amount' => 'required',
-                'status' => 'required|in:pending,approved,rejected',
-            ]);
-
-            $expense = Expense::findOrFail($id);
-            $expense->title = $request->title;
-            $expense->category_id = $request->category_id;
-            $expense->account_id = $request->account_id;
-            $expense->amount = $request->amount;
-            $expense->status = $request->status ?? $expense->status;
-            $expense->save();
-
-            Toastr::success('Expense Updated Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        $expense = Expense::find($id);
+        if ($expense->status == 'approved') {
+            return redirect()->back()->with('error', "Approved Expense can't be deleted.");
         }
-    }
-
-    public function destroy($id)
-    {
-        try {
-            $expense = Expense::findOrFail($id);
-            $expense->delete();
-            Toastr::success('Expense Deleted Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        if ($expense->images) {
+            $previousImages = json_decode($expense->images, true);
+            if ($previousImages) {
+                foreach ($previousImages as $previousImage) {
+                    $imagePath = public_path('uploads/' . $previousImage);
+                    if (file_exists($imagePath)) {
+                        unlink($imagePath);
+                    }
+                }
+            }
         }
+        $expense->delete();
+        return redirect()->route('expense.section')->with('success', 'Expense Deleted Successfully');
     }
 
     public function updateStatus($id, $status): RedirectResponse
     {
+        // Validate the status
         if (!in_array($status, ['pending', 'approved', 'rejected'])) {
             return redirect()->route('expense.section')->with('error', 'Invalid status.');
         }
-        $expense = Expense::find($id);
-
-        if (!$expense) {
+        // Find the asset
+        $asset = Expense::find($id);
+        if (!$asset) {
             return redirect()->back()->with('error', 'Expense not found.');
         }
-        $expense->status = $status;
-        $expense->update();
+        // Update the asset status
+        $asset->status = $status;
+        $asset->update();
         return redirect()->back()->with('success', 'Expense status updated successfully.');
     }
 }

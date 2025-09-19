@@ -11,16 +11,14 @@ class AccountTransaction extends Model
 
     protected $fillable = [
         'account_id',
-        'amount',
-        'date',
-        'type',
         'transaction_id',
-        'unique_id',
-        'status',
         'transaction_type',
+        'amount',
         'model',
         'model_id',
         'reference'
+
+
     ];
 
     public function account() {

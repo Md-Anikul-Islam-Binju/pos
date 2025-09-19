@@ -3,157 +3,33 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Models\AdminActivity;
 use App\Models\ProductStock;
 use App\Models\ProductStockTransfer;
 use App\Models\Showroom;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Yoeunes\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\DB;
 
 class ProductStockTransferController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (!Gate::allows('product-stock-transfer-list')) {
-                return redirect()->route('unauthorized.action');
-            }
-
-            return $next($request);
-        })->only('index');
+    public function index() {
+        $transfers = ProductStockTransfer::all();
+        return view('admin.pages.product-stock-transfer.index', compact('transfers'));
     }
 
-    public function index()
-    {
-        $transfer = ProductStockTransfer::all();
-        $showroom = Showroom::all();
-        return view('admin.pages.productStockTransfer.index', compact('transfer', 'showroom'));
-    }
-
-    public function store(Request $request)
-    {
-        try {
-            $request->validate([
-                'date' => 'required|date',
-                'from_showroom_id' => 'required|exists:showrooms,id',
-                'to_showroom_id' => 'required|exists:showrooms,id|different:from_showroom_id',
-                'selected_products' => 'required|array',
-                'transfer_quantities' => 'required|array',
-                'transfer_quantities.*' => 'required|integer|min:1',
-
-            ]);
-
-            $productStockTransfer = new ProductStockTransfer();
-            $productStockTransfer->date = $request->date;
-            $productStockTransfer->status = "pending";
-            $productStockTransfer->from_showroom_id = $request->from_showroom_id;
-            $productStockTransfer->to_showroom_id = $request->to_showroom_id;
-            $productStockTransfer->user_id = auth()->id();
-            $productStockTransfer->save();
-            // Check if selected products and transfer quantities are equal in count
-            if (count($request->selected_products) !== count($request->transfer_quantities)) {
-                return redirect()->back()->with('error', 'Mismatch between selected products and transfer quantities.');
-            }
-            // Loop through each selected product and store the relation in the pivot table
-            foreach ($request->selected_products as $index => $productStockId) {
-                $quantity = $request->transfer_quantities[$productStockId];
-                // Attach the product stock with the transfer in the pivot table
-                $productStockTransfer->productStocks()->attach($productStockId, ['quantity' => $quantity]);
-            }
-            Toastr::success('Product Transfer Added Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            // Handle the exception here
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
-        }
-    }
-
-    public function edit($id)
-    {
-        $transfer = ProductStockTransfer::with([
-            'productStocks.product',
-            'productStocks.size',
-            'productStocks.brand',
-            'productStocks.color'
-        ])->findOrFail($id);
-
-        // Get the 'from_showroom_id' and fetch products for that showroom
-        $showroomId = $transfer->from_showroom_id;
-        $showroomProducts = ProductStock::where('showroom_id', $showroomId)->get();
-
+    public function create() {
         $showrooms = Showroom::all();
-
-        return view('admin.pages.productStockTransfer.edit', compact('showrooms', 'transfer', 'showroomProducts'));
+        return view('admin.pages.product-stock-transfer.create', compact('showrooms'));
     }
 
-    public function update(Request $request, $id)
+    public function getProductStocksByShowroom($showroom_id)
     {
-        try {
-            $productStockTransfer = ProductStockTransfer::findOrFail($id);
-
-            // Check if the status is 'completed'. If it's not 'pending', prevent update.
-        if ($productStockTransfer->status !== 'pending') {
-            return redirect()->route('admin.product-stock-transfers.index')
-                ->with('error', 'You cannot update a transfer that is not pending.');
-        }
-
-            $request->validate([
-                'date' => 'required|date',
-            'from_showroom_id' => 'required|exists:showrooms,id',
-            'to_showroom_id' => 'required|exists:showrooms,id|different:from_showroom_id',
-            'selected_products' => 'required|array',
-            'transfer_quantities' => 'required|array',
-            'transfer_quantities.*' => 'required|integer|min:1',
-            ]);
-
-            $productStockTransfer->date = $request->date;
-            $productStockTransfer->status = "pending";
-            $productStockTransfer->from_showroom_id = $request->from_showroom_id;
-            $productStockTransfer->to_showroom_id = $request->to_showroom_id;
-            $productStockTransfer->user_id = auth()->id();
-            $productStockTransfer->save();
-            // Sync the product stocks in the pivot table
-        $productStockTransfer->productStocks()->sync([]);
-
-        foreach ($request->selected_products as $index => $productStockId) {
-            $quantity = $request->transfer_quantities[$productStockId];
-
-            // Sync the transfer quantities with the pivot table
-            $productStockTransfer->productStocks()->syncWithoutDetaching([
-                $productStockId => ['quantity' => $quantity],
-            ]);
-        }
-
-            Toastr::success('Brand Updated Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
-        }
-    }
-
-    public function show($id) {
-        $transfer = ProductStockTransfer::with(['productStocks','productStocks.product','productStocks.product.category'])->findOrFail($id);
-        return view('admin.pages.productStockTransfer.show', compact('transfer'));
-    }
-
-    public function destroy($id)
-    {
-        try {
-            $productStockTransfer = ProductStockTransfer::findOrFail($id);
-            if ($productStockTransfer->status === 'approved') {
-            return redirect()->route('admin.product-stock-transfers.index') ->with('error', 'Approved transfers cannot be deleted.');
-        }
-            $productStockTransfer->delete();
-            Toastr::success('Product Stock Transfer Record Deleted Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
-        }
-    }
-
-    public function getProductStocksByShowroom($id)
-    {
-        $productStocks = ProductStock::where('showroom_id', $id)
+        $productStocks = ProductStock::where('showroom_id', $showroom_id)
             ->with(['product', 'color', 'size', 'brand', 'showroom'])
             ->get()
             ->map(function ($productStock) {
@@ -169,6 +45,111 @@ class ProductStockTransferController extends Controller
             });
 
         return response()->json($productStocks);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'date' => 'required|date',
+            'from_showroom_id' => 'required|exists:showrooms,id',
+            'to_showroom_id' => 'required|exists:showrooms,id|different:from_showroom_id',
+            'selected_products' => 'required|array',
+            'transfer_quantities' => 'required|array',
+            'transfer_quantities.*' => 'required|integer|min:1',
+        ]);
+
+        // Create the main ProductStockTransfer entry
+        $productStockTransfer = ProductStockTransfer::create([
+            'date' => $request->date,
+            'status' => 'pending',
+            'from_showroom_id' => $request->from_showroom_id,
+            'to_showroom_id' => $request->to_showroom_id,
+            'note' => $request->note,
+            'admin_id' => auth()->id(),
+        ]);
+
+        // Check if selected products and transfer quantities are equal in count
+        if (count($request->selected_products) !== count($request->transfer_quantities)) {
+            return redirect()->back()->with('error', 'Mismatch between selected products and transfer quantities.');
+        }
+
+
+        // Loop through each selected product and store the relation in the pivot table
+        foreach ($request->selected_products as $index => $productStockId) {
+            $quantity = $request->transfer_quantities[$productStockId];
+            // Attach the product stock with the transfer in the pivot table
+            $productStockTransfer->productStocks()->attach($productStockId, ['quantity' => $quantity]);
+        }
+
+        return redirect()->route('product-stock-transfers.index')->with('success', 'Product stock transfer created successfully.');
+    }
+
+    public function edit($id) {
+        $transfer = ProductStockTransfer::with([
+            'productStocks.product',
+            'productStocks.size',
+            'productStocks.brand',
+            'productStocks.color'
+        ])->findOrFail($id);
+
+        // Get the 'from_showroom_id' and fetch products for that showroom
+        $showroomId = $transfer->from_showroom_id;
+        $showroomProducts = ProductStock::where('showroom_id', $showroomId)->get();
+
+        $showrooms = Showroom::all();
+
+        return view('admin.pages.product-stock-transfer.edit', compact('showrooms', 'transfer', 'showroomProducts'));
+    }
+
+    public function update(Request $request, ProductStockTransfer $productStockTransfer)
+    {
+        // Check if the status is 'completed'. If it's not 'pending', prevent update.
+        if ($productStockTransfer->status !== 'pending') {
+            return redirect()->route('product-stock-transfers.index')
+                ->with('error', 'You cannot update a transfer that is not pending.');
+        }
+
+        // Validate the incoming request data
+        $request->validate([
+            'date' => 'required|date',
+            'from_showroom_id' => 'required|exists:showrooms,id',
+            'to_showroom_id' => 'required|exists:showrooms,id|different:from_showroom_id',
+            'selected_products' => 'required|array',
+            'transfer_quantities' => 'required|array',
+            'transfer_quantities.*' => 'required|integer|min:1',
+        ]);
+
+        // Update the ProductStockTransfer record
+        $productStockTransfer->update([
+            'date' => $request->date,
+            'status' => 'pending',
+            'from_showroom_id' => $request->from_showroom_id,
+            'to_showroom_id' => $request->to_showroom_id,
+            'note' => $request->note,
+            'admin_id' => auth()->id(),
+        ]);
+
+        // Sync the product stocks in the pivot table
+        $productStockTransfer->productStocks()->sync([]);
+
+        foreach ($request->selected_products as $index => $productStockId) {
+            $quantity = $request->transfer_quantities[$productStockId];
+
+            // Sync the transfer quantities with the pivot table
+            $productStockTransfer->productStocks()->syncWithoutDetaching([
+                $productStockId => ['quantity' => $quantity],
+            ]);
+        }
+
+        // Redirect back with a success message
+        return redirect()->route('product-stock-transfers.index')->with('success', 'Product stock transfer updated successfully.');
+    }
+
+    public function show($id) {
+        $transfer = ProductStockTransfer::with(['productStocks','productStocks.product','productStocks.product.category'])->findOrFail($id);
+        $admins = User::all();
+        $activities = AdminActivity::getActivities(ProductStockTransfer::class, $id)->orderBy('created_at', 'desc')->take(10)->get();
+        return view('admin.pages.product-stock-transfer.show', compact(['transfer','admins','activities']));
     }
 
     public function changeStatus(Request $request, ProductStockTransfer $productStockTransfer)
@@ -192,11 +173,11 @@ class ProductStockTransferController extends Controller
                 // Rollback stock changes (if any were made)
                 $this->rollbackStock($productStockTransfer);
 
-                return redirect()->route('admin.product-stock-transfers.index')
+                return redirect()->route('product-stock-transfers.index')
                     ->with('success', 'Product stock transfer status changed back to pending successfully.');
             }
 
-            return redirect()->route('admin.product-stock-transfers.index')
+            return redirect()->route('product-stock-transfers.index')
                 ->with('error', 'Approved status cannot be changed directly to rejected.');
         }
 
@@ -210,7 +191,7 @@ class ProductStockTransferController extends Controller
                 // Update stock quantities (decrease from 'from_showroom' and increase in 'to_showroom')
                 $this->updateStock($productStockTransfer);
 
-                return redirect()->route('admin.product-stock-transfers.index')
+                return redirect()->route('product-stock-transfers.index')
                     ->with('success', 'Product stock transfer approved successfully and stock updated.');
             }
 
@@ -220,7 +201,7 @@ class ProductStockTransferController extends Controller
                     'status' => 'rejected',
                 ]);
 
-                return redirect()->route('admin.product-stock-transfers.index')
+                return redirect()->route('product-stock-transfers.index')
                     ->with('success', 'Product stock transfer rejected successfully.');
             }
         }
@@ -234,7 +215,7 @@ class ProductStockTransferController extends Controller
                 // Update stock quantities (decrease from 'from_showroom' and increase in 'to_showroom')
                 $this->updateStock($productStockTransfer);
 
-                return redirect()->route('admin.product-stock-transfers.index')
+                return redirect()->route('product-stock-transfers.index')
                     ->with('success', 'Product stock transfer approved successfully and stock updated.');
             }
 
@@ -244,13 +225,13 @@ class ProductStockTransferController extends Controller
                     'status' => 'pending',
                 ]);
 
-                return redirect()->route('admin.product-stock-transfers.index')
+                return redirect()->route('product-stock-transfers.index')
                     ->with('success', 'Product stock transfer pending successfully.');
             }
         }
 
         // Handle invalid status change request
-        return redirect()->route('admin.product-stock-transfers.index')
+        return redirect()->route('product-stock-transfers.index')
             ->with('error', 'Invalid status change operation.');
     }
 
@@ -342,5 +323,17 @@ class ProductStockTransferController extends Controller
                 }
             }
         }
+    }
+
+
+    public function destroy(ProductStockTransfer $productStockTransfer)
+    {
+        // Check if the status is approved, prevent soft delete if already approved
+        if ($productStockTransfer->status === 'approved') {
+            return redirect()->route('product-stock-transfers.index') ->with('error', 'Approved transfers cannot be deleted.');
+        }
+        // Soft delete the transfer
+        $productStockTransfer->delete();
+        return redirect()->route('product-stock-transfers.index')->with('success', 'Product stock transfer deleted successfully.');
     }
 }

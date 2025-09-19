@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('account_id');
             $table->double('amount', 16,2)->default(0);
+            $table->text('notes')->nullable();
             $table->string('status')->default('pending');
+            $table->string('image')->nullable();
             $table->timestamps();
 
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');

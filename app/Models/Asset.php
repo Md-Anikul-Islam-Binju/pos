@@ -14,7 +14,9 @@ class Asset extends Model
         'name',
         'asset_category_id',
         'amount',
+        'details',
         'account_id',
+        'images',
         'status'
     ];
 

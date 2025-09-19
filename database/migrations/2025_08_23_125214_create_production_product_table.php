@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('production_id');
             $table->unsignedBigInteger('product_id');
-            $table->foreignId('brand_id')->nullable();
-            $table->foreignId('size_id')->nullable();
-            $table->foreignId('color_id')->nullable();
+            $table->foreignId('brand_id');
+            $table->foreignId('size_id');
+            $table->foreignId('color_id');
             $table->double('per_pc_cost',16,2);
             $table->double('quantity',16,2);
             $table->double('sub_total',16,2);

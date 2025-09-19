@@ -21,7 +21,6 @@ trait HandlesAccountTransactions
                 $model->handleAccountTransaction($model,$model->from_account_id,$model->amount);
             }
         });
-
         static::deleting(function ($model) {
             // Handle deletion of transactions when an expense or transfer is deleted
             $model->handleTransactionDeletion($model);
@@ -32,7 +31,6 @@ trait HandlesAccountTransactions
     {
         $originalStatus = $model->getOriginal($statusField);
         $newStatus = $model->$statusField;
-
         // Check if the status change requires a transaction
         if ($this->statusChangeRequiresTransaction($originalStatus, $newStatus)) {
             // Check if it's a transfer
@@ -61,7 +59,6 @@ trait HandlesAccountTransactions
             $model->status,         // Current status of the model after update
             $model->id              // ID of the model
         );
-
         // Get 'I' for In and 'O' for Out from $transactionType
         $transactionTypeLetter = strtoupper(substr($transactionType, 0, 1)); // Extract 'I' or 'O'
 
@@ -92,11 +89,9 @@ trait HandlesAccountTransactions
         if (($originalStatus === 'pending' || $originalStatus === 'rejected') && $newStatus === 'approved') {
             return true; // Create transaction for approval
         }
-
         if ($originalStatus === 'approved' && ($newStatus === 'pending' || $newStatus === 'rejected')) {
             return true; // Handle rejections or pending status
         }
-
         return false;
     }
 

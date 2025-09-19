@@ -2,75 +2,74 @@
 
 namespace App\Http\Controllers\admin;
 
-use App\Models\Account;
-use App\Models\Supplier;
-use Illuminate\Http\Request;
-use App\Models\SupplierRefund;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Gate;
-use Yoeunes\Toastr\Facades\Toastr;
+use App\Models\Account;
+use App\Models\User;
+use App\Models\AdminActivity;
+use App\Models\Supplier;
+use App\Models\SupplierRefund;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class SupplierRefundController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (!Gate::allows('supplier-payment-list')) {
-                return redirect()->route('unauthorized.action');
-            }
-            return $next($request);
-        })->only('index');
+        $this->middleware('checkModelStatus:App\Models\SupplierRefund,supplier_refund')
+            ->only(['edit', 'update', 'updateStatus', 'destroy']);
     }
 
-    public function index()
+    public function index(): View|Factory|Application
     {
-        $refunds = SupplierRefund::all();
-        return view('admin.pages.supplier-refunds.index', compact('refunds'));
+        $refunds = SupplierRefund::orderBy('id', 'DESC')->get();
+        return view('admin.pages.supplier-refund.index', compact('refunds'));
     }
 
-    public function create()
+    public function create(): View|Factory|Application
     {
         $accounts = Account::all();
         $suppliers = Supplier::all();
-        return view('admin.pages.supplier-refunds.create', compact('accounts', 'suppliers'));
+        return view('admin.pages.supplier-refund.create', compact('accounts', 'suppliers'));
     }
 
     public function store(Request $request)
     {
-        try {
-            $request->validate([
-                'supplier_id' => 'required',
-                'account_id' => 'required',
-                'amount' => 'required',
-                'details' => 'nullable',
-                'date' => 'required',
-                'received_by' => 'nullable',
-            ]);
-            $account = Account::findOrFail($request->account_id);
-            if ($account->balance < $request->amount) {
-                if ($request->ajax()) {
-                    return response()->json(['message' => 'Insufficient Balance'], 400);
-                }
-                return redirect()->back()->with('error', 'Insufficient Balance');
-            }
-            SupplierRefund::create([
-                'supplier_id' => $request->account_id,
-                'account_id' => $request->account_id,
-                'amount' => $request->amount,
-                'details' => $request->details,
-                'date' => $request->date,
-                'refund_by' => $request->refund_by,
-            ]);
-            Toastr::success('Refund Added Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            // Handle the exception here
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        $request->validate([
+            'supplier_id' => 'required',
+            'account_id' => 'required',
+            'amount' => 'required',
+            'details' => 'nullable',
+            'date' => 'required',
+            'refund_by' => 'nullable',
+            'image' => 'nullable',
+        ]);
+        $image = '';
+        if ($request->hasFile('photo')) {
+            $image = $request->file('photo')->store('SupplierRefund-photo');
         }
+        $account = Account::findOrFail($request->account_id);
+        if ($account->balance < $request->amount) {
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Insufficient Balance'], 400);
+            }
+            return redirect()->back()->with('error', 'Insufficient Balance');
+        }
+        SupplierRefund::create([
+            'supplier_id' => $request->account_id,
+            'account_id' => $request->account_id,
+            'amount' => $request->amount,
+            'details' => $request->details,
+            'date' => $request->date,
+            'refund_by' => $request->refund_by,
+            'image' => $image ? 'uploads/' . $image : null
+        ]);
+        return redirect()->route('supplier-refunds.index')->with('success','Refund created successfully.');
     }
 
-    public function edit($id)
+    public function edit($id): View|Factory|Application
     {
         $refund = SupplierRefund::find($id);
         $suppliers = Supplier::all();
@@ -80,25 +79,28 @@ class SupplierRefundController extends Controller
 
     public function update(Request $request, $id)
     {
-        try {
-            $request->validate([
-                'supplier_id' => 'required',
-                'account_id' => 'required',
-                'amount' => 'required',
-                'details' => 'nullable',
-                'date' => 'required',
-                'received_by' => 'nullable',
-                'status' => 'required'
-            ]);
-            $refund = SupplierRefund::find($id);
-            $account = Account::findOrFail($request->account_id);
-            if ($account->balance < $request->amount) {
-                if ($request->ajax()) {
-                    return response()->json(['message' => 'Insufficient Balance'], 400);
+        $refund = SupplierRefund::find($id);
+        $request->validate([
+            'supplier_id' => 'required',
+            'account_id' => 'required',
+            'amount' => 'required',
+            'details' => 'nullable',
+            'date' => 'required',
+            'refund_by' => 'nullable',
+            'image' => 'nullable',
+            'status' => 'required'
+        ]);
+        $image = $refund->image ?? null;
+        if ($request->hasFile('photo')) {
+            if($refund->image) {
+                $prev_image = $refund->image;
+                if (file_exists($prev_image)) {
+                    unlink($prev_image);
                 }
-                return redirect()->back()->with('error', 'Insufficient Balance');
             }
-            $account = Account::findOrFail($request->account_id);
+            $image = 'uploads/' . $request->file('photo')->store('supplierRefund-photo');
+        }
+        $account = Account::findOrFail($request->account_id);
         if ($account->balance < $request->amount) {
             if ($request->ajax()) {
                 return response()->json(['message' => 'Insufficient Balance'], 400);
@@ -113,37 +115,45 @@ class SupplierRefundController extends Controller
             'details' => $request->details,
             'date' => $request->date,
             'refund_by' => $request->refund_by,
+            'image' => $image ? 'uploads/' . $image : null,
             'status' => $request->status,
         ]);
-            Toastr::success('Payment Updated Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
-        }
+        return redirect()->route('supplier-refunds.index')->with('success','Refund updated successfully.');
     }
 
-    public function show($id)
+    public function destroy($id): RedirectResponse
+    {
+        $refund = SupplierRefund::find($id);
+        if ($refund->image) {
+            $previousImages = json_decode($refund->image, true);
+            if ($previousImages) {
+                foreach ($previousImages as $previousImage) {
+                    $imagePath = public_path('uploads/' . $previousImage);
+                    if (file_exists($imagePath)) {
+                        unlink($imagePath);
+                    }
+                }
+            }
+        }
+        $refund->delete();
+        return redirect()->route('supplier-refunds.index')->with('success','Refund deleted successfully.');
+    }
+
+    public function show($id): View|Factory|Application
     {
         $refund = SupplierRefund::findOrFail($id);
-        return view('admin.pages.supplier-refund.show', compact('refund'));
+        $admins = User::all();
+        $activities = AdminActivity::getActivities(SupplierRefund::class, $id)
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+        return view('admin.pages.supplier-refund.show', compact('refund', 'admins', 'activities'));
     }
 
-    public function destroy($id)
-    {
-        try {
-            $refund = SupplierRefund::find($id);
-            $refund->delete();
-            Toastr::success('Refund Deleted Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
-        }
-    }
-
-    public function updateStatus($id, $status)
+    public function updateStatus($id, $status): RedirectResponse
     {
         if (!in_array($status, ['pending', 'approved', 'rejected'])) {
-            return redirect()->route('admin.pages.supplier-refund.index')->with('error', 'Invalid status.');
+            return redirect()->route('supplier-refunds.index')->with('error', 'Invalid status.');
         }
         $refund = SupplierRefund::find($id);
         if (!$refund) {

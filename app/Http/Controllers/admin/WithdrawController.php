@@ -2,87 +2,82 @@
 
 namespace App\Http\Controllers\admin;
 
-use App\Models\Account;
-use App\Models\Withdraw;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Gate;
-use Yoeunes\Toastr\Facades\Toastr;
+use App\Models\Account;
+use App\Models\User;
+use App\Models\AdminActivity;
+use App\Models\Withdraw;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class WithdrawController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (!Gate::allows('withdraw-list')) {
-                return redirect()->route('unauthorized.action');
-            }
-
-            return $next($request);
-        })->only('index');
+        $this->middleware('checkModelStatus:App\Models\Withdraw,withdraw')
+            ->only(['edit', 'update', 'updateStatus', 'destroy']);
     }
 
-    public function index()
+    public function index(): View|Factory|Application
     {
-        $withdraws = Withdraw::all();
-        return view('admin.pages.withdraw.index', compact('withdraws'));
-    }
-
-    public function create()
-    {
-        $accounts = Account::all();
-        return view('admin.withdraws.create', compact('accounts'));
+        $withdraw = Withdraw::orderBy('id', 'DESC')->get();
+        $account = Account::all();
+        return view('admin.pages.withdraw.index', compact('withdraw', 'account'));
     }
 
     public function store(Request $request)
     {
-        try {
-            $request->validate([
-                'account_id' => 'required',
-                'amount' => 'required',
-                'notes' => 'nullable',
-            ]);
-
-            $account = Account::findOrFail($request->account_id);
-            if ($account->balance < $request->amount) {
-                if ($request->ajax()) {
-                    return response()->json(['message' => 'Insufficient Balance'], 400);
-                }
-                return redirect()->back()->with('error', 'Insufficient Balance');
-            }
-            Withdraw::create([
-                'account_id' => $request->account_id,
-                'amount' => $request->amount,
-                'notes' => $request->notes,
-            ]);
-            Toastr::success('Withdraw Added Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            // Handle the exception here
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        $request->validate([
+            'account_id' => 'required',
+            'amount' => 'required',
+            'notes' => 'nullable',
+            'image' => 'nullable',
+        ]);
+        $image = '';
+        if ($request->hasFile('photo')) {
+            $image = $request->file('photo')->store('withdraw-photo');
         }
-    }
-
-    public function edit($id)
-    {
-        $withdraw = Withdraw::find($id);
-        $accounts = Account::all();
-        return view('admin.pages.withdraw.edit', compact('withdraw', 'accounts'));
+        $account = Account::findOrFail($request->account_id);
+        if ($account->balance < $request->amount) {
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Insufficient Balance'], 400);
+            }
+            return redirect()->back()->with('error', 'Insufficient Balance');
+        }
+        Withdraw::create([
+            'account_id' => $request->account_id,
+            'amount' => $request->amount,
+            'notes' => $request->notes,
+            'image' => $image ? 'uploads/' . $image : null
+        ]);
+        return redirect()->route('withdraw.section')->with('success','Withdraw created successfully.');
     }
 
     public function update(Request $request, $id)
     {
-
-        try {
-            $request->validate([
-                'account_id' => 'required',
-                'amount' => 'required',
-                'notes' => 'nullable',
-                'status' => 'required',
-            ]);
-
-            $account = Account::findOrFail($request->account_id);
+        $withdraw = Withdraw::find($id);
+        $request->validate([
+            'account_id' => 'required',
+            'amount' => 'required',
+            'notes' => 'nullable',
+            'image' => 'nullable',
+            'status' => 'required',
+        ]);
+        $image = $withdraw->image ?? null;
+        if ($request->hasFile('photo')) {
+            if($withdraw->image) {
+                $prev_image = $withdraw->image;
+                if (file_exists($prev_image)) {
+                    unlink($prev_image);
+                }
+            }
+            $image = 'uploads/' . $request->file('photo')->store('withdraw-photo');
+        }
+        $account = Account::findOrFail($request->account_id);
         if ($account->balance < $request->amount) {
             if ($request->ajax()) {
                 return response()->json(['message' => 'Insufficient Balance'], 400);
@@ -97,35 +92,34 @@ class WithdrawController extends Controller
             'notes' => $request->notes,
             'image' =>  $image,
         ]);
-            Toastr::success('Withdraw Updated Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
-        }
+        return redirect()->route('withdraw.section')->with('success','Withdraw updated successfully.');
     }
 
-    public function show($id)
+    public function destroy($id): RedirectResponse
     {
-        $withdraw = Withdraw::findOrFail($id);
-        return view('admin.pages.withdraw.show', compact('withdraw'));
-    }
-
-    public function destroy($id)
-    {
-        try {
-            $withdraw = Withdraw::find($id);
-            $withdraw->delete();
-            Toastr::success('Withdraw Deleted Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        $withdraw = Withdraw::find($id);
+        if($withdraw->status == "approved") {
+            return redirect()->back()->with("error", "Approved withdraw can't be deleted.");
         }
+        if ($withdraw->image) {
+            $previousImages = json_decode($withdraw->image, true);
+            if ($previousImages) {
+                foreach ($previousImages as $previousImage) {
+                    $imagePath = public_path('uploads/' . $previousImage);
+                    if (file_exists($imagePath)) {
+                        unlink($imagePath);
+                    }
+                }
+            }
+        }
+        $withdraw->delete();
+        return redirect()->route('withdraw.section')->with('success','Withdraw deleted successfully.');
     }
 
-    public function updateStatus($id, $status)
+    public function updateStatus($id, $status): RedirectResponse
     {
         if (!in_array($status, ['pending', 'approved', 'rejected'])) {
-            return redirect()->route('admin.pages.withdraw.index')->with('error', 'Invalid status.');
+            return redirect()->route('withdraw.section')->with('error', 'Invalid status.');
         }
         $withdraw = Withdraw::find($id);
         if (!$withdraw) {

@@ -15,6 +15,8 @@ class Expense extends Model
         'expense_category_id',
         'account_id',
         'amount',
+        'details',
+        'images',
         'status'
     ];
 

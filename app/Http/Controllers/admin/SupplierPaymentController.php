@@ -2,34 +2,33 @@
 
 namespace App\Http\Controllers\admin;
 
-use App\Models\Account;
-use App\Models\Supplier;
-use Illuminate\Http\Request;
-use App\Models\SupplierPayment;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Gate;
-use Yoeunes\Toastr\Facades\Toastr;
+use App\Models\Account;
+use App\Models\User;
+use App\Models\AdminActivity;
+use App\Models\Supplier;
+use App\Models\SupplierPayment;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class SupplierPaymentController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (!Gate::allows('supplier-payment-list')) {
-                return redirect()->route('unauthorized.action');
-            }
-            return $next($request);
-        })->only('index');
+        $this->middleware('checkModelStatus:App\Models\SupplierPayment,supplier_payment')
+            ->only(['edit', 'update', 'updateStatus', 'destroy']);
     }
 
-    public function index()
+    public function index(): View|Factory|Application
     {
-        $payments = SupplierPayment::all();
-        return view('admin.supplierPayments.index', compact('payments'));
+        $payments = SupplierPayment::orderBy('id', 'DESC')->get();
+        return view('admin.pages.supplier-payment.index', compact('payments'));
     }
 
-    public function create()
+    public function create(): View|Factory|Application
     {
         $accounts = Account::all();
         $suppliers = Supplier::all();
@@ -38,39 +37,39 @@ class SupplierPaymentController extends Controller
 
     public function store(Request $request)
     {
-        try {
-            $request->validate([
-                'supplier_id' => 'required',
-                'account_id' => 'required',
-                'amount' => 'required',
-                'details' => 'nullable',
-                'date' => 'required',
-                'received_by' => 'nullable',
-            ]);
-            $account = Account::findOrFail($request->account_id);
-            if ($account->balance < $request->amount) {
-                if ($request->ajax()) {
-                    return response()->json(['message' => 'Insufficient Balance'], 400);
-                }
-                return redirect()->back()->with('error', 'Insufficient Balance');
-            }
-            SupplierPayment::create([
-                'supplier_id' => $request->account_id,
-                'account_id' => $request->account_id,
-                'amount' => $request->amount,
-                'details' => $request->details,
-                'date' => $request->date,
-                'received_by' => $request->received_by,
-            ]);
-            Toastr::success('Payment Added Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            // Handle the exception here
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        $request->validate([
+            'supplier_id' => 'required',
+            'account_id' => 'required',
+            'amount' => 'required',
+            'details' => 'nullable',
+            'date' => 'required',
+            'received_by' => 'nullable',
+            'image' => 'nullable',
+        ]);
+        $image = '';
+        if ($request->hasFile('photo')) {
+            $image = $request->file('photo')->store('SupplierPayment-photo');
         }
+        $account = Account::findOrFail($request->account_id);
+        if ($account->balance < $request->amount) {
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Insufficient Balance'], 400);
+            }
+            return redirect()->back()->with('error', 'Insufficient Balance');
+        }
+        SupplierPayment::create([
+            'supplier_id' => $request->account_id,
+            'account_id' => $request->account_id,
+            'amount' => $request->amount,
+            'details' => $request->details,
+            'date' => $request->date,
+            'received_by' => $request->received_by,
+            'image' => $image ? 'uploads/' . $image : null
+        ]);
+        return redirect()->route('supplier-payments.index')->with('success','Payment created successfully.');
     }
 
-    public function edit($id)
+    public function edit($id): View|Factory|Application
     {
         $payment = SupplierPayment::find($id);
         $suppliers = Supplier::all();
@@ -80,18 +79,28 @@ class SupplierPaymentController extends Controller
 
     public function update(Request $request, $id)
     {
-        try {
-            $request->validate([
-                'supplier_id' => 'required',
-                'account_id' => 'required',
-                'amount' => 'required',
-                'details' => 'nullable',
-                'date' => 'required',
-                'received_by' => 'nullable',
-                'status' => 'required'
-            ]);
-            $payment = SupplierPayment::find($id);
-            $account = Account::findOrFail($request->account_id);
+        $payment = SupplierPayment::find($id);
+        $request->validate([
+            'supplier_id' => 'required',
+            'account_id' => 'required',
+            'amount' => 'required',
+            'details' => 'nullable',
+            'date' => 'required',
+            'received_by' => 'nullable',
+            'image' => 'nullable',
+            'status' => 'required'
+        ]);
+        $image = $payment->image ?? null;
+        if ($request->hasFile('photo')) {
+            if($payment->image) {
+                $prev_image = $payment->image;
+                if (file_exists($prev_image)) {
+                    unlink($prev_image);
+                }
+            }
+            $image = 'uploads/' . $request->file('photo')->store('supplierPayment-photo');
+        }
+        $account = Account::findOrFail($request->account_id);
         if ($account->balance < $request->amount) {
             if ($request->ajax()) {
                 return response()->json(['message' => 'Insufficient Balance'], 400);
@@ -106,37 +115,45 @@ class SupplierPaymentController extends Controller
             'details' => $request->details,
             'date' => $request->date,
             'received_by' => $request->received_by,
+            'image' => $image ? 'uploads/' . $image : null,
             'status' => $request->status,
         ]);
-            Toastr::success('Payment Updated Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
-        }
+        return redirect()->route('supplier-payments.index')->with('success','Payment updated successfully.');
     }
 
-    public function show($id)
+    public function destroy($id): RedirectResponse
+    {
+        $payment = SupplierPayment::find($id);
+        if ($payment->image) {
+            $previousImages = json_decode($payment->image, true);
+            if ($previousImages) {
+                foreach ($previousImages as $previousImage) {
+                    $imagePath = public_path('uploads/' . $previousImage);
+                    if (file_exists($imagePath)) {
+                        unlink($imagePath);
+                    }
+                }
+            }
+        }
+        $payment->delete();
+        return redirect()->route('supplier-payments.index')->with('success','Payment deleted successfully.');
+    }
+
+    public function show($id): View|Factory|Application
     {
         $payment = SupplierPayment::findOrFail($id);
-        return view('admin.pages.supplier-payment.show', compact('payment'));
+        $admins = User::all();
+        $activities = AdminActivity::getActivities(SupplierPayment::class, $id)
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+        return view('admin.pages.supplier-payment.show', compact('payment', 'admins', 'activities'));
     }
 
-    public function destroy($id)
-    {
-        try {
-            $payment = SupplierPayment::find($id);
-            $payment->delete();
-            Toastr::success('Payment Deleted Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
-        }
-    }
-
-    public function updateStatus($id, $status)
+    public function updateStatus($id, $status): RedirectResponse
     {
         if (!in_array($status, ['pending', 'approved', 'rejected'])) {
-            return redirect()->route('admin.pages.supplier-payment.index')->with('error', 'Invalid status.');
+            return redirect()->route('supplier-payments.index')->with('error', 'Invalid status.');
         }
         $payment = SupplierPayment::find($id);
         if (!$payment) {

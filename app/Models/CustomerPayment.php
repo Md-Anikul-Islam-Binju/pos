@@ -14,8 +14,10 @@ class CustomerPayment extends Model
         'customer_id',
         'amount',
         'account_id',
+        'details',
         'date',
         'received_by',
+        'image',
         'status'
     ];
 

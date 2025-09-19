@@ -4,117 +4,162 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\UpdateCustomerBalance;
+use App\Models\Account;
+use App\Models\AdminActivity;
 use App\Models\Customer;
 use App\Models\CustomerRefund;
-use App\Models\Account;
+use App\Models\User;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
-use Yoeunes\Toastr\Facades\Toastr;
 
 class CustomerRefundController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (!Gate::allows('customer-refund-list')) {
-                return redirect()->route('unauthorized.action');
-            }
-
-            return $next($request);
-        })->only('index');
+        $this->middleware('checkModelStatus:App\Models\CustomerRefund,customer_refund')
+            ->only(['edit', 'update', 'updateStatus', 'destroy']);
     }
 
-    public function index()
+    public function index(): View|Factory|Application
     {
         UpdateCustomerBalance::dispatch();
-
-        $refund = CustomerRefund::all();
-        $account = Account::all();
-        $customer = Customer::all();
-
-        return view('admin.pages.customer-refund.index', compact('refund', 'account', 'customer'));
+        $refunds = CustomerRefund::orderBy('id', 'DESC')->get();
+        return view('admin.pages.customer-refund.index', compact('refunds'));
     }
 
-    public function store(Request $request)
+    public function create(): View|Factory|Application
     {
-        try {
-            $request->validate([
-                'customer_id' => 'required|exists:customers,id',
-                'account_id' => 'required|exists:accounts,id',
-                'amount' => 'required|numeric',
-                'date' => 'required|date',
-                'refund_by' => 'required|string|max:255',
-            ]);
-            $refund = new CustomerRefund();
-            $refund->customer_id = $request->customer_id;
-            $refund->account_id = $request->account_id;
-            $refund->amount = $request->amount;
-            $refund->date = $request->date;
-            $refund->refund_by = $request->refund_by;
-            $refund->save();
-            UpdateCustomerBalance::dispatch();
-            Toastr::success('Refund Added Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            // Handle the exception here
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
-        }
+        $accounts = Account::all();
+        $customers = Customer::all();
+        UpdateCustomerBalance::dispatch();
+        return view('admin.pages.customer-refund.create', compact('accounts', 'customers'));
     }
 
-    public function update(Request $request, $id)
+    public function store(Request $request): RedirectResponse
     {
-        try {
-            $request->validate([
-                'customer_id' => 'required|exists:customers,id',
-                'account_id' => 'required|exists:accounts,id',
-                'amount' => 'required|numeric',
-                'date' => 'required|date',
-                'refund_by' => 'required|string|max:255',
-                'status' => 'required|in:pending,approved,rejected',
-            ]);
-            $refund = CustomerRefund::find($id);
-            $refund->customer_id = $request->customer_id;
-            $refund->account_id = $request->account_id;
-            $refund->amount = $request->amount;
-            $refund->date = $request->date;
-            $refund->refund_by = $request->refund_by;
-            $refund->status = $request->status;
-            $refund->save();
-            UpdateCustomerBalance::dispatch();
-            Toastr::success('Refund Updated Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        $request->validate([
+            'customer_id' => 'required',
+            'account_id' => 'required',
+            'amount' => 'required',
+            'details' => 'nullable',
+            'date' => 'required',
+            'refund_by' => 'nullable',
+            'image' => 'nullable',
+        ]);
+        $image = '';
+        if ($request->hasFile('photo')) {
+            $image = $request->file('photo')->store('customerRefund-photo');
         }
+        CustomerRefund::create([
+            'customer_id' => $request->customer_id,
+            'account_id' => $request->account_id,
+            'amount' => $request->amount,
+            'details' => $request->details,
+            'date' => $request->date,
+            'refund_by' => $request->refund_by,
+            'image' => $image ? 'uploads/' . $image : null
+        ]);
+        UpdateCustomerBalance::dispatch();
+        return redirect()->route('customer-refunds.index')->with('success', 'Refund created successfully.');
     }
 
-    public function destroy($id)
+    public function edit($id): View|Factory|Application
     {
-        try {
-            $refund = CustomerRefund::find($id);
-            $refund->delete();
-            UpdateCustomerBalance::dispatch();
-            Toastr::success('Refund Deleted Successfully', 'Success');
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        $refund = CustomerRefund::find($id);
+        $customers = Customer::all();
+        $accounts = Account::all();
+        UpdateCustomerBalance::dispatch();
+        return view('admin.pages.customer-refund.edit', compact('refund', 'accounts', 'customers'));
+    }
+
+    public function update(Request $request, $id): RedirectResponse
+    {
+        $refund = CustomerRefund::find($id);
+        $request->validate([
+            'customer_id' => 'required',
+            'account_id' => 'required',
+            'amount' => 'required',
+            'details' => 'nullable',
+            'date' => 'required',
+            'refund_by' => 'nullable',
+            'image' => 'nullable',
+            'status' => 'required'
+        ]);
+        $image = $refund->image ?? null;
+        if ($request->hasFile('photo')) {
+            if($refund->image) {
+                $prev_image = $refund->image;
+                if (file_exists($prev_image)) {
+                    unlink($prev_image);
+                }
+            }
+            $image = 'uploads/' . $request->file('photo')->store('customerRefund-photo');
         }
+        $accountId = $request->account_id ?? $refund->account_id;
+        $refund->update([
+            'customer_id' => $request->customer_id,
+            'account_id' => $request->account_id,
+            'amount' => $request->amount,
+            'details' => $request->details,
+            'date' => $request->date,
+            'refund_by' => $request->refund_by,
+            'image' => $image ? 'uploads/' . $image : null,
+            'status' => $request->status,
+        ]);
+        UpdateCustomerBalance::dispatch();
+
+        return redirect()->route('customer-refunds.index')->with('success', 'Refund updated successfully.');
+    }
+
+    public function destroy($id): RedirectResponse
+    {
+        $refund = CustomerRefund::find($id);
+
+        if ($refund->image) {
+            $previousImages = json_decode($refund->images, true);
+            if ($previousImages) {
+                foreach ($previousImages as $previousImage) {
+                    $imagePath = public_path('uploads/' . $previousImage);
+                    if (file_exists($imagePath)) {
+                        unlink($imagePath); // Delete the image file
+                    }
+                }
+            }
+        }
+        $refund->delete();
+        UpdateCustomerBalance::dispatch();
+
+        return redirect()->route('customer-refunds.index')->with('success', 'Refund deleted successfully.');
+    }
+
+    public function show($id): View|Factory|Application
+    {
+        UpdateCustomerBalance::dispatch();
+        $refund = CustomerRefund::findOrFail($id);
+        $admins = User::all();
+        $activities = AdminActivity::getActivities(CustomerRefund::class, $id)
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+        return view('admin.pages.customer-refund.show', compact('refund', 'admins', 'activities'));
     }
 
     public function updateStatus($id, $status): RedirectResponse
     {
         if (!in_array($status, ['pending', 'approved', 'rejected'])) {
-            return redirect()->route('admin.pages.customer-refund.index')->with('error', 'Invalid status.');
+            return redirect()->route('customer-refunds.index')->with('error', 'Invalid status.');
         }
         $refund = CustomerRefund::find($id);
         if (!$refund) {
-            return redirect()->back()->with('error', 'Payment not found.');
+            return redirect()->back()->with('error', 'Refund not found.');
         }
         $refund->status = $status;
         $refund->update();
         UpdateCustomerBalance::dispatch();
+
         return redirect()->back()->with('success', 'Refund status updated successfully.');
     }
 }

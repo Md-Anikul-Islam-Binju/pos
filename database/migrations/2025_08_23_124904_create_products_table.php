@@ -15,11 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->unsignedBigInteger('category_id');
-            $table->string('sku');
-            $table->unsignedBigInteger('unit_id');
-            $table->double('width',16,2);
-            $table->double('length',16,2);
-            $table->double('density',16, 2);
+            $table->text('details')->nullable();
+            $table->text('short_details')->nullable();
+            $table->string('sku')->nullable();
+            $table->unsignedBigInteger('unit_id')->nullable();
+            $table->double('width',16,2)->nullable();
+            $table->double('length',16,2)->nullable();
+            $table->double('density',16.2)->nullable();
+            $table->string('thumbnail')->nullable();
+            $table->json('images')->nullable();
             $table->string('slug')->unique();
             $table->timestamps();
 

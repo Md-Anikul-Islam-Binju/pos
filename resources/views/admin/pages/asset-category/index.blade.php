@@ -8,10 +8,10 @@
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript:void(0);">CoderNetix POS</a></li>
                         <li class="breadcrumb-item"><a href="javascript:void(0);">Resource</a></li>
-                        <li class="breadcrumb-item active">Asset Category!</li>
+                        <li class="breadcrumb-item active">Asset Category</li>
                     </ol>
                 </div>
-                <h4 class="page-title">Asset Category!</h4>
+                <h4 class="page-title">Asset Category</h4>
             </div>
         </div>
     </div>
@@ -43,7 +43,7 @@
                                 <td>{{ $key + 1 }}</td>
                                 <td>{{ $category->name }}</td>
                                 <td>
-                                    <span class="badge {{ $category->status == 1 ? 'bg-success' : 'bg-danger' }}">
+                                    <span class="px-2 py-1 badge {{ $category->status == 1 ? 'bg-success' : 'bg-danger' }}">
                                         {{ $category->status == 1 ? 'Active' : 'Inactive' }}
                                     </span>
                                 </td>
@@ -135,10 +135,12 @@
     <div class="modal fade" id="addNewModalId" data-bs-backdrop="static" tabindex="-1" aria-labelledby="addNewModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
+
                 <div class="modal-header bg-info text-white">
                     <h5 class="modal-title">Add New Asset Category</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
                     <form method="post" action="{{ route('asset.category.store') }}">
                         @csrf

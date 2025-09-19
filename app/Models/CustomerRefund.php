@@ -14,8 +14,10 @@ class CustomerRefund extends Model
         'customer_id',
         'amount',
         'account_id',
+        'details',
         'date',
         'refund_by',
+        'image',
         'status'
     ];
 

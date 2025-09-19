@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('deposits', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('account_id');
-            $table->decimal('amount', 16,2)->default(0);
+            $table->double('amount', 16,2)->default(0);
+            $table->text('notes')->nullable();
             $table->string('status')->default('pending');
+            $table->string('image')->nullable();
             $table->timestamps();
 
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');

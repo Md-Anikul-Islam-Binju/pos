@@ -13,11 +13,16 @@ class Account extends Model
         'name',
         'type',
         'balance',
-        'user_id',
+        'admin_id',
         'status',
     ];
 
-    public function transactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function admin()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function transactions()
     {
         return $this->hasMany(AccountTransaction::class);
     }

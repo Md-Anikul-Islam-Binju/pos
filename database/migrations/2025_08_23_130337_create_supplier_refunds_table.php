@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('supplier_refunds', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('supplier_id')->nullable();
+            $table->unsignedBigInteger('supplier_id');
             $table->double('amount');
             $table->unsignedBigInteger('account_id');
+            $table->text('details')->nullable();
             $table->date('date');
             $table->string('refund_by')->nullable();
+            $table->string('image')->nullable();
             $table->string('status')->default('pending');
             $table->timestamps();
         });

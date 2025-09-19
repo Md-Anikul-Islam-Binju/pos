@@ -13,7 +13,9 @@ class Deposit extends Model
     protected $fillable = [
         'account_id',
         'amount',
+        'notes',
         'status',
+        'image',
     ];
 
     public function getTransactionType(): string

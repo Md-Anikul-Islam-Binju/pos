@@ -13,16 +13,15 @@ return new class extends Migration
     {
         Schema::create('customer_payments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('customer_id')->nullable();
-            $table->decimal('amount', 16, 2);
-            $table->unsignedBigInteger('account_id')->nullable();
+            $table->unsignedBigInteger('customer_id');
+            $table->double('amount');
+            $table->unsignedBigInteger('account_id');
+            $table->text('details')->nullable();
             $table->date('date');
-            $table->string('received_by');
+            $table->string('received_by')->nullable();
+            $table->string('image')->nullable();
             $table->string('status')->default('pending');
             $table->timestamps();
-
-            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('set null');
-            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('set null');
         });
     }
 

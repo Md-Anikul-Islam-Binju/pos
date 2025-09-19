@@ -15,6 +15,8 @@ class RawMaterialStockTransfer extends Model
         'status',
         'from_warehouse_id',
         'to_warehouse_id',
+        'note',
+        'admin_id',
         'user_id',
     ];
 

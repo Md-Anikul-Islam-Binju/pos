@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('status');
             $table->foreignId('from_warehouse_id')->constrained('warehouses')->onDelete('cascade');
             $table->foreignId('to_warehouse_id')->constrained('warehouses')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->text('note')->nullable();
+            $table->foreignId('admin_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

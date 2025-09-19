@@ -48,7 +48,7 @@
                                         <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editNewModalId{{$expenseCategoryData->id}}">Edit</button>
                                     @endcan
                                     @can('expense-category-delete')
-                                        <a href="{{route('expense.category..destroy',$expenseCategoryData->id)}}" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#danger-header-modal{{$expenseCategoryData->id}}">Delete</a>
+                                        <a href="{{route('expense.category.destroy',$expenseCategoryData->id)}}" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#danger-header-modal{{$expenseCategoryData->id}}">Delete</a>
                                     @endcan
                                 </div>
                             </td>

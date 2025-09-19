@@ -14,6 +14,8 @@ class RawMaterial extends Model
         'raw_material_category_id',
         'unit_id',
         'sku',
+        'image',
+        'details',
         'width',
         'length',
         'density',

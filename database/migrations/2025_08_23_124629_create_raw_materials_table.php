@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('raw_materials', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
+            $table->string('name');
             $table->foreignId('raw_material_category_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('unit_id')->nullable()->constrained()->nullOnDelete();
             $table->string('sku')->unique();
+            $table->string('image')->nullable();
+            $table->text('details')->nullable();
             $table->decimal('width', 16, 2)->nullable();
             $table->decimal('length', 16, 2)->nullable();
             $table->decimal('density', 16, 2)->nullable();

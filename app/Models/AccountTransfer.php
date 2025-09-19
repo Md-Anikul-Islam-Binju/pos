@@ -15,24 +15,23 @@ class AccountTransfer extends Model
         'to_account_id',
         'status',
         'amount',
+        'notes',
+        'image',
     ];
 
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
-
-    public function fromAccount(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function fromAccount()
     {
         return $this->belongsTo(Account::class, 'from_account_id');
     }
-
-    public function toAccount(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function toAccount()
     {
         return $this->belongsTo(Account::class, 'to_account_id');
     }
-    
-    public function accountTransaction(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function accountTransaction()
     {
         return $this->hasOne(AccountTransaction::class, 'model_id')
             ->where('model', '=', get_class($this)); // Ensures model matches the class
