@@ -5,13 +5,8 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use App\Jobs\UpdateCustomerBalance;
 use App\Models\Account;
-use App\Models\AdminActivity;
 use App\Models\Customer;
 use App\Models\CustomerRefund;
-use App\Models\User;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -23,19 +18,13 @@ class CustomerRefundController extends Controller
             ->only(['edit', 'update', 'updateStatus', 'destroy']);
     }
 
-    public function index(): View|Factory|Application
+    public function index()
     {
         UpdateCustomerBalance::dispatch();
-        $refunds = CustomerRefund::orderBy('id', 'DESC')->get();
-        return view('admin.pages.customer-refund.index', compact('refunds'));
-    }
-
-    public function create(): View|Factory|Application
-    {
-        $accounts = Account::all();
-        $customers = Customer::all();
-        UpdateCustomerBalance::dispatch();
-        return view('admin.pages.customer-refund.create', compact('accounts', 'customers'));
+        $refund = CustomerRefund::orderBy('id', 'DESC')->get();
+        $account = Account::all();
+        $customer = Customer::all();
+        return view('admin.pages.customer-refund.index', compact('refund', 'account', 'customer'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -63,16 +52,7 @@ class CustomerRefundController extends Controller
             'image' => $image ? 'uploads/' . $image : null
         ]);
         UpdateCustomerBalance::dispatch();
-        return redirect()->route('customer-refunds.index')->with('success', 'Refund created successfully.');
-    }
-
-    public function edit($id): View|Factory|Application
-    {
-        $refund = CustomerRefund::find($id);
-        $customers = Customer::all();
-        $accounts = Account::all();
-        UpdateCustomerBalance::dispatch();
-        return view('admin.pages.customer-refund.edit', compact('refund', 'accounts', 'customers'));
+        return redirect()->route('customer.refund.section')->with('success', 'Refund created successfully.');
     }
 
     public function update(Request $request, $id): RedirectResponse
@@ -111,7 +91,7 @@ class CustomerRefundController extends Controller
         ]);
         UpdateCustomerBalance::dispatch();
 
-        return redirect()->route('customer-refunds.index')->with('success', 'Refund updated successfully.');
+        return redirect()->route('customer.refund.section')->with('success', 'Refund updated successfully.');
     }
 
     public function destroy($id): RedirectResponse
@@ -132,25 +112,13 @@ class CustomerRefundController extends Controller
         $refund->delete();
         UpdateCustomerBalance::dispatch();
 
-        return redirect()->route('customer-refunds.index')->with('success', 'Refund deleted successfully.');
-    }
-
-    public function show($id): View|Factory|Application
-    {
-        UpdateCustomerBalance::dispatch();
-        $refund = CustomerRefund::findOrFail($id);
-        $admins = User::all();
-        $activities = AdminActivity::getActivities(CustomerRefund::class, $id)
-            ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get();
-        return view('admin.pages.customer-refund.show', compact('refund', 'admins', 'activities'));
+        return redirect()->route('customer.refund.section')->with('success', 'Refund deleted successfully.');
     }
 
     public function updateStatus($id, $status): RedirectResponse
     {
         if (!in_array($status, ['pending', 'approved', 'rejected'])) {
-            return redirect()->route('customer-refunds.index')->with('error', 'Invalid status.');
+            return redirect()->route('customer.refund.section')->with('error', 'Invalid status.');
         }
         $refund = CustomerRefund::find($id);
         if (!$refund) {

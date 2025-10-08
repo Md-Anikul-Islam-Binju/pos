@@ -20,10 +20,11 @@
         <div class="card">
             <div class="card-header">
                 <div class="d-flex justify-content-end">
-                    <!-- Large modal -->
+
                     @can('account-transfer-create')
-                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewModalId">Add New</button>
+                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewModalId">Add Transfer</button>
                     @endcan
+
                 </div>
             </div>
             <div class="card-body">
@@ -39,7 +40,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($accountTransfer as $key => $accountTransferData)
+                    @foreach($transfer as $key => $accountTransferData)
                         <tr>
                             <td>{{ $key+1 }}</td>
                             <td>{{ $accountTransferData->fromAccount->name }}</td>
@@ -59,12 +60,15 @@
                             </td>
                             <td style="width: 100px;">
                                 <div class="d-flex justify-content-end gap-1">
+
                                     @can('account-transfer-edit')
                                         <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editNewModalId{{ $accountTransferData->id }}">Edit</button>
                                     @endcan
+
                                     @can('account-transfer-delete')
                                         <a href="{{ route('account.transfer.destroy', $accountTransferData->id)}}" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#danger-header-modal{{ $accountTransferData->id }}">Delete</a>
                                     @endcan
+
                                 </div>
                             </td>
 
@@ -109,19 +113,40 @@
                                                             <input type="number" name="amount" value="{{ $accountTransferData->amount }}" step="0.01" class="form-control" required>
                                                         </div>
                                                     </div>
+                                                    @can('account-transfer-update-status')
+                                                        <div class="col-6">
+                                                            <div class="mb-3">
+                                                                <label for="status" class="form-label">Status</label>
+                                                                <select name="status" class="form-select">
+                                                                    <option value="pending" {{ $accountTransferData->status=='pending' ? 'selected' : '' }}>Pending</option>
+                                                                    <option value="approved" {{ $accountTransferData->status=='approved' ? 'selected' : '' }}>Approved</option>
+                                                                    <option value="rejected" {{ $accountTransferData->status=='rejected' ? 'selected' : '' }}>Rejected</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    @endcan
+                                                </div>
+                                                <div class="row">
                                                     <div class="col-6">
                                                         <div class="mb-3">
-                                                            <label for="status" class="form-label">Status</label>
-                                                            <select name="status" class="form-select">
-                                                                <option value="pending" {{ $accountTransferData->status=='pending' ? 'selected' : '' }}>Pending</option>
-                                                                <option value="approved" {{ $accountTransferData->status=='approved' ? 'selected' : '' }}>Approved</option>
-                                                                <option value="rejected" {{ $accountTransferData->status=='rejected' ? 'selected' : '' }}>Rejected</option>
-                                                            </select>
+                                                            <label for="notes" class="form-label">Notes</label>
+                                                            <textarea name="notes" class="form-control">{{ $accountTransferData->notes }}</textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="mb-3">
+                                                            <label for="photo" class="form-label">Photo</label>
+                                                            <input type="file" name="photo" class="form-control">
+                                                            @if($accountTransferData->image)
+                                                                <img src="{{ asset($accountTransferData->image) }}" alt="Photo" class="img-thumbnail mt-2" width="100">
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="d-flex justify-content-end">
-                                                    <button class="btn btn-primary" type="submit">Update</button>
+                                                    @can('account-transfer-edit')
+                                                        <button class="btn btn-primary" type="submit">Update</button>
+                                                    @endcan
                                                 </div>
                                             </form>
                                         </div>
@@ -142,7 +167,9 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <a href="{{route('account.transfer.destroy', $accountTransferData->id) }}" class="btn btn-danger">Delete</a>
+                                            @can('account-transfer-delete')
+                                                <a href="{{route('account.transfer.destroy', $accountTransferData->id) }}" class="btn btn-danger">Delete</a>
+                                            @endcan
                                         </div>
                                     </div>
                                 </div>
@@ -191,15 +218,43 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-12">
+                            <div class="col-6">
                                 <div class="mb-3">
                                     <label for="amount" class="form-label">Amount</label>
                                     <input type="number" name="amount" step="0.01" class="form-control" required>
                                 </div>
                             </div>
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label for="notes" class="form-label">Notes</label>
+                                    <textarea name="notes" class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label for="photo" class="form-label">Photo</label>
+                                    <input type="file" name="photo" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Status</label>
+                                    <select name="status" class="form-select">
+                                        <option value="pending">Pending</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="rejected">Rejected</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                         <div class="d-flex justify-content-end">
-                            <button class="btn btn-primary" type="submit">Submit</button>
+                            @can('account-transfer-create')
+                                <button class="btn btn-primary" type="submit">Submit</button>
+                            @endcan
                         </div>
                     </form>
                 </div>

@@ -6,10 +6,10 @@
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">POS System</a></li>
-                        <li class="breadcrumb-item active">Supplier Payments!</li>
+                        <li class="breadcrumb-item active">Supplier Payments</li>
                     </ol>
                 </div>
-                <h4 class="page-title">Supplier Payments!</h4>
+                <h4 class="page-title">Supplier Payments</h4>
             </div>
         </div>
     </div>
@@ -18,9 +18,11 @@
         <div class="card">
             <div class="card-header">
                 <div class="d-flex justify-content-end">
+
                     @can('supplier-payment-create')
-                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addPaymentModal">Add Payment</button>
+                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addPaymentModal">Add Supplier Payment</button>
                     @endcan
+
                 </div>
             </div>
             <div class="card-body">
@@ -60,12 +62,15 @@
                             </td>
                             <td style="width: 120px;">
                                 <div class="d-flex justify-content-end gap-1">
+
                                     @can('supplier-payment-edit')
                                         <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editPaymentModal{{ $pay->id }}">Edit</button>
                                     @endcan
+
                                     @can('supplier-payment-delete')
                                         <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deletePaymentModal{{ $pay->id }}">Delete</button>
                                     @endcan
+
                                 </div>
                             </td>
                         </tr>
@@ -121,9 +126,22 @@
                                                         <option value="rejected" {{ $pay->status == 'rejected' ? 'selected' : '' }}>Rejected</option>
                                                     </select>
                                                 </div>
+                                                <div class="col-6 mb-3">
+                                                    <label class="form-label">Details</label>
+                                                    <textarea name="details" class="form-control">{{ $pay->details }}</textarea>
+                                                </div>
+                                                <div class="col-6 mb-3">
+                                                    <label class="form-label">Change Photo</label>
+                                                    <input type="file" name="photo" class="form-control">
+                                                    @if($pay->image)
+                                                        <img src="{{ asset($pay->image) }}" alt="Payment Image" width="80" class="mt-2">
+                                                    @endif
+                                                </div>
                                             </div>
                                             <div class="d-flex justify-content-end">
-                                                <button type="submit" class="btn btn-primary">Update Payment</button>
+                                                @can('supplier-payment-edit')
+                                                    <button type="submit" class="btn btn-primary">Update</button>
+                                                @endcan
                                             </div>
                                         </form>
                                     </div>
@@ -144,7 +162,9 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                        <a href="{{ route('supplier.payment.destroy', $pay->id) }}" class="btn btn-danger">Delete</a>
+                                        @can('supplier-payment-delete')
+                                            <a href="{{ route('supplier.payment.destroy', $pay->id) }}" class="btn btn-danger">Delete</a>
+                                        @endcan
                                     </div>
                                 </div>
                             </div>
@@ -197,11 +217,21 @@
                             </div>
                             <div class="col-6 mb-3">
                                 <label class="form-label">Received By</label>
-                                <input type="text" name="received_by" class="form-control" required>
+                                <input type="text" name="received_by" class="form-control">
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Details</label>
+                                <textarea name="details" class="form-control"></textarea>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Upload Photo</label>
+                                <input type="file" name="photo" class="form-control">
                             </div>
                         </div>
                         <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-primary">Add Payment</button>
+                            @can('supplier-payment-create')
+                                <button type="submit" class="btn btn-primary">Add Payment</button>
+                            @endcan
                         </div>
                     </form>
                 </div>

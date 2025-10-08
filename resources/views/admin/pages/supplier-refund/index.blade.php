@@ -6,10 +6,10 @@
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">POS System</a></li>
-                        <li class="breadcrumb-item active">Supplier Refunds!</li>
+                        <li class="breadcrumb-item active">Supplier Refunds</li>
                     </ol>
                 </div>
-                <h4 class="page-title">Supplier Refunds!</h4>
+                <h4 class="page-title">Supplier Refunds</h4>
             </div>
         </div>
     </div>
@@ -18,9 +18,11 @@
         <div class="card">
             <div class="card-header">
                 <div class="d-flex justify-content-end">
+
                     @can('supplier-refund-create')
-                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addRefundModal">Add Refund</button>
+                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addRefundModal">Add Supplier Refund</button>
                     @endcan
+
                 </div>
             </div>
             <div class="card-body">
@@ -52,20 +54,23 @@
                                     <select class="form-select form-select-sm"
                                             name="status"
                                             onchange="this.form.submit()">
-                                        <option value="pending" {{ $pay->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                        <option value="approved" {{ $pay->status == 'approved' ? 'selected' : '' }}>Approved</option>
-                                        <option value="rejected" {{ $pay->status == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                        <option value="pending" {{ $r->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                        <option value="approved" {{ $r->status == 'approved' ? 'selected' : '' }}>Approved</option>
+                                        <option value="rejected" {{ $r->status == 'rejected' ? 'selected' : '' }}>Rejected</option>
                                     </select>
                                 </form>
                             </td>
                             <td style="width: 120px;">
                                 <div class="d-flex justify-content-end gap-1">
+
                                     @can('supplier-refund-edit')
                                         <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editRefundModal{{ $r->id }}">Edit</button>
                                     @endcan
+
                                     @can('supplier-refund-delete')
                                         <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteRefundModal{{ $r->id }}">Delete</button>
                                     @endcan
+
                                 </div>
                             </td>
                         </tr>
@@ -121,9 +126,22 @@
                                                         <option value="rejected" {{ $r->status == 'rejected' ? 'selected' : '' }}>Rejected</option>
                                                     </select>
                                                 </div>
+                                                <div class="col-6 mb-3">
+                                                    <label class="form-label">Details</label>
+                                                    <textarea name="details" class="form-control">{{ $r->details }}</textarea>
+                                                </div>
+                                                <div class="col-6 mb-3">
+                                                    <label class="form-label">Change Photo</label>
+                                                    <input type="file" name="photo" class="form-control">
+                                                    @if($r->image)
+                                                        <img src="{{ asset($r->image) }}" alt="Refund Image" width="80" class="mt-2">
+                                                    @endif
+                                                </div>
                                             </div>
                                             <div class="d-flex justify-content-end">
-                                                <button type="submit" class="btn btn-primary">Update Refund</button>
+                                                @can('supplier-refund-edit')
+                                                    <button type="submit" class="btn btn-primary">Update Refund</button>
+                                                @endcan
                                             </div>
                                         </form>
                                     </div>
@@ -144,7 +162,9 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                        <a href="{{ route('supplier.refund.destroy', $r->id) }}" class="btn btn-danger">Delete</a>
+                                        @can('supplier-refund-delete')
+                                            <a href="{{ route('supplier.refund.destroy', $r->id) }}" class="btn btn-danger">Delete</a>
+                                        @endcan
                                     </div>
                                 </div>
                             </div>
@@ -203,9 +223,15 @@
                                 <label class="form-label">Details</label>
                                 <textarea name="details" class="form-control" rows="2" required></textarea>
                             </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Upload Photo</label>
+                                <input type="file" name="photo" class="form-control">
+                            </div>
                         </div>
                         <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-primary">Add Refund</button>
+                            @can('supplier-refund-create')
+                                <button type="submit" class="btn btn-primary">Add Refund</button>
+                            @endcan
                         </div>
                     </form>
                 </div>

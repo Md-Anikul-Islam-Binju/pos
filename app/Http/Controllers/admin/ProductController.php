@@ -24,16 +24,18 @@ class ProductController extends Controller
 {
     public function index(): View|Factory|Application
     {
-        $products = Product::orderBy('id', 'DESC')->get();
-        return view('admin.pages.product.index', compact('products'));
+        $product = Product::orderBy('id', 'DESC')->get();
+        $productCategory = ProductCategory::all();
+        $unit = Unit::all();
+        return view('admin.pages.product.index', compact('product', 'productCategory', 'unit'));
     }
 
-    public function create(): View|Factory|Application
-    {
-        $categories = ProductCategory::all();
-        $units = Unit::all();
-        return view('admin.pages.product.create', compact('categories', 'units'));
-    }
+//    public function create(): View|Factory|Application
+//    {
+//        $categories = ProductCategory::all();
+//        $units = Unit::all();
+//        return view('admin.pages.product.create', compact('categories', 'units'));
+//    }
 
     public function store(Request $request): RedirectResponse
     {
@@ -78,16 +80,16 @@ class ProductController extends Controller
             'images' => json_encode($imagePaths),
         ]);
 
-        return redirect()->route('products.index')->with('success', 'Product created successfully');
+        return redirect()->route('product.section')->with('success', 'Product created successfully');
     }
 
-    public function edit($id): View|Factory|Application
-    {
-        $product = Product::find($id);
-        $categories = ProductCategory::all();
-        $units = Unit::all();
-        return view('admin.pages.product.edit', compact('product', 'categories', 'units'));
-    }
+//    public function edit($id): View|Factory|Application
+//    {
+//        $product = Product::find($id);
+//        $categories = ProductCategory::all();
+//        $units = Unit::all();
+//        return view('admin.pages.product.edit', compact('product', 'categories', 'units'));
+//    }
 
     public function update(Request $request, Product $product): RedirectResponse
     {
@@ -146,7 +148,7 @@ class ProductController extends Controller
             'images' => json_encode($imagePaths), // Encode the updated image paths
         ]);
 
-        return redirect()->route('.products.index')->with('success', 'Product updated successfully');
+        return redirect()->route('product.section')->with('success', 'Product updated successfully');
     }
 
 
@@ -154,16 +156,16 @@ class ProductController extends Controller
     {
         $product = Product::find($id);
         $product->delete();
-        return redirect()->route('.products.index')->with('success', 'Product Deleted Successfully');
+        return redirect()->route('product.section')->with('success', 'Product Deleted Successfully');
     }
 
-    public function show($id): View|Factory|Application
-    {
-        $product = Product::findOrFail($id);
-        $admins = User::all();
-        $activities = AdminActivity::getActivities(Product::class, $id)->orderBy('created_at', 'desc')->take(10)->get();
-        return view('admin.pages.product.show', compact('product', 'admins', 'activities'));
-    }
+//    public function show($id): View|Factory|Application
+//    {
+//        $product = Product::findOrFail($id);
+//        $admins = User::all();
+//        $activities = AdminActivity::getActivities(Product::class, $id)->orderBy('created_at', 'desc')->take(10)->get();
+//        return view('admin.pages.product.show', compact('product', 'admins', 'activities'));
+//    }
 
     public function deleteImage(Request $request, $productId, $key)
     {

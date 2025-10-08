@@ -23,7 +23,7 @@
                 <div class="d-flex justify-content-end">
 
                     @can('account-create')
-                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewModalId">Add New</button>
+                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewModalId">Add Account</button>
                     @endcan
 
                 </div>

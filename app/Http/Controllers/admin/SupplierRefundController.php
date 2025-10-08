@@ -4,13 +4,8 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Account;
-use App\Models\User;
-use App\Models\AdminActivity;
 use App\Models\Supplier;
 use App\Models\SupplierRefund;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -22,17 +17,12 @@ class SupplierRefundController extends Controller
             ->only(['edit', 'update', 'updateStatus', 'destroy']);
     }
 
-    public function index(): View|Factory|Application
+    public function index()
     {
-        $refunds = SupplierRefund::orderBy('id', 'DESC')->get();
-        return view('admin.pages.supplier-refund.index', compact('refunds'));
-    }
-
-    public function create(): View|Factory|Application
-    {
-        $accounts = Account::all();
-        $suppliers = Supplier::all();
-        return view('admin.pages.supplier-refund.create', compact('accounts', 'suppliers'));
+        $refund = SupplierRefund::orderBy('id', 'DESC')->get();
+        $account = Account::all();
+        $supplier = Supplier::all();
+        return view('admin.pages.supplier-refund.index', compact('refund', 'account', 'supplier'));
     }
 
     public function store(Request $request)
@@ -58,7 +48,7 @@ class SupplierRefundController extends Controller
             return redirect()->back()->with('error', 'Insufficient Balance');
         }
         SupplierRefund::create([
-            'supplier_id' => $request->account_id,
+            'supplier_id' => $request->supplier_id,
             'account_id' => $request->account_id,
             'amount' => $request->amount,
             'details' => $request->details,
@@ -66,15 +56,7 @@ class SupplierRefundController extends Controller
             'refund_by' => $request->refund_by,
             'image' => $image ? 'uploads/' . $image : null
         ]);
-        return redirect()->route('supplier-refunds.index')->with('success','Refund created successfully.');
-    }
-
-    public function edit($id): View|Factory|Application
-    {
-        $refund = SupplierRefund::find($id);
-        $suppliers = Supplier::all();
-        $accounts = Account::all();
-        return view('admin.pages.supplier-refund.edit', compact('refund', 'accounts', 'suppliers'));
+        return redirect()->route('supplier.refund.section')->with('success','Refund created successfully.');
     }
 
     public function update(Request $request, $id)
@@ -118,7 +100,7 @@ class SupplierRefundController extends Controller
             'image' => $image ? 'uploads/' . $image : null,
             'status' => $request->status,
         ]);
-        return redirect()->route('supplier-refunds.index')->with('success','Refund updated successfully.');
+        return redirect()->route('supplier.refund.section')->with('success','Refund updated successfully.');
     }
 
     public function destroy($id): RedirectResponse
@@ -136,24 +118,13 @@ class SupplierRefundController extends Controller
             }
         }
         $refund->delete();
-        return redirect()->route('supplier-refunds.index')->with('success','Refund deleted successfully.');
-    }
-
-    public function show($id): View|Factory|Application
-    {
-        $refund = SupplierRefund::findOrFail($id);
-        $admins = User::all();
-        $activities = AdminActivity::getActivities(SupplierRefund::class, $id)
-            ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get();
-        return view('admin.pages.supplier-refund.show', compact('refund', 'admins', 'activities'));
+        return redirect()->route('supplier.refund.index')->with('success','Refund deleted successfully.');
     }
 
     public function updateStatus($id, $status): RedirectResponse
     {
         if (!in_array($status, ['pending', 'approved', 'rejected'])) {
-            return redirect()->route('supplier-refunds.index')->with('error', 'Invalid status.');
+            return redirect()->route('supplier.refund.section')->with('error', 'Invalid status.');
         }
         $refund = SupplierRefund::find($id);
         if (!$refund) {

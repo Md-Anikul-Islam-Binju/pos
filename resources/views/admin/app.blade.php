@@ -111,7 +111,7 @@
     </div>
 
     <div class="leftside-menu">
-        <a href="{{route('dashboard')}}" class="logo logo-light">
+        <a href="{{ route('dashboard') }}" class="logo logo-light">
             <span class="logo-lg">
 {{--                <img src="{{URL::to('backend/images/etl_logo.png')}}" alt="logo" style="height: 50px;">--}}
                  <h1>POS</h1>
@@ -155,7 +155,7 @@
 
                 {{-- Dashboard --}}
                 <li class="side-nav-item">
-                    <a href="{{route('dashboard')}}" class="side-nav-link">
+                    <a href="{{ route('dashboard') }}" class="side-nav-link">
                         <i class="ri-dashboard-3-line"></i>
                         <span> Dashboard </span>
                     </a>
@@ -180,22 +180,14 @@
                 @endcan
 
                 {{-- Product --}}
-                @can('resource-list')
+                @can('product-list')
                     <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#product" class="side-nav-link">
-                            <i class="ri-box-3-line"></i>
+                        <a href="{{ route('product.section') }}" class="side-nav-link">
+                            <i class="ri-dashboard-3-line"></i>
                             <span> Product </span>
-                            <span class="menu-arrow"></span>
                         </a>
-                        <div class="collapse" id="product">
-                            <ul class="side-nav-second-level">
-                                @can('product-category-list') <li><a href="{{ route('product.category.section') }}">Product Category</a></li>@endcan
-                            </ul>
-                        </div>
                     </li>
                 @endcan
-
-                {{-- Production --}}
 
                 {{-- Master --}}
                 @can('resource-list')
@@ -222,6 +214,7 @@
                                 @can('currency-list') <li><a href="{{route('currency.section')}}">Currency</a></li>@endcan
                                 @can('expense-category-list') <li><a href="{{ route('expense.category.section') }}">Expense Category</a></li>@endcan
                                 @can('asset-category-list') <li><a href="{{ route('asset.category.section') }}">Asset Category</a></li>@endcan
+                                @can('product-category-list') <li><a href="{{ route('product.category.section') }}">Product Category</a></li>@endcan
                             </ul>
                         </div>
                     </li>
@@ -238,10 +231,16 @@
                         <div class="collapse" id="finance">
                             <ul class="side-nav-second-level">
                                 @can('account-list')<li><a href="{{ route('account.section') }}">Accounts</a></li>@endcan
+                                @can('account-transfer-list')<li><a href="{{ route('account.transfer.section') }}">Account Transfers</a></li>@endcan
                                 @can('expense-list')<li><a href="{{ route('expense.section') }}">Expenses</a></li>@endcan
                                 @can('asset-list')<li><a href="{{ route('asset.section') }}">Assets</a></li>@endcan
                                 @can('deposit-list')<li><a href="{{ route('deposit.section') }}">Deposits</a></li>@endcan
                                 @can('withdraw-list')<li><a href="{{ route('withdraw.section') }}">Withdraws</a></li>@endcan
+                                @can('customer-payment-list')<li><a href="{{ route('customer.payment.section') }}">Customer Payments</a></li>@endcan
+                                @can('customer-refund-list')<li><a href="{{ route('customer.refund.section') }}">Customer Refunds</a></li>@endcan
+                                @can('supplier-payment-list')<li><a href="{{ route('supplier.payment.section') }}">Supplier Payments</a></li>@endcan
+                                @can('supplier-refund-list')<li><a href="{{ route('supplier.refund.section') }}">Supplier Refunds</a></li>@endcan
+                                @can('production-payment-list')<li><a href="{{ route('production.payment.section') }}">Production Payments</a></li>@endcan
                             </ul>
                         </div>
                     </li>
@@ -291,55 +290,6 @@
 
 
 
-                @can('account-transfer-list')
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#sidebarAccountTransfers" aria-expanded="false" aria-controls="sidebarAccountTransfers" class="side-nav-link">
-                            <i class="ri-pages-line"></i>
-                            <span> Account Transfer </span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse" id="sidebarAccountTransfers">
-                            <ul class="side-nav-second-level">
-                                <li><a href="{{ route('account-transfers.index') }}">Account Transfers</a></li>
-                                <li><a href="{{ route('account-transfers.create') }}">Create Account Transfer</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                @endcan
-
-                @can('customer-payment-list')
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#sidebarCustomerPayments" aria-expanded="false" aria-controls="sidebarCustomerPayments" class="side-nav-link">
-                            <i class="ri-pages-line"></i>
-                            <span> Customer Payment </span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse" id="sidebarCustomerPayments">
-                            <ul class="side-nav-second-level">
-                                <li><a href="{{ route('customer-payments.index') }}">Customer Payments</a></li>
-                                <li><a href="{{ route('customer-payments.create') }}">Create Payment</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                @endcan
-
-                @can('customer=refund-list')
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#sidebarCustomerRefunds" aria-expanded="false" aria-controls="sidebarCustomerRefunds" class="side-nav-link">
-                            <i class="ri-pages-line"></i>
-                            <span> Customer Refund </span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse" id="sidebarCustomerRefunds">
-                            <ul class="side-nav-second-level">
-                                <li><a href="{{ route('customer-refunds.index') }}">Customer Refunds</a></li>
-                                <li><a href="{{ route('customer-refunds.create') }}">Create Refund</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                @endcan
-
-
 
                 @can('product-list')
                     <li class="side-nav-item">
@@ -350,8 +300,8 @@
                         </a>
                         <div class="collapse" id="sidebarProducts">
                             <ul class="side-nav-second-level">
-                                <li><a href="{{ route('products.index') }}">Products</a></li>
-                                <li><a href="{{ route('products.create') }}">Create Product</a></li>
+{{--                                <li><a href="{{ route('products.index') }}">Products</a></li>--}}
+{{--                                <li><a href="{{ route('products.create') }}">Create Product</a></li>--}}
                             </ul>
                         </div>
                     </li>
@@ -368,22 +318,6 @@
                             <ul class="side-nav-second-level">
                                 <li><a href="{{ route('productions.index') }}">Productions</a></li>
                                 <li><a href="{{ route('productions.index') }}">Create Production</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                @endcan
-
-                @can('production-payment-list')
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#sidebarProductionPayments" aria-expanded="false" aria-controls="sidebarProductionPayments" class="side-nav-link">
-                            <i class="ri-pages-line"></i>
-                            <span> Production Payment </span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse" id="sidebarProductionPayments">
-                            <ul class="side-nav-second-level">
-                                <li><a href="{{ route('production-payments.index') }}">Payments</a></li>
-                                <li><a href="{{ route('production-payments.create') }}">Create Payment</a></li>
                             </ul>
                         </div>
                     </li>
@@ -495,38 +429,6 @@
                             <ul class="side-nav-second-level">
                                 <li><a href="{{ route('sells.index') }}">Sells</a></li>
                                 <li><a href="{{ route('sells.create') }}">Create Sell</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                @endcan
-
-                @can('supplier-payment-list')
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#sidebarSupplierPayments" aria-expanded="false" aria-controls="sidebarSupplierPayments" class="side-nav-link">
-                            <i class="ri-pages-line"></i>
-                            <span> Supplier Payment </span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse" id="sidebarSupplierPayments">
-                            <ul class="side-nav-second-level">
-                                <li><a href="{{ route('supplier-payments.index') }}">Payments</a></li>
-                                <li><a href="{{ route('supplier-payments.create') }}">Create Payment</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                @endcan
-
-                @can('supplier-refund-list')
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#sidebarSupplierRefunds" aria-expanded="false" aria-controls="sidebarSupplierRefunds" class="side-nav-link">
-                            <i class="ri-pages-line"></i>
-                            <span> Supplier Refund </span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse" id="sidebarSupplierRefunds">
-                            <ul class="side-nav-second-level">
-                                <li><a href="{{ route('supplier-refunds.index') }}">Refunds</a></li>
-                                <li><a href="{{ route('supplier-refunds.create') }}">Create Refund</a></li>
                             </ul>
                         </div>
                     </li>

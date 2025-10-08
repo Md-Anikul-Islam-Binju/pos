@@ -4,13 +4,8 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Account;
-use App\Models\User;
-use App\Models\AdminActivity;
 use App\Models\Supplier;
 use App\Models\SupplierPayment;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -22,17 +17,12 @@ class SupplierPaymentController extends Controller
             ->only(['edit', 'update', 'updateStatus', 'destroy']);
     }
 
-    public function index(): View|Factory|Application
+    public function index()
     {
-        $payments = SupplierPayment::orderBy('id', 'DESC')->get();
-        return view('admin.pages.supplier-payment.index', compact('payments'));
-    }
-
-    public function create(): View|Factory|Application
-    {
-        $accounts = Account::all();
-        $suppliers = Supplier::all();
-        return view('admin.pages.supplier-payment.create', compact('accounts', 'suppliers'));
+        $payment = SupplierPayment::orderBy('id', 'DESC')->get();
+        $account = Account::all();
+        $supplier = Supplier::all();
+        return view('admin.pages.supplier-payment.index', compact('payment', 'account', 'supplier'));
     }
 
     public function store(Request $request)
@@ -58,7 +48,7 @@ class SupplierPaymentController extends Controller
             return redirect()->back()->with('error', 'Insufficient Balance');
         }
         SupplierPayment::create([
-            'supplier_id' => $request->account_id,
+            'supplier_id' => $request->supplier_id,
             'account_id' => $request->account_id,
             'amount' => $request->amount,
             'details' => $request->details,
@@ -66,15 +56,7 @@ class SupplierPaymentController extends Controller
             'received_by' => $request->received_by,
             'image' => $image ? 'uploads/' . $image : null
         ]);
-        return redirect()->route('supplier-payments.index')->with('success','Payment created successfully.');
-    }
-
-    public function edit($id): View|Factory|Application
-    {
-        $payment = SupplierPayment::find($id);
-        $suppliers = Supplier::all();
-        $accounts = Account::all();
-        return view('admin.pages.supplier-payment.edit', compact('payment', 'accounts', 'suppliers'));
+        return redirect()->route('supplier.payment.section')->with('success','Payment created successfully.');
     }
 
     public function update(Request $request, $id)
@@ -118,7 +100,7 @@ class SupplierPaymentController extends Controller
             'image' => $image ? 'uploads/' . $image : null,
             'status' => $request->status,
         ]);
-        return redirect()->route('supplier-payments.index')->with('success','Payment updated successfully.');
+        return redirect()->route('supplier.payment.section')->with('success','Payment updated successfully.');
     }
 
     public function destroy($id): RedirectResponse
@@ -136,24 +118,13 @@ class SupplierPaymentController extends Controller
             }
         }
         $payment->delete();
-        return redirect()->route('supplier-payments.index')->with('success','Payment deleted successfully.');
-    }
-
-    public function show($id): View|Factory|Application
-    {
-        $payment = SupplierPayment::findOrFail($id);
-        $admins = User::all();
-        $activities = AdminActivity::getActivities(SupplierPayment::class, $id)
-            ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get();
-        return view('admin.pages.supplier-payment.show', compact('payment', 'admins', 'activities'));
+        return redirect()->route('supplier.payment.section')->with('success','Payment deleted successfully.');
     }
 
     public function updateStatus($id, $status): RedirectResponse
     {
         if (!in_array($status, ['pending', 'approved', 'rejected'])) {
-            return redirect()->route('supplier-payments.index')->with('error', 'Invalid status.');
+            return redirect()->route('supplier.payment.section')->with('error', 'Invalid status.');
         }
         $payment = SupplierPayment::find($id);
         if (!$payment) {

@@ -4,14 +4,8 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Account;
-use App\Models\User;
-use App\Models\AdminActivity;
 use App\Models\ProductionHouse;
 use App\Models\ProductionPayment;
-use App\Models\Supplier;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -23,17 +17,12 @@ class ProductionPaymentController extends Controller
             ->only(['edit', 'update', 'updateStatus', 'destroy']);
     }
 
-    public function index(): View|Factory|Application
+    public function index()
     {
-        $payments = ProductionPayment::orderBy('id', 'DESC')->get();
-        return view('admin.pages.production-payment.index', compact('payments'));
-    }
-
-    public function create(): View|Factory|Application
-    {
-        $accounts = Account::all();
-        $houses = ProductionHouse::all();
-        return view('admin.pages.production-payment.create', compact('accounts', 'houses'));
+        $payment = ProductionPayment::orderBy('id', 'DESC')->get();
+        $account = Account::all();
+        $house = ProductionHouse::all();
+        return view('admin.pages.production-payment.index', compact('payment', 'account', 'house'));
     }
 
     public function store(Request $request)
@@ -45,7 +34,7 @@ class ProductionPaymentController extends Controller
             'details' => 'nullable',
             'date' => 'required',
             'received_by' => 'nullable',
-            'image' => 'nullable',
+            'photo' => 'nullable|image',
         ]);
         $image = '';
         if ($request->hasFile('photo')) {
@@ -67,15 +56,7 @@ class ProductionPaymentController extends Controller
             'received_by' => $request->received_by,
             'image' => $image ? 'uploads/' . $image : null
         ]);
-        return redirect()->route('production-payments.index')->with('success','Payment created successfully.');
-    }
-
-    public function edit($id): View|Factory|Application
-    {
-        $payment = ProductionPayment::find($id);
-        $houses = ProductionHouse::all();
-        $accounts = Account::all();
-        return view('admin.pages.production-payment.edit', compact('payment', 'accounts', 'houses'));
+        return redirect()->route('production.payment.section')->with('success','Payment created successfully.');
     }
 
     public function update(Request $request, $id)
@@ -88,7 +69,7 @@ class ProductionPaymentController extends Controller
             'details' => 'nullable',
             'date' => 'required',
             'received_by' => 'nullable',
-            'image' => 'nullable',
+            'photo' => 'nullable|image',
             'status' => 'required'
         ]);
         $image = $payment->image ?? null;
@@ -119,7 +100,7 @@ class ProductionPaymentController extends Controller
             'image' => $image ? 'uploads/' . $image : null,
             'status' => $request->status,
         ]);
-        return redirect()->route('production-payments.index')->with('success','Payment updated successfully.');
+        return redirect()->route('production.payment.section')->with('success','Payment updated successfully.');
     }
 
     public function destroy($id): RedirectResponse
@@ -137,24 +118,13 @@ class ProductionPaymentController extends Controller
             }
         }
         $payment->delete();
-        return redirect()->route('production-payments.index')->with('success','Payment deleted successfully.');
-    }
-
-    public function show($id): View|Factory|Application
-    {
-        $payment = ProductionPayment::findOrFail($id);
-        $admins = User::all();
-        $activities = AdminActivity::getActivities(ProductionPayment::class, $id)
-            ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get();
-        return view('admin.pages.production-payment.show', compact('payment', 'admins', 'activities'));
+        return redirect()->route('production.payment.section')->with('success','Payment deleted successfully.');
     }
 
     public function updateStatus($id, $status): RedirectResponse
     {
         if (!in_array($status, ['pending', 'approved', 'rejected'])) {
-            return redirect()->route('production-payments.index')->with('error', 'Invalid status.');
+            return redirect()->route('production.payment.section')->with('error', 'Invalid status.');
         }
         $payment = ProductionPayment::find($id);
         if (!$payment) {
