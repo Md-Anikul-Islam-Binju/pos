@@ -23,20 +23,33 @@ class RawMaterialController extends Controller
 {
     public function index(): View|Factory|Application
     {
-        $materials = RawMaterial::orderBy('id', 'DESC')->latest()->get();
-        $categories = RawMaterialCategory::orderBy('id', 'DESC')->latest()->get();
-        return view('admin.pages.raw-material.index', compact('materials', 'categories'));
+        $materials = RawMaterial::with(['category', 'unit', 'brands', 'sizes', 'colors'])->latest()->get();
+        $categories = RawMaterialCategory::latest()->get();
+        $units = Unit::latest()->get();
+        $brands = Brand::latest()->get();
+        $sizes = Size::latest()->get();
+        $colors = Color::latest()->get();
+
+        return view('admin.pages.raw-material.index', compact(
+            'materials',
+            'categories',
+            'units',
+            'brands',
+            'sizes',
+            'colors'
+        ));
     }
 
-    public function create(): View|Factory|Application
-    {
-        $categories = RawMaterialCategory::orderBy('id', 'DESC')->get();
-        $units = Unit::orderby('id', 'DESC')->get();
-        $brands = Brand::orderby('id', 'DESC')->get();
-        $sizes = Size::orderby('id', 'DESC')->get();
-        $colors = Color::orderby('id', 'DESC')->get();
-        return view('admin.pages.raw-material.create', compact('categories', 'units', 'brands', 'sizes', 'colors'));
-    }
+
+    // public function create(): View|Factory|Application
+    // {
+    //     $categories = RawMaterialCategory::orderBy('id', 'DESC')->get();
+    //     $units = Unit::orderby('id', 'DESC')->get();
+    //     $brands = Brand::orderby('id', 'DESC')->get();
+    //     $sizes = Size::orderby('id', 'DESC')->get();
+    //     $colors = Color::orderby('id', 'DESC')->get();
+    //     return view('admin.pages.raw-material.create', compact('categories', 'units', 'brands', 'sizes', 'colors'));
+    // }
 
     public function store(Request $request): RedirectResponse
     {
@@ -84,20 +97,20 @@ class RawMaterialController extends Controller
         return redirect()->route('admin.materials.index')->with('success', 'Raw Material Created Successfully');
     }
 
-    public function edit($id): View|Factory|Application
-    {
-        $material = RawMaterial::findOrFail($id);
-        $categories = RawMaterialCategory::orderBy('id', 'DESC')->get();
-        $units = Unit::orderby('id', 'DESC')->get();
-        $brands = Brand::orderby('id', 'DESC')->get();
-        $sizes = Size::orderby('id', 'DESC')->get();
-        $colors = Color::orderby('id', 'DESC')->get();
-        $brand_Id = DB::table('brand_raw_material')->where('raw_material_id', $id)->pluck('brand_id'); // Retrieves only brand_id column as a collection
-        $size_Id = DB::table('size_raw_material')->where('raw_material_id', $id)->pluck('size_id');
-        $color_Id = DB::table('color_raw_material')->where('raw_material_id', $id)->pluck('color_id');
-        return view('admin.pages.raw-material.edit', compact('material', 'categories', 'units',
-            'brands', 'sizes', 'colors', 'brand_Id', 'size_Id', 'color_Id'));
-    }
+    // public function edit($id): View|Factory|Application
+    // {
+    //     $material = RawMaterial::findOrFail($id);
+    //     $categories = RawMaterialCategory::orderBy('id', 'DESC')->get();
+    //     $units = Unit::orderby('id', 'DESC')->get();
+    //     $brands = Brand::orderby('id', 'DESC')->get();
+    //     $sizes = Size::orderby('id', 'DESC')->get();
+    //     $colors = Color::orderby('id', 'DESC')->get();
+    //     $brand_Id = DB::table('brand_raw_material')->where('raw_material_id', $id)->pluck('brand_id'); // Retrieves only brand_id column as a collection
+    //     $size_Id = DB::table('size_raw_material')->where('raw_material_id', $id)->pluck('size_id');
+    //     $color_Id = DB::table('color_raw_material')->where('raw_material_id', $id)->pluck('color_id');
+    //     return view('admin.pages.raw-material.edit', compact('material', 'categories', 'units',
+    //         'brands', 'sizes', 'colors', 'brand_Id', 'size_Id', 'color_Id'));
+    // }
 
     public function update(Request $request, $id): RedirectResponse
     {
@@ -118,7 +131,7 @@ class RawMaterialController extends Controller
         $image = $material->image ?? null;
         if ($request->hasFile('photo')) {
             // Delete previous image
-            if($material->image) {
+            if ($material->image) {
                 $prev_image = $material->image;
                 if (file_exists($prev_image)) {
                     unlink($prev_image);
@@ -164,20 +177,37 @@ class RawMaterialController extends Controller
     {
         $material = RawMaterial::findOrFail($id);
         $admins = User::all();
-        $activities = AdminActivity::getActivities(RawMaterial::class, $id)->orderBy('created_at', 'desc') ->take(10) ->get();
+        $activities = AdminActivity::getActivities(RawMaterial::class, $id)->orderBy('created_at', 'desc')->take(10)->get();
         return view('admin.pages.raw-material.show', compact('material', 'admins', 'activities'));
     }
 
     public function destroy($id): RedirectResponse
     {
-        $material = RawMaterial::find($id);
+        $material = RawMaterial::findOrFail($id);
+
+        // Detach many-to-many relationships
+        $material->sizes()->detach();
+        $material->colors()->detach();
+        $material->brands()->detach();
+
+        // Delete associated image if exists
+        if ($material->image) {
+            $imagePath = public_path('storage/' . str_replace('uploads/', '', $material->image));
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
+        }
+
+        // Delete the raw material
         $material->delete();
-        return redirect()->route('admin.materials.index')->with('success', 'Raw Material Deleted Successfully');
+
+        return redirect()->route('raw.material.section')->with('success', 'Raw Material Deleted Successfully');
     }
+
 
     public function getAllMaterials(): JsonResponse
     {
-        $materials = RawMaterial::with(['brands','colors','sizes', 'unit'])->orderBy('id', 'DESC')->get();
+        $materials = RawMaterial::with(['brands', 'colors', 'sizes', 'unit'])->orderBy('id', 'DESC')->get();
         return response()->json($materials);
     }
 }

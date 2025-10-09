@@ -1,146 +1,198 @@
 @extends('admin.app')
-@section('admin_content')
-    {{-- CKEditor CDN --}}
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box">
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">CoderNetix POS</a></li>
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">Resource</a></li>
-                        <li class="breadcrumb-item active">Brand!</li>
-                    </ol>
-                </div>
-                <h4 class="page-title">Brand!</h4>
-            </div>
-        </div>
-    </div>
 
+@section('admin_content')
+<div class="row">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <div class="d-flex justify-content-end">
-                    <!-- Large modal -->
-                    @can('brand-create')
-                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewModalId">Add New</button>
-                    @endcan
-                </div>
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">CoderNetix POS</a></li>
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Resource</a></li>
+                    <li class="breadcrumb-item active">Create Raw Material Stock Transfer</li>
+                </ol>
             </div>
-            <div class="card-body">
-                <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
-                    <thead>
-                    <tr>
-                        <th>S/N</th>
-                        <th>Name</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($brand as $key=>$brandData)
-                        <tr>
-                            <td>{{$key+1}}</td>
-                            <td>{{$brandData->name}}</td>
-                            <td>{{$brandData->status==1? 'Active':'Inactive'}}</td>
-                            <td style="width: 100px;">
-                                <div class="d-flex justify-content-end gap-1">
-                                    @can('brand-edit')
-                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editNewModalId{{$brandData->id}}">Edit</button>
-                                    @endcan
-                                    @can('brand-delete')
-                                        <a href="{{route('brand.destroy',$brandData->id)}}" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#danger-header-modal{{$brandData->id}}">Delete</a>
-                                    @endcan
-                                </div>
-                            </td>
-                            <!--Edit Modal -->
-                            <div class="modal fade" id="editNewModalId{{$brandData->id}}" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="editNewModalLabel{{$brandData->id}}" aria-hidden="true">
-                                <div class="modal-dialog modal-lg modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h4 class="modal-title" id="addNewModalLabel{{$brandData->id}}">Edit</h4>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <form method="post" action="{{route('brand.update',$brandData->id)}}" enctype="multipart/form-data">
-                                                @csrf
-                                                @method('PUT')
-                                                <div class="row">
-                                                    <div class="col-6">
-                                                        <div class="mb-3">
-                                                            <label for="name" class="form-label">Name</label>
-                                                            <input type="text" id="name" name="name" value="{{$brandData->name}}"
-                                                                   class="form-control" placeholder="Enter Name" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <div class="mb-3">
-                                                            <label for="example-select" class="form-label">Status</label>
-                                                            <select name="status" class="form-select">
-                                                                <option value="1" {{ $brandData->status === 1 ? 'selected' : '' }}>Active</option>
-                                                                <option value="0" {{ $brandData->status === 0 ? 'selected' : '' }}>Inactive</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex justify-content-end">
-                                                    <button class="btn btn-primary" type="submit">Update</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Delete Modal -->
-                            <div id="danger-header-modal{{$brandData->id}}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="danger-header-modalLabel{{$brandData->id}}" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header modal-colored-header bg-danger">
-                                            <h4 class="modal-title" id="danger-header-modalLabe{{$brandData->id}}l">Delete</h4>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <h5 class="mt-0">Do you want to Delete this ? </h5>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <a href="{{route('brand.destroy',$brandData->id)}}" class="btn btn-danger">Delete</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
+            <h4 class="page-title">Create Raw Material Stock Transfer</h4>
         </div>
     </div>
-    <!--Add Modal -->
-    <div class="modal fade" id="addNewModalId" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="addNewModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="addNewModalLabel">Add</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="col-12">
+    <div class="card">
+        <div class="card-body">
+            <form action="{{ route('raw.material.stock.transfer.store') }}" method="POST" enctype="multipart/form-data" id="admin-form">
+                @csrf
+
+                @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
-                <div class="modal-body">
-                    <form method="post" action="{{route('brand.store')}}" enctype="multipart/form-data">
-                        @csrf
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label for="name" class="form-label">Name</label>
-                                    <input type="text" id="name" name="name"
-                                           class="form-control" placeholder="Enter Name">
-                                </div>
-                            </div>
+                @endif
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="from_warehouse_id">From Warehouse <span class="text-danger">*</span></label>
+                            <select id="from_warehouse_id" name="from_warehouse_id" class="form-control " required>
+                                <option value="">Select Warehouse</option>
+                                @foreach ($warehouses as $warehouse)
+                                <option value="{{ $warehouse->id }}">{{ $warehouse->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
-                        <div class="d-flex justify-content-end">
-                            <button class="btn btn-primary" type="submit">Submit</button>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="to_warehouse_id">To Warehouse <span class="text-danger">*</span></label>
+                            <select id="to_warehouse_id" name="to_warehouse_id" class="form-control " required>
+                                <option value="">Select Warehouse</option>
+                                @foreach ($warehouses as $warehouse)
+                                <option value="{{ $warehouse->id }}">{{ $warehouse->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
-                    </form>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="date">Date <span class="text-danger">*</span></label>
+                            <input type="date" name="date" class="form-control" required>
+                        </div>
+                    </div>
                 </div>
-            </div>
+
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="note">Details</label>
+                            <textarea name="note" id="summernote" class="form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Raw Material Table -->
+                <div class="row" id="raw-material-table-container" style="display:none;">
+                    <div class="col-12 mb-2">
+                        <input type="text" id="search-raw-material" class="form-control" placeholder="Search raw material...">
+                    </div>
+                    <div class="col-12">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Raw Material Name</th>
+                                    <th>Available Quantity</th>
+                                    <th>Transfer Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="raw-material-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                @can('raw-material-stock-transfer-create')
+                <button class="btn btn-success" type="submit">Create Transfer</button>
+                @endcan
+            </form>
         </div>
     </div>
+</div>
+@endsection
+
+@section('js')
+<script>
+$(document).ready(function() {
+
+    // Hide table initially
+    $('#raw-material-table-container').hide();
+
+    // When "from warehouse" changes
+    $('#from_warehouse_id').on('change', function() {
+        let fromWarehouseId = $(this).val();
+        let toWarehouseIdDropdown = $('#to_warehouse_id');
+
+        // Show all options and hide selected "from" warehouse
+        toWarehouseIdDropdown.find('option').show();
+        if (fromWarehouseId) {
+            toWarehouseIdDropdown.find('option[value="' + fromWarehouseId + '"]').hide();
+        }
+
+        $('#raw-material-table-body').empty();
+
+        if (!fromWarehouseId) {
+            $('#raw-material-table-container').hide();
+            return;
+        }
+
+        // Fetch raw materials via AJAX
+        $.ajax({
+            url: '/raw-material-stocks/' + fromWarehouseId,
+            type: 'GET',
+            success: function(data) {
+                if (data.length > 0) {
+                    $('#raw-material-table-container').show();
+
+                    data.forEach(function(raw) {
+                        $('#raw-material-table-body').append(`
+                            <tr>
+                                <td><input type="checkbox" class="raw-material-checkbox" name="selected_raw_materials[]" value="${raw.id}"></td>
+                                <td>${raw.raw_material_name}</td>
+                                <td>${raw.quantity}</td>
+                                <td>
+                                    <input type="number" name="transfer_quantities[${raw.id}]" class="form-control transfer-quantity" min="1" max="${raw.quantity}" disabled>
+                                </td>
+                            </tr>
+                        `);
+                    });
+
+                    // Checkbox toggle
+                    $('#raw-material-table-body').on('change', '.raw-material-checkbox', function() {
+                        let qtyInput = $(this).closest('tr').find('.transfer-quantity');
+                        if ($(this).is(':checked')) {
+                            qtyInput.prop('disabled', false).prop('required', true);
+                        } else {
+                            qtyInput.prop('disabled', true).prop('required', false).val('');
+                        }
+                    });
+
+                    // Quantity max validation
+                    $(document).on('input', '.transfer-quantity', function() {
+                        let maxQty = parseInt($(this).attr('max') || 0);
+                        let enteredQty = parseInt($(this).val() || 0);
+                        if (enteredQty > maxQty) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Quantity Exceeds Available Stock',
+                                text: `You can transfer up to ${maxQty} units only.`,
+                                confirmButtonText: 'OK'
+                            }).then(() => { $(this).val(maxQty); });
+                        }
+                    });
+
+                } else {
+                    $('#raw-material-table-container').show();
+                    $('#raw-material-table-body').html('<tr><td colspan="4" class="text-center">No raw materials available</td></tr>');
+                }
+            },
+            error: function() {
+                alert('Error fetching raw materials.');
+            }
+        });
+    });
+
+    // Search functionality
+    $('#search-raw-material').on('keyup', function() {
+        let searchTerm = $(this).val().toLowerCase();
+        $('#raw-material-table-body tr').each(function() {
+            let name = $(this).find('td:eq(1)').text().toLowerCase();
+            $(this).toggle(name.indexOf(searchTerm) > -1);
+        });
+    });
+
+});
+</script>
 @endsection

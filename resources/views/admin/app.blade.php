@@ -1,34 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <title>Dashboard | CoderNetix POS</title>
     <style>
         /* Scrollable container for sidebar menu */
         .side-nav-wrapper {
-            max-height: 100vh;      /* Full viewport height */
-            overflow-y: auto;       /* Enable vertical scrolling */
-            padding-right: 4px;     /* Optional: avoids content hiding behind scrollbar */
+            max-height: 100vh;
+            /* Full viewport height */
+            overflow-y: auto;
+            /* Enable vertical scrolling */
+            padding-right: 4px;
+            /* Optional: avoids content hiding behind scrollbar */
         }
 
         /* Simple thin scrollbar for modern browsers */
         .side-nav-wrapper::-webkit-scrollbar {
-            width: 6px;             /* Thin width */
+            width: 6px;
+            /* Thin width */
         }
 
         .side-nav-wrapper::-webkit-scrollbar-track {
-            background: transparent; /* Make track transparent */
+            background: transparent;
+            /* Make track transparent */
         }
 
         .side-nav-wrapper::-webkit-scrollbar-thumb {
-            background-color: rgba(0,0,0,0.3); /* Dark translucent thumb */
+            background-color: rgba(0, 0, 0, 0.3);
+            /* Dark translucent thumb */
             border-radius: 3px;
         }
 
         /* Firefox scrollbar */
         .side-nav-wrapper {
             scrollbar-width: thin;
-            scrollbar-color: rgba(0,0,0,0.3) transparent;
+            scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
         }
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,119 +57,122 @@
     <link href="{{asset('backend/css/icons.min.css')}}" rel="stylesheet" type="text/css" />
     {{-- Custom Css File here --}}
     <link rel="stylesheet" href="{{ asset('backend/css/sdmg.min.css') }}">
+
+    @yield('css')
+
     <script src="{{asset('backend/js/chart.js')}}"></script>
     <script src="{{asset('backend/js/echarts.min.js')}}"></script>
 
 </head>
 
 <body>
-<div class="wrapper">
-    <div class="navbar-custom">
-        <div class="topbar container-fluid">
-            <div class="d-flex align-items-center gap-1">
-                <!-- Sidebar Menu Toggle Button -->
-                <button class="button-toggle-menu">
-                    <i class="ri-menu-line"></i>
-                </button>
-            </div>
-            <ul class="topbar-menu d-flex align-items-center gap-3">
-                <li class="dropdown d-lg-none">
-                    <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button"
-                       aria-haspopup="false" aria-expanded="false">
-                        <i class="ri-search-line fs-22"></i>
-                    </a>
-                </li>
-                <li class="d-none d-sm-inline-block">
-                    <div class="nav-link" id="light-dark-mode">
-                        <i class="ri-moon-line fs-22"></i>
-                    </div>
-                </li>
-                <li class="dropdown">
-                    @php
-                       $admin = auth()->user();
-                    @endphp
-                    <a class="nav-link dropdown-toggle arrow-none nav-user" data-bs-toggle="dropdown" href="#" role="button"
-                       aria-haspopup="false" aria-expanded="false">
-                        <span class="d-lg-block d-none">
-                              <h5 class="my-0 fw-normal">{{$admin->name}}
-                                  <i class="ri-arrow-down-s-line d-none d-sm-inline-block align-middle"></i>
-                              </h5>
-                        </span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated profile-dropdown">
-                        <div class=" dropdown-header noti-title">
-                            <h6 class="text-overflow m-0">Welcome !</h6>
+    <div class="wrapper">
+        <div class="navbar-custom">
+            <div class="topbar container-fluid">
+                <div class="d-flex align-items-center gap-1">
+                    <!-- Sidebar Menu Toggle Button -->
+                    <button class="button-toggle-menu">
+                        <i class="ri-menu-line"></i>
+                    </button>
+                </div>
+                <ul class="topbar-menu d-flex align-items-center gap-3">
+                    <li class="dropdown d-lg-none">
+                        <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button"
+                            aria-haspopup="false" aria-expanded="false">
+                            <i class="ri-search-line fs-22"></i>
+                        </a>
+                    </li>
+                    <li class="d-none d-sm-inline-block">
+                        <div class="nav-link" id="light-dark-mode">
+                            <i class="ri-moon-line fs-22"></i>
                         </div>
-                        <a href="#" class="dropdown-item">
-                            <i class="ri-account-circle-line fs-18 align-middle me-1"></i>
-                            <span>My Account</span>
+                    </li>
+                    <li class="dropdown">
+                        @php
+                        $admin = auth()->user();
+                        @endphp
+                        <a class="nav-link dropdown-toggle arrow-none nav-user" data-bs-toggle="dropdown" href="#" role="button"
+                            aria-haspopup="false" aria-expanded="false">
+                            <span class="d-lg-block d-none">
+                                <h5 class="my-0 fw-normal">{{$admin->name}}
+                                    <i class="ri-arrow-down-s-line d-none d-sm-inline-block align-middle"></i>
+                                </h5>
+                            </span>
                         </a>
-                        <a href="{{ route('logout') }}" class="dropdown-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            <i class="ri-logout-box-line fs-18 align-middle me-1"></i>
-                            <span>Logout</span>
-                        </a>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                            @csrf
-                        </form>
-                    </div>
-                </li>
-            </ul>
+                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated profile-dropdown">
+                            <div class=" dropdown-header noti-title">
+                                <h6 class="text-overflow m-0">Welcome !</h6>
+                            </div>
+                            <a href="#" class="dropdown-item">
+                                <i class="ri-account-circle-line fs-18 align-middle me-1"></i>
+                                <span>My Account</span>
+                            </a>
+                            <a href="{{ route('logout') }}" class="dropdown-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                <i class="ri-logout-box-line fs-18 align-middle me-1"></i>
+                                <span>Logout</span>
+                            </a>
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                @csrf
+                            </form>
+                        </div>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
 
-    <div class="leftside-menu">
-        <a href="{{ route('dashboard') }}" class="logo logo-light">
-            <span class="logo-lg">
-{{--                <img src="{{URL::to('backend/images/etl_logo.png')}}" alt="logo" style="height: 50px;">--}}
-                 <h1>POS</h1>
-            </span>
-            <span class="logo-sm">
-{{--                <img src="{{URL::to('backend/images/etl_logo.png')}}" alt="small logo">--}}
-                <h1>POS</h1>
-            </span>
-        </a>
+        <div class="leftside-menu">
+            <a href="{{ route('dashboard') }}" class="logo logo-light">
+                <span class="logo-lg">
+                    {{-- <img src="{{URL::to('backend/images/etl_logo.png')}}" alt="logo" style="height: 50px;">--}}
+                    <h1>POS</h1>
+                </span>
+                <span class="logo-sm">
+                    {{-- <img src="{{URL::to('backend/images/etl_logo.png')}}" alt="small logo">--}}
+                    <h1>POS</h1>
+                </span>
+            </a>
 
 
-        <div class="side-nav-wrapper">
-            <ul class="side-nav">
-                <li class="side-nav-title">Main</li>
+            <div class="side-nav-wrapper">
+                <ul class="side-nav">
+                    <li class="side-nav-title">Main</li>
 
-{{--                 @can('resource-list') --}}
-{{--                    <li class="side-nav-item"> --}}
-{{--                        <a data-bs-toggle="collapse" href="#sidebarPages" aria-expanded="false" aria-controls="sidebarPages" class="side-nav-link"> --}}
-{{--                            <i class="ri-pages-line"></i> --}}
-{{--                            <span> Resource </span> --}}
-{{--                            <span class="menu-arrow"></span> --}}
-{{--                        </a>  --}}
-{{--                        <div class="collapse" id="sidebarPages"> --}}
-{{--                            <ul class="side-nav-second-level"> --}}
-{{--                                <li>--}}
-{{--                                    <a href="#">Test</a> --}}
-{{--                                </li> --}}
-{{--                            </ul> --}}
-{{--                        </div> --}}
-{{--                    </li> --}}
-{{--                 @endcan --}}
+                    {{-- @can('resource-list') --}}
+                    {{-- <li class="side-nav-item"> --}}
+                    {{-- <a data-bs-toggle="collapse" href="#sidebarPages" aria-expanded="false" aria-controls="sidebarPages" class="side-nav-link"> --}}
+                    {{-- <i class="ri-pages-line"></i> --}}
+                    {{-- <span> Resource </span> --}}
+                    {{-- <span class="menu-arrow"></span> --}}
+                    {{-- </a>  --}}
+                    {{-- <div class="collapse" id="sidebarPages"> --}}
+                    {{-- <ul class="side-nav-second-level"> --}}
+                    {{-- <li>--}}
+                    {{-- <a href="#">Test</a> --}}
+                    {{-- </li> --}}
+                    {{-- </ul> --}}
+                    {{-- </div> --}}
+                    {{-- </li> --}}
+                    {{-- @endcan --}}
 
-{{--                @can('slider-list') --}}
-{{--                    <li class="side-nav-item"> --}}
-{{--                        <a href="{{route('slider.section')}}" class="side-nav-link"> --}}
-{{--                            <i class="ri-slideshow-line"></i> --}}
-{{--                            <span> Slider </span> --}}
-{{--                        </a> --}}
-{{--                    </li> --}}
-{{--                @endcan--}}
+                    {{-- @can('slider-list') --}}
+                    {{-- <li class="side-nav-item"> --}}
+                    {{-- <a href="{{route('slider.section')}}" class="side-nav-link"> --}}
+                    {{-- <i class="ri-slideshow-line"></i> --}}
+                    {{-- <span> Slider </span> --}}
+                    {{-- </a> --}}
+                    {{-- </li> --}}
+                    {{-- @endcan--}}
 
-                {{-- Dashboard --}}
-                <li class="side-nav-item">
-                    <a href="{{ route('dashboard') }}" class="side-nav-link">
-                        <i class="ri-dashboard-3-line"></i>
-                        <span> Dashboard </span>
-                    </a>
-                </li>
+                    {{-- Dashboard --}}
+                    <li class="side-nav-item">
+                        <a href="{{ route('dashboard') }}" class="side-nav-link">
+                            <i class="ri-dashboard-3-line"></i>
+                            <span> Dashboard </span>
+                        </a>
+                    </li>
 
-                {{-- Raw Material --}}
-                @can('resource-list')
+                    {{-- Raw Material --}}
+                    @can('resource-list')
                     <li class="side-nav-item">
                         <a data-bs-toggle="collapse" href="#rawMaterial" class="side-nav-link">
                             <i class="ri-box-3-line"></i>
@@ -177,20 +187,20 @@
                             </ul>
                         </div>
                     </li>
-                @endcan
+                    @endcan
 
-                {{-- Product --}}
-                @can('product-list')
+                    {{-- Product --}}
+                    @can('product-list')
                     <li class="side-nav-item">
                         <a href="{{ route('product.section') }}" class="side-nav-link">
                             <i class="ri-dashboard-3-line"></i>
                             <span> Product </span>
                         </a>
                     </li>
-                @endcan
+                    @endcan
 
-                {{-- Master --}}
-                @can('resource-list')
+                    {{-- Master --}}
+                    @can('resource-list')
                     <li class="side-nav-item">
                         <a data-bs-toggle="collapse" href="#master" class="side-nav-link">
                             <i class="ri-box-3-line"></i>
@@ -218,10 +228,10 @@
                             </ul>
                         </div>
                     </li>
-                @endcan
+                    @endcan
 
-                {{-- Finance --}}
-                @can('resource-list')
+                    {{-- Finance --}}
+                    @can('resource-list')
                     <li class="side-nav-item">
                         <a data-bs-toggle="collapse" href="#finance" class="side-nav-link">
                             <i class="ri-bank-line"></i>
@@ -244,10 +254,10 @@
                             </ul>
                         </div>
                     </li>
-                @endcan
+                    @endcan
 
-                {{-- Reports --}}
-                @can('resource-list')
+                    {{-- Reports --}}
+                    @can('resource-list')
                     <li class="side-nav-item">
                         <a data-bs-toggle="collapse" href="#report" class="side-nav-link">
                             <i class="ri-bar-chart-2-line"></i>
@@ -273,25 +283,9 @@
                             </ul>
                         </div>
                     </li>
-                @endcan
+                    @endcan
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                @can('product-list')
+                    @can('product-list')
                     <li class="side-nav-item">
                         <a data-bs-toggle="collapse" href="#sidebarProducts" aria-expanded="false" aria-controls="sidebarProducts" class="side-nav-link">
                             <i class="ri-pages-line"></i>
@@ -300,14 +294,14 @@
                         </a>
                         <div class="collapse" id="sidebarProducts">
                             <ul class="side-nav-second-level">
-{{--                                <li><a href="{{ route('products.index') }}">Products</a></li>--}}
-{{--                                <li><a href="{{ route('products.create') }}">Create Product</a></li>--}}
+                                <li><a href="{{ route('product.section') }}">Products</a></li>
+                                <li><a href="{{ route('product.store') }}">Create Product</a></li>
                             </ul>
                         </div>
                     </li>
-                @endcan
+                    @endcan
 
-                @can('production-list')
+                    @can('production-list')
                     <li class="side-nav-item">
                         <a data-bs-toggle="collapse" href="#sidebarProductions" aria-expanded="false" aria-controls="sidebarProductions" class="side-nav-link">
                             <i class="ri-pages-line"></i>
@@ -316,14 +310,14 @@
                         </a>
                         <div class="collapse" id="sidebarProductions">
                             <ul class="side-nav-second-level">
-                                <li><a href="{{ route('productions.index') }}">Productions</a></li>
-                                <li><a href="{{ route('productions.index') }}">Create Production</a></li>
+                                <li><a href="{{ route('production.section') }}">Productions</a></li>
+                                <li><a href="{{ route('production.store') }}">Create Production</a></li>
                             </ul>
                         </div>
                     </li>
-                @endcan
+                    @endcan
 
-                @can('product-stock-list')
+                    @can('product-stock-list')
                     <li class="side-nav-item">
                         <a data-bs-toggle="collapse" href="#sidebarProductStocks" aria-expanded="false" aria-controls="sidebarProductStocks" class="side-nav-link">
                             <i class="ri-pages-line"></i>
@@ -332,13 +326,13 @@
                         </a>
                         <div class="collapse" id="sidebarProductStocks">
                             <ul class="side-nav-second-level">
-                                <li><a href="{{ route('product-stocks.index') }}">Stocks</a></li>
+                                <li><a href="{{ route('product.stock.section') }}">Stocks</a></li>
                             </ul>
                         </div>
                     </li>
-                @endcan
+                    @endcan
 
-                @can('product-stock-transfer.list')
+                    @can('product-stock-transfer-list')
                     <li class="side-nav-item">
                         <a data-bs-toggle="collapse" href="#sidebarProductStockTransfers" aria-expanded="false" aria-controls="sidebarProductStockTransfers" class="side-nav-link">
                             <i class="ri-pages-line"></i>
@@ -347,30 +341,14 @@
                         </a>
                         <div class="collapse" id="sidebarProductStockTransfers">
                             <ul class="side-nav-second-level">
-                                <li><a href="{{ route('product-stock-transfers.index') }}">Transfers</a></li>
-                                <li><a href="{{ route('product-stock-transfers.create') }}">Create Transfer</a></li>
+                                <li><a href="{{ route('product.stock.transfer.section') }}">Transfers</a></li>
+                                <li><a href="{{ route('product.stock.transfer.create') }}">Create Transfer</a></li>
                             </ul>
                         </div>
                     </li>
-                @endcan
+                    @endcan
 
-                @can('raw-material-list')
-                    <li class="side-nav-item">
-                        <a data-bs-toggle="collapse" href="#sidebarMaterials" aria-expanded="false" aria-controls="sidebarMaterials" class="side-nav-link">
-                            <i class="ri-pages-line"></i>
-                            <span> Raw Material </span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="collapse" id="sidebarMaterials">
-                            <ul class="side-nav-second-level">
-                                <li><a href="{{ route('materials.index') }}">Raw Materials</a></li>
-                                <li><a href="{{ route('materials.create') }}">Create Raw Material</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                @endcan
-
-                @can('raw-material-purchase-list')
+                    @can('raw-material-purchase-list')
                     <li class="side-nav-item">
                         <a data-bs-toggle="collapse" href="#sidebarRawMaterialPurchases" aria-expanded="false" aria-controls="sidebarRawMaterialPurchases" class="side-nav-link">
                             <i class="ri-pages-line"></i>
@@ -379,14 +357,14 @@
                         </a>
                         <div class="collapse" id="sidebarRawMaterialPurchases">
                             <ul class="side-nav-second-level">
-                                <li><a href="{{ route('raw-material-purchases.index') }}">Purchase</a></li>
-                                <li><a href="{{ route('raw-material-purchases.create') }}">Create Purchase</a></li>
+                                <li><a href="{{ route('raw.material.purchase.section') }}">Purchase</a></li>
+                                <li><a href="{{ route('raw.material.purchase.store') }}">Create Purchase</a></li>
                             </ul>
                         </div>
                     </li>
-                @endcan
+                    @endcan
 
-                @can('raw-material-stock-list')
+                    @can('raw-material-stock-list')
                     <li class="side-nav-item">
                         <a data-bs-toggle="collapse" href="#sidebarRawMaterialStocks" aria-expanded="false" aria-controls="sidebarRawMaterialStocks" class="side-nav-link">
                             <i class="ri-pages-line"></i>
@@ -395,14 +373,13 @@
                         </a>
                         <div class="collapse" id="sidebarRawMaterialStocks">
                             <ul class="side-nav-second-level">
-                                <li><a href="{{ route('raw-material-stocks.index') }}">Stocks</a></li>
-                                <li><a href="{{ route('raw-material-stocks.create') }}">Create Stock</a></li>
+                                <li><a href="{{ route('raw.material.stock.section') }}">Stocks</a></li>
                             </ul>
                         </div>
                     </li>
-                @endcan
+                    @endcan
 
-                @can('raw-material-stock-transfer-list')
+                    @can('raw-material-stock-transfer-list')
                     <li class="side-nav-item">
                         <a data-bs-toggle="collapse" href="#sidebarRawMaterialStockTransfers" aria-expanded="false" aria-controls="sidebarRawMaterialStockTransfers" class="side-nav-link">
                             <i class="ri-pages-line"></i>
@@ -411,14 +388,14 @@
                         </a>
                         <div class="collapse" id="sidebarRawMaterialStockTransfers">
                             <ul class="side-nav-second-level">
-                                <li><a href="{{ route('raw-material-stock-transfers.index') }}">Transfers</a></li>
-                                <li><a href="{{ route('raw-material-stock-transfers.create') }}">Create Transfer</a></li>
+                                <li><a href="{{ route('raw.material.stock.transfer.section') }}">Transfers</a></li>
+                                <li><a href="{{ route('raw.material.stock.transfer.create') }}">Create Transfer</a></li>
                             </ul>
                         </div>
                     </li>
-                @endcan
+                    @endcan
 
-                @can('sell-list')
+                    @can('sell-list')
                     <li class="side-nav-item">
                         <a data-bs-toggle="collapse" href="#sidebarSells" aria-expanded="false" aria-controls="sidebarSells" class="side-nav-link">
                             <i class="ri-pages-line"></i>
@@ -432,111 +409,99 @@
                             </ul>
                         </div>
                     </li>
-                @endcan
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                {{-- Settings --}}
-                <li class="side-nav-item">
-                    <a data-bs-toggle="collapse" href="#settings" class="side-nav-link">
-                        <i class="ri-settings-3-line"></i>
-                        <span> Settings </span>
-                        <span class="menu-arrow"></span>
-                    </a>
-                    <div class="collapse" id="settings">
-                        <ul class="side-nav-second-level">
-                            @can('site-setting') <li><a href="{{route('site.setting')}}">Site Setting</a></li>@endcan
-                            @can('role-and-permission-list')
+                    @endcan
+                    {{-- Settings --}}
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#settings" class="side-nav-link">
+                            <i class="ri-settings-3-line"></i>
+                            <span> Settings </span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="settings">
+                            <ul class="side-nav-second-level">
+                                @can('site-setting') <li><a href="{{route('site.setting')}}">Site Setting</a></li>@endcan
+                                @can('role-and-permission-list')
                                 <li><a href="{{url('users')}}">Create User</a></li>
                                 <li><a href="{{url('roles')}}">Role & Permission</a></li>
-                            @endcan
-                        </ul>
-                    </div>
-                </li>
-            </ul>
-        </div>
-
-    </div>
-
-    <div class="content-page">
-        <div class="content">
-            <div class="container-fluid">
-              @yield('admin_content')
+                                @endcan
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
             </div>
+
         </div>
-        <footer class="footer">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-12 text-center">
-                        <script>document.write(new Date().getFullYear())</script> © CoderNetix POS</b>
-                    </div>
+
+        <div class="content-page">
+            <div class="content">
+                <div class="container-fluid">
+                    @yield('admin_content')
                 </div>
             </div>
-        </footer>
+            <footer class="footer">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <script>
+                                document.write(new Date().getFullYear())
+                            </script> © CoderNetix POS</b>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
     </div>
-</div>
 
 
-<script src="{{asset('backend/js/vendor.min.js')}}"></script>
-<!-- Dropzone File Upload js -->
-<script src="{{asset('backend/vendor/dropzone/min/dropzone.min.js')}}"></script>
-<script src="{{asset('backend/js/pages/fileupload.init.js')}}"></script>
+    <script src="{{asset('backend/js/vendor.min.js')}}"></script>
+    <!-- Dropzone File Upload js -->
+    <script src="{{asset('backend/vendor/dropzone/min/dropzone.min.js')}}"></script>
+    <script src="{{asset('backend/js/pages/fileupload.init.js')}}"></script>
 
-<!--  Select2 Plugin Js -->
-<script src="{{asset('backend/vendor/select2/js/select2.min.js')}}"></script>
-<script src="{{asset('backend/vendor/daterangepicker/moment.min.js')}}"></script>
-<script src="{{asset('backend/vendor/daterangepicker/daterangepicker.js')}}"></script>
-<script src="{{asset('backend/vendor/apexcharts/apexcharts.min.js')}}"></script>
-<script src="{{asset('backend/vendor/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js')}}"></script>
-<script src="{{asset('backend/vendor/admin-resources/jquery.vectormap/maps/jquery-jvectormap-world-mill-en.js')}}"></script>
-<!-- Ckeditor Here -->
-<script src="{{asset('backend/js/sdmg.ckeditor.js')}}"></script>
-<!-- Datatables js -->
-<script src="{{asset('backend/vendor/datatables.net/js/jquery.dataTables.min.js')}}"></script>
-<script src="{{asset('backend/vendor/datatables.net-bs5/js/dataTables.bootstrap5.min.js')}}"></script>
-<script src="{{asset('backend/vendor/datatables.net-responsive/js/dataTables.responsive.min.js')}}"></script>
-<script src="{{asset('backend/vendor/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js')}}"></script>
-<script src="{{asset('backend/vendor/datatables.net-fixedcolumns-bs5/js/fixedColumns.bootstrap5.min.js')}}"></script>
-<script src="{{asset('backend/vendor/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js')}}"></script>
-<script src="{{asset('backend/vendor/datatables.net-buttons/js/dataTables.buttons.min.js')}}"></script>
-<script src="{{asset('backend/vendor/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js')}}"></script>
-<script src="{{asset('backend/vendor/datatables.net-buttons/js/buttons.html5.min.js')}}"></script>
-<script src="{{asset('backend/vendor/datatables.net-buttons/js/buttons.flash.min.js')}}"></script>
-<script src="{{asset('backend/vendor/datatables.net-buttons/js/buttons.print.min.js')}}"></script>
-<script src="{{asset('backend/vendor/datatables.net-keytable/js/dataTables.keyTable.min.js')}}"></script>
-<script src="{{asset('backend/vendor/datatables.net-select/js/dataTables.select.min.js')}}"></script>
+    <!--  Select2 Plugin Js -->
+    <script src="{{asset('backend/vendor/select2/js/select2.min.js')}}"></script>
+    <script src="{{asset('backend/vendor/daterangepicker/moment.min.js')}}"></script>
+    <script src="{{asset('backend/vendor/daterangepicker/daterangepicker.js')}}"></script>
+    <script src="{{asset('backend/vendor/apexcharts/apexcharts.min.js')}}"></script>
+    <script src="{{asset('backend/vendor/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js')}}"></script>
+    <script src="{{asset('backend/vendor/admin-resources/jquery.vectormap/maps/jquery-jvectormap-world-mill-en.js')}}"></script>
+    <!-- Ckeditor Here -->
+    <script src="{{asset('backend/js/sdmg.ckeditor.js')}}"></script>
+    <!-- Datatables js -->
+    <script src="{{asset('backend/vendor/datatables.net/js/jquery.dataTables.min.js')}}"></script>
+    <script src="{{asset('backend/vendor/datatables.net-bs5/js/dataTables.bootstrap5.min.js')}}"></script>
+    <script src="{{asset('backend/vendor/datatables.net-responsive/js/dataTables.responsive.min.js')}}"></script>
+    <script src="{{asset('backend/vendor/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js')}}"></script>
+    <script src="{{asset('backend/vendor/datatables.net-fixedcolumns-bs5/js/fixedColumns.bootstrap5.min.js')}}"></script>
+    <script src="{{asset('backend/vendor/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js')}}"></script>
+    <script src="{{asset('backend/vendor/datatables.net-buttons/js/dataTables.buttons.min.js')}}"></script>
+    <script src="{{asset('backend/vendor/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js')}}"></script>
+    <script src="{{asset('backend/vendor/datatables.net-buttons/js/buttons.html5.min.js')}}"></script>
+    <script src="{{asset('backend/vendor/datatables.net-buttons/js/buttons.flash.min.js')}}"></script>
+    <script src="{{asset('backend/vendor/datatables.net-buttons/js/buttons.print.min.js')}}"></script>
+    <script src="{{asset('backend/vendor/datatables.net-keytable/js/dataTables.keyTable.min.js')}}"></script>
+    <script src="{{asset('backend/vendor/datatables.net-select/js/dataTables.select.min.js')}}"></script>
 
-<!-- Datatable Demo Aapp js -->
-<script src="{{asset('backend/js/pages/datatable.init.js')}}"></script>
-<script src="{{asset('backend/js/pages/dashboard.js')}}"></script>
-<script src="{{asset('backend/js/app.min.js')}}"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        ClassicEditor.create(document.querySelector('#content'))
-            .catch(error => {
-                console.error(error);
-            });
+    <!-- Datatable Demo Aapp js -->
+    <script src="{{asset('backend/js/pages/datatable.init.js')}}"></script>
+    <script src="{{asset('backend/js/pages/dashboard.js')}}"></script>
+    <script src="{{asset('backend/js/app.min.js')}}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            ClassicEditor.create(document.querySelector('#content'))
+                .catch(error => {
+                    console.error(error);
+                });
 
-        ClassicEditor.create(document.querySelector('#contentAdd'))
-            .catch(error => {
-                console.error(error);
-            });
-    });
-</script>
+            ClassicEditor.create(document.querySelector('#contentAdd'))
+                .catch(error => {
+                    console.error(error);
+                });
+        });
+    </script>
 
+    @yield('js')
 
 </body>
+
 </html>

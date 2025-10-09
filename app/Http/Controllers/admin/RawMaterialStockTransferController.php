@@ -26,7 +26,7 @@ class RawMaterialStockTransferController extends Controller
         return view('admin.pages.raw-material-stock-transfer.create', compact('warehouses'));
     }
 
-    public function getrawMaterialStocksByWarehouse($warehouse_id)
+    public function getRawMaterialStocksByWarehouse($warehouse_id)
     {
         $rawMaterialStocks = RawMaterialStock::where('warehouse_id', $warehouse_id)
             ->with(['raw_material', 'warehouse'])
@@ -76,7 +76,7 @@ class RawMaterialStockTransferController extends Controller
             $rawMaterialStockTransfer->rawMaterialStocks()->attach($rawMaterialStockId, ['quantity' => $quantity]);
         }
 
-        return redirect()->route('raw-material-stock-transfers.index')->with('success', 'Raw material stock transfer created successfully.');
+        return redirect()->route('raw.material.stock.transfer.section')->with('success', 'Raw material stock transfer created successfully.');
     }
 
     public function edit($id) {
@@ -92,7 +92,7 @@ class RawMaterialStockTransferController extends Controller
     {
         // Check if the status is 'completed'. If it's not 'pending', prevent update.
         if ($rawMaterialStockTransfer->status !== 'pending') {
-            return redirect()->route('raw-material-stock-transfers.index')
+            return redirect()->route('raw.material.stock.transfer.section')
                 ->with('error', 'You cannot update a transfer that is not pending.');
         }
 
@@ -129,14 +129,14 @@ class RawMaterialStockTransferController extends Controller
         }
 
         // Redirect back with a success message
-        return redirect()->route('raw-material-stock-transfers.index')->with('success', 'Raw material stock transfer updated successfully.');
+        return redirect()->route('raw.material.stock.transfer.section')->with('success', 'Raw material stock transfer updated successfully.');
     }
 
     public function show($id) {
         $transfer = RawMaterialStockTransfer::with(['rawMaterialStocks','rawMaterialStocks.raw_material'])->findOrFail($id);
-        $admins = User::all();
-        $activities = AdminActivity::getActivities(RawMaterialStockTransfer::class, $id)->orderBy('created_at', 'desc')->take(10)->get();
-        return view('admin.pages.raw-material-stock-transfer.show', compact(['transfer','admins','activities']));
+        // $admins = User::all();
+        // $activities = AdminActivity::getActivities(RawMaterialStockTransfer::class, $id)->orderBy('created_at', 'desc')->take(10)->get();
+        return view('admin.pages.raw-material-stock-transfer.show', compact(['transfer']));
     }
 
     public function changeStatus(Request $request, RawMaterialStockTransfer $rawMaterialStockTransfer)
@@ -160,11 +160,11 @@ class RawMaterialStockTransferController extends Controller
                 // Rollback stock changes (if any were made)
                 $this->rollbackStock($rawMaterialStockTransfer);
 
-                return redirect()->route('raw-material-stock-transfers.index')
+                return redirect()->route('raw.material.stock.transfer.section')
                     ->with('success', 'Raw material stock transfer status changed back to pending successfully.');
             }
 
-            return redirect()->route('raw-material-stock-transfers.index')
+            return redirect()->route('raw.material.stock.transfer.section')
                 ->with('error', 'Approved status cannot be changed directly to rejected.');
         }
 
@@ -178,7 +178,7 @@ class RawMaterialStockTransferController extends Controller
                 // Update stock quantities (decrease from 'from_warehouse' and increase in 'to_warehouse')
                 $this->updateStock($rawMaterialStockTransfer);
 
-                return redirect()->route('raw-material-stock-transfers.index')
+                return redirect()->route('raw.material.stock.transfer.section')
                     ->with('success', 'Raw material stock transfer approved successfully and stock updated.');
             }
 
@@ -188,7 +188,7 @@ class RawMaterialStockTransferController extends Controller
                     'status' => 'rejected',
                 ]);
 
-                return redirect()->route('raw-material-stock-transfers.index')
+                return redirect()->route('raw.material.stock.transfer.section')
                     ->with('success', 'Raw material stock transfer rejected successfully.');
             }
         }
@@ -202,7 +202,7 @@ class RawMaterialStockTransferController extends Controller
                 // Update stock quantities (decrease from 'from_warehouse' and increase in 'to_warehouse')
                 $this->updateStock($rawMaterialStockTransfer);
 
-                return redirect()->route('raw-material-stock-transfers.index')
+                return redirect()->route('raw.material.stock.transfer.section')
                     ->with('success', 'Raw material stock transfer approved successfully and stock updated.');
             }
 
@@ -212,13 +212,13 @@ class RawMaterialStockTransferController extends Controller
                     'status' => 'pending',
                 ]);
 
-                return redirect()->route('raw-material-stock-transfers.index')
+                return redirect()->route('raw.material.stock.transfer.section')
                     ->with('success', 'Raw material stock transfer pending successfully.');
             }
         }
 
         // Handle invalid status change request
-        return redirect()->route('raw-material-stock-transfers.index')
+        return redirect()->route('raw.material.stock.transfer.section')
             ->with('error', 'Invalid status change operation.');
     }
 
@@ -314,10 +314,10 @@ class RawMaterialStockTransferController extends Controller
     {
         // Check if the status is approved, prevent soft delete if already approved
         if ($rawMaterialStockTransfer->status === 'approved') {
-            return redirect()->route('raw-material-stock-transfers.index') ->with('error', 'Approved transfers cannot be deleted.');
+            return redirect()->route('raw.material.stock.transfer.section') ->with('error', 'Approved transfers cannot be deleted.');
         }
         // Soft delete the transfer
         $rawMaterialStockTransfer->delete();
-        return redirect()->route('raw-material-stock-transfers.index')->with('success', 'Raw material stock transfer deleted successfully.');
+        return redirect()->route('raw.material.stock.transfer.section')->with('success', 'Raw material stock transfer deleted successfully.');
     }
 }

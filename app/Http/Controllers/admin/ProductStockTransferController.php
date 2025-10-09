@@ -81,7 +81,7 @@ class ProductStockTransferController extends Controller
             $productStockTransfer->productStocks()->attach($productStockId, ['quantity' => $quantity]);
         }
 
-        return redirect()->route('product-stock-transfers.index')->with('success', 'Product stock transfer created successfully.');
+        return redirect()->route('product.stock.transfer.section')->with('success', 'Product stock transfer created successfully.');
     }
 
     public function edit($id) {
@@ -105,7 +105,7 @@ class ProductStockTransferController extends Controller
     {
         // Check if the status is 'completed'. If it's not 'pending', prevent update.
         if ($productStockTransfer->status !== 'pending') {
-            return redirect()->route('product-stock-transfers.index')
+            return redirect()->route('product.stock.transfer.section')
                 ->with('error', 'You cannot update a transfer that is not pending.');
         }
 
@@ -142,14 +142,14 @@ class ProductStockTransferController extends Controller
         }
 
         // Redirect back with a success message
-        return redirect()->route('product-stock-transfers.index')->with('success', 'Product stock transfer updated successfully.');
+        return redirect()->route('product.stock.transfer.section')->with('success', 'Product stock transfer updated successfully.');
     }
 
     public function show($id) {
         $transfer = ProductStockTransfer::with(['productStocks','productStocks.product','productStocks.product.category'])->findOrFail($id);
-        $admins = User::all();
-        $activities = AdminActivity::getActivities(ProductStockTransfer::class, $id)->orderBy('created_at', 'desc')->take(10)->get();
-        return view('admin.pages.product-stock-transfer.show', compact(['transfer','admins','activities']));
+        // $admins = User::all();
+        // $activities = AdminActivity::getActivities(ProductStockTransfer::class, $id)->orderBy('created_at', 'desc')->take(10)->get();
+        return view('admin.pages.product-stock-transfer.show', compact(['transfer']));
     }
 
     public function changeStatus(Request $request, ProductStockTransfer $productStockTransfer)
@@ -173,11 +173,11 @@ class ProductStockTransferController extends Controller
                 // Rollback stock changes (if any were made)
                 $this->rollbackStock($productStockTransfer);
 
-                return redirect()->route('product-stock-transfers.index')
+                return redirect()->route('product.stock.transfer.section')
                     ->with('success', 'Product stock transfer status changed back to pending successfully.');
             }
 
-            return redirect()->route('product-stock-transfers.index')
+            return redirect()->route('product.stock.transfer.section')
                 ->with('error', 'Approved status cannot be changed directly to rejected.');
         }
 
@@ -191,7 +191,7 @@ class ProductStockTransferController extends Controller
                 // Update stock quantities (decrease from 'from_showroom' and increase in 'to_showroom')
                 $this->updateStock($productStockTransfer);
 
-                return redirect()->route('product-stock-transfers.index')
+                return redirect()->route('product.stock.transfer.section')
                     ->with('success', 'Product stock transfer approved successfully and stock updated.');
             }
 
@@ -201,7 +201,7 @@ class ProductStockTransferController extends Controller
                     'status' => 'rejected',
                 ]);
 
-                return redirect()->route('product-stock-transfers.index')
+                return redirect()->route('product.stock.transfer.section')
                     ->with('success', 'Product stock transfer rejected successfully.');
             }
         }
@@ -215,7 +215,7 @@ class ProductStockTransferController extends Controller
                 // Update stock quantities (decrease from 'from_showroom' and increase in 'to_showroom')
                 $this->updateStock($productStockTransfer);
 
-                return redirect()->route('product-stock-transfers.index')
+                return redirect()->route('product.stock.transfer.section')
                     ->with('success', 'Product stock transfer approved successfully and stock updated.');
             }
 
@@ -225,13 +225,13 @@ class ProductStockTransferController extends Controller
                     'status' => 'pending',
                 ]);
 
-                return redirect()->route('product-stock-transfers.index')
+                return redirect()->route('product.stock.transfer.section')
                     ->with('success', 'Product stock transfer pending successfully.');
             }
         }
 
         // Handle invalid status change request
-        return redirect()->route('product-stock-transfers.index')
+        return redirect()->route('product.stock.transfer.section')
             ->with('error', 'Invalid status change operation.');
     }
 
@@ -330,10 +330,10 @@ class ProductStockTransferController extends Controller
     {
         // Check if the status is approved, prevent soft delete if already approved
         if ($productStockTransfer->status === 'approved') {
-            return redirect()->route('product-stock-transfers.index') ->with('error', 'Approved transfers cannot be deleted.');
+            return redirect()->route('product.stock.transfer.section') ->with('error', 'Approved transfers cannot be deleted.');
         }
         // Soft delete the transfer
         $productStockTransfer->delete();
-        return redirect()->route('product-stock-transfers.index')->with('success', 'Product stock transfer deleted successfully.');
+        return redirect()->route('product.stock.transfer.section')->with('success', 'Product stock transfer deleted successfully.');
     }
 }

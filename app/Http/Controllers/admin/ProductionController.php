@@ -132,7 +132,7 @@ class ProductionController extends Controller
             'payment_type'=>$request->payment_type,
             'amount' => $request->payment_type == 'full_paid'?$totalForProduction: $request->paid_amount
         ]);
-        return redirect()->route('productions.index')->with('success', 'Productions Created Successfully');
+        return redirect()->route('production.section')->with('success', 'Productions Created Successfully');
     }
 
     public function edit($id): View|Factory|Application
@@ -312,7 +312,7 @@ class ProductionController extends Controller
         ]);
 
         // Redirect with a success message
-        return redirect()->route('productions.index')->with('success', 'Production Updated Successfully');
+        return redirect()->route('production.section')->with('success', 'Production Updated Successfully');
     }
 
     public function show($id): View|Factory|Application
@@ -328,7 +328,7 @@ class ProductionController extends Controller
     {
         $production = Production::find($id);
         $production->delete();
-        return redirect()->route('productions.index')->with('success', 'Production Deleted Successfully');
+        return redirect()->route('production.section')->with('success', 'Production Deleted Successfully');
     }
 
     public function getRawMaterialsByWarehouse(Request $request)
@@ -342,7 +342,7 @@ class ProductionController extends Controller
     public function updateStatus($id, $status): RedirectResponse
     {
         if (!in_array($status, ['pending', 'approved', 'rejected'])) {
-            return redirect()->route('productions.index')->with('error', 'Invalid status.');
+            return redirect()->route('production.section')->with('error', 'Invalid status.');
         }
         $production = Production::find($id);
         if (!$production) {

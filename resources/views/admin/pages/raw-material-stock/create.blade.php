@@ -1,146 +1,87 @@
 @extends('admin.app')
 @section('admin_content')
-    {{-- CKEditor CDN --}}
+
     <div class="row">
         <div class="col-12">
             <div class="page-title-box">
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">CoderNetix POS</a></li>
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">Resource</a></li>
-                        <li class="breadcrumb-item active">Brand!</li>
+                        <li class="breadcrumb-item"><a href="#">CoderNetix POS</a></li>
+                        <li class="breadcrumb-item"><a href="#">Inventory</a></li>
+                        <li class="breadcrumb-item active">Raw Material Stocks</li>
                     </ol>
                 </div>
-                <h4 class="page-title">Brand!</h4>
+                <h4 class="page-title">Raw Material Stocks</h4>
             </div>
         </div>
     </div>
 
     <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <div class="d-flex justify-content-end">
-                    <!-- Large modal -->
-                    @can('brand-create')
-                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewModalId">Add New</button>
-                    @endcan
+        @can('raw-material-stock-list')
+            @if(isset($stock))
+                {{-- Show Single Stock Details --}}
+                <div class="card">
+                    <div class="card-header"><h4>Stock Details</h4></div>
+                    <div class="card-body">
+                        <table class="table table-bordered w-100 text-left mb-3">
+                            <tr><th style="width:30%;">Raw Material</th><td>{{ $stock->raw_material->name ?? '' }}</td></tr>
+                            <tr><th>Quantity</th><td>{{ $stock->quantity ?? '' }}</td></tr>
+                            <tr><th>Price</th><td>{{ $stock->price ?? '' }}</td></tr>
+                            <tr><th>Warehouse</th><td>{{ $stock->warehouse->name ?? '' }}</td></tr>
+                            <tr><th>Color</th><td>{{ $stock->color->color_name ?? '' }}</td></tr>
+                            <tr><th>Brand</th><td>{{ $stock->brand->name ?? '' }}</td></tr>
+                            <tr><th>Size</th><td>{{ $stock->size->name ?? '' }}</td></tr>
+                        </table>
+                        <a href="{{ route('raw.material.stock.section') }}" class="btn btn-success">Go Back</a>
+                    </div>
                 </div>
-            </div>
-            <div class="card-body">
-                <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
-                    <thead>
-                    <tr>
-                        <th>S/N</th>
-                        <th>Name</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($brand as $key=>$brandData)
-                        <tr>
-                            <td>{{$key+1}}</td>
-                            <td>{{$brandData->name}}</td>
-                            <td>{{$brandData->status==1? 'Active':'Inactive'}}</td>
-                            <td style="width: 100px;">
-                                <div class="d-flex justify-content-end gap-1">
-                                    @can('brand-edit')
-                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editNewModalId{{$brandData->id}}">Edit</button>
-                                    @endcan
-                                    @can('brand-delete')
-                                        <a href="{{route('brand.destroy',$brandData->id)}}" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#danger-header-modal{{$brandData->id}}">Delete</a>
-                                    @endcan
-                                </div>
-                            </td>
-                            <!--Edit Modal -->
-                            <div class="modal fade" id="editNewModalId{{$brandData->id}}" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="editNewModalLabel{{$brandData->id}}" aria-hidden="true">
-                                <div class="modal-dialog modal-lg modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h4 class="modal-title" id="addNewModalLabel{{$brandData->id}}">Edit</h4>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <form method="post" action="{{route('brand.update',$brandData->id)}}" enctype="multipart/form-data">
-                                                @csrf
-                                                @method('PUT')
-                                                <div class="row">
-                                                    <div class="col-6">
-                                                        <div class="mb-3">
-                                                            <label for="name" class="form-label">Name</label>
-                                                            <input type="text" id="name" name="name" value="{{$brandData->name}}"
-                                                                   class="form-control" placeholder="Enter Name" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <div class="mb-3">
-                                                            <label for="example-select" class="form-label">Status</label>
-                                                            <select name="status" class="form-select">
-                                                                <option value="1" {{ $brandData->status === 1 ? 'selected' : '' }}>Active</option>
-                                                                <option value="0" {{ $brandData->status === 0 ? 'selected' : '' }}>Inactive</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex justify-content-end">
-                                                    <button class="btn btn-primary" type="submit">Update</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Delete Modal -->
-                            <div id="danger-header-modal{{$brandData->id}}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="danger-header-modalLabel{{$brandData->id}}" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header modal-colored-header bg-danger">
-                                            <h4 class="modal-title" id="danger-header-modalLabe{{$brandData->id}}l">Delete</h4>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <h5 class="mt-0">Do you want to Delete this ? </h5>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <a href="{{route('brand.destroy',$brandData->id)}}" class="btn btn-danger">Delete</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <!--Add Modal -->
-    <div class="modal fade" id="addNewModalId" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="addNewModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="addNewModalLabel">Add</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="post" action="{{route('brand.store')}}" enctype="multipart/form-data">
-                        @csrf
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label for="name" class="form-label">Name</label>
-                                    <input type="text" id="name" name="name"
-                                           class="form-control" placeholder="Enter Name">
-                                </div>
-                            </div>
-                        </div>
+            @else
+                {{-- Show All Raw Material Stocks --}}
+                <div class="card">
+                    <div class="card-header">
                         <div class="d-flex justify-content-end">
-                            <button class="btn btn-primary" type="submit">Submit</button>
+                            {{-- Optional buttons can go here --}}
                         </div>
-                    </form>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped table-bordered w-100">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Warehouse</th>
+                                    <th>Color</th>
+                                    <th>Brand</th>
+                                    <th>Size</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($stocks as $s)
+                                    <tr>
+                                        <td>{{ $s->raw_material->name ?? '' }}</td>
+                                        <td>{{ $s->quantity ?? '' }}</td>
+                                        <td>{{ $s->price ?? '' }}</td>
+                                        <td>{{ $s->warehouse->name ?? '' }}</td>
+                                        <td>{{ $s->color->color_name ?? '' }}</td>
+                                        <td>{{ $s->brand->name ?? '' }}</td>
+                                        <td>{{ $s->size->name ?? '' }}</td>
+                                        <td class="text-center">
+                                            @can('raw-material-stock-view')
+                                                <a href="{{ route('raw.material.stock.show', $s->id) }}" class="btn btn-info btn-sm px-1 py-0">
+                                                    <i class="fa fa-eye"></i> View
+                                                </a>
+                                            @endcan
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-        </div>
+            @endif
+        @endcan
     </div>
+
 @endsection

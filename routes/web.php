@@ -83,9 +83,63 @@ Route::middleware('auth')->group(callback: function () {
     Route::delete('/product/{product}/thumbnail', [ProductController::class, 'deleteThumb'])->name('product.delete.thumb');
     Route::get('/product/all-products', [ProductController::class, 'getAllProducts'])->name('product.get.products');
 
+    // Raw Material
+    Route::get('/raw-material-section', [RawMaterialController::class, 'index'])->name('raw.material.section')->middleware('permission:raw-material-list');
+    Route::post('/raw-material-store', [RawMaterialController::class, 'store'])->name('raw.material.store')->middleware('permission:raw-material-create');
+    Route::get('/raw-material-show/{id}', [RawMaterialController::class, 'show'])->name('raw.material.show')->middleware('permission:raw-material-view');
+    Route::put('/raw-material-update/{id}', [RawMaterialController::class, 'update'])->name('raw.material.update')->middleware('permission:raw-material-edit');
+    Route::get('/raw-material-delete/{id}', [RawMaterialController::class, 'destroy'])->name('raw.material.destroy')->middleware('permission:raw-material-delete');
+
+     // Product Stock Transfer
+    Route::get('/product-stock-transfer-section', [ProductStockTransferController::class, 'index'])->name('product.stock.transfer.section')->middleware('permission:product-stock-transfer-list');
+    Route::post('/product-stock-transfer-create', [ProductStockTransferController::class, 'create'])->name('product.stock.transfer.create')->middleware('permission:product-stock-transfer-create');
+    Route::post('/product-stock-transfer-store', [ProductStockTransferController::class, 'store'])->name('product.stock.transfer.store');
+    Route::get('/product-stock-transfer-show/{id}', [ProductStockTransferController::class, 'show'])->name('product.stock.transfer.show')->middleware('permission:product-stock-transfer-view');
+    Route::put('/product-stock-transfer-edit/{id}', [ProductStockTransferController::class, 'edit'])->name('product.stock.transfer.edit')->middleware('permission:product-stock-transfer-edit');
+    Route::put('/product-stock-transfer-update/{id}', [ProductStockTransferController::class, 'update'])->name('product.stock.transfer.update');
+    Route::get('/product-stock-transfer-delete/{id}', [ProductStockTransferController::class, 'destroy'])->name('product.stock.transfer.destroy')->middleware('permission:product-stock-transfer-delete');
+    Route::get('/product-stock-transfer/{id}/status', [ProductStockTransferController::class, 'changeStatus'])->name('product.stock.transfer.update.status');
+    Route::get('/product-stocks/{showroom_id}', [ProductStockTransferController::class, 'getProductStocksByShowroom'])->name('product.stocks.by.showroom');
+
+    // Raw Material Purchase
+    Route::get('/raw-material-purchase-section', [RawMaterialPurchaseController::class, 'index'])->name('raw.material.purchase.section')->middleware('permission:raw-material-purchase-list');
+    Route::post('/raw-material-purchase-store', [RawMaterialPurchaseController::class, 'store'])->name('raw.material.purchase.store')->middleware('permission:raw-material-purchase-create');
+    Route::get('/raw-material-purchase-show/{id}', [RawMaterialPurchaseController::class, 'show'])->name('raw.material.purchase.show')->middleware('permission:raw-material-purchase-view');
+    Route::put('/raw-material-purchase-update/{id}', [RawMaterialPurchaseController::class, 'update'])->name('raw.material.purchase.update')->middleware('permission:raw-material-purchase-edit');
+    Route::get('/raw-material-purchase-delete/{id}', [RawMaterialPurchaseController::class, 'destroy'])->name('raw.material.purchase.destroy')->middleware('permission:raw-material-purchase-delete');
+    Route::get('/raw-material-purchase/{id}/status/{status}', [RawMaterialPurchaseController::class, 'updateStatus'])->name('raw.material.purchase.update.status');
+    Route::get('/raw-material-purchase/{id}/print', [RawMaterialPurchaseController::class, 'printRawMaterialPurchase'])->name('raw.material.purchase.print');
+
+    // Raw Material Stock
+    Route::get('/raw-material-stock-section', [RawMaterialStockController::class, 'index'])->name('raw.material.stock.section')->middleware('permission:raw-material-stock-list');
+    Route::get('/raw-material-stock-show/{id}', [RawMaterialStockController::class, 'show'])->name('raw.material.stock.show')->middleware('permission:raw-material-stock-view');
+
+    // Raw Material Stock Transfer
+    Route::get('/raw-material-stock-transfer-section', [RawMaterialStockTransferController::class, 'index'])->name('raw.material.stock.transfer.section')->middleware('permission:raw-material-stock-transfer-list');
+    Route::get('/raw-material-stock-transfer-create', [RawMaterialStockTransferController::class, 'create'])->name('raw.material.stock.transfer.create')->middleware('permission:raw-material-stock-transfer-create');
+    Route::post('/raw-material-stock-transfer-store', [RawMaterialStockTransferController::class, 'store'])->name('raw.material.stock.transfer.store');
+    Route::get('/raw-material-stock-transfer-show/{id}', [RawMaterialStockTransferController::class, 'show'])->name('raw.material.stock.transfer.show')->middleware('permission:raw-material-stock-transfer-view');
+    Route::get('/raw-material-stock-transfer-edit/{id}', [RawMaterialStockTransferController::class, 'edit'])->name('raw.material.stock.transfer.edit')->middleware('permission:raw-material-stock-transfer-edit');
+    Route::put('/raw-material-stock-transfer-update/{id}', [RawMaterialStockTransferController::class, 'update'])->name('raw.material.stock.transfer.update');
+    Route::delete('/raw-material-stock-transfer-delete/{id}', [RawMaterialStockTransferController::class, 'destroy'])->name('raw.material.stock.transfer.destroy')->middleware('permission:raw-material-stock-transfer-delete');
+    Route::get('/raw-material-stock-transfer/{id}/status', [RawMaterialStockTransferController::class, 'changeStatus'])->name('raw.material.stock.transfer.update.status');
+    Route::get('/raw-material-stocks/{warehouse_id}', [RawMaterialStockTransferController::class, 'getRawMaterialStocksByWarehouse']);
+
+    // Production
+    Route::get('/production-section', [ProductionController::class, 'index'])->name('production.section')->middleware('permission:production-list');
+    Route::post('/production-store', [ProductionController::class, 'store'])->name('production.store')->middleware('permission:production-create');
+    Route::get('/production-show/{id}', [ProductionController::class, 'show'])->name('production.show')->middleware('permission:production-view');
+    Route::put('/production-update/{id}', [ProductionController::class, 'update'])->name('production.update')->middleware('permission:production-edit');
+    Route::get('/production-delete/{id}', [ProductionController::class, 'destroy'])->name('production.destroy')->middleware('permission:production-delete');
+    Route::get('/production/{id}/status/{status}', [ProductionController::class, 'updateStatus'])->name('production.update.status');
+    Route::get('/production/{id}/print', [ProductionController::class, 'printProduction'])->name('production.print');
+    Route::get('/production/get-raw-materials', [ProductionController::class, 'getRawMaterialsByWarehouse'])->name('production.get.raw.materials');
+
     // Product Stock
     Route::get('/product-stock', [ProductStockController::class, 'index'])->name('product.stock.section')->middleware('permission:product-stock-list');
     Route::get('/product-stock/{id}', [ProductStockController::class, 'show'])->name('product.stock.show')->middleware('permission:product-stock-view');
+    Route::get('/product-stocks/{id}/get-sell-price-data', [ProductStockController::class, 'getSellPriceData'])->middleware('auth');
+    Route::post('/product-stocks/{id}/update-sell-price', [ProductStockController::class, 'updateSellPrice'])->middleware('auth');
 
     // Asset
     Route::get('/asset-section', [AssetController::class, 'index'])->name('asset.section')->middleware('permission:asset-list');
@@ -291,40 +345,30 @@ Route::middleware('auth')->group(callback: function () {
 
 
 
-
-
-
-
-
-
-    // Raw Materials
-    Route::resource('/materials', RawMaterialController::class)->middleware('permission:materials.list');
-
-    // RawMaterialPurchase
-    Route::get('/raw-material-purchases/{raw_material_purchase}/status/{status}', [RawMaterialPurchaseController::class, 'updateStatus'])->name('raw-material-purchases.updateStatus');
-    Route::get('/raw-material-purchases/{raw_material_purchase}/print', [RawMaterialPurchaseController::class, 'printRawMaterialPurchase'])->name('raw-material-purchases.print');
-    Route::resource('/raw-material-purchases', RawMaterialPurchaseController::class)->middleware('permission:rawMaterialPurchases.list');
-
-    // Raw Material Stock
-    Route::resource('/raw-material-stocks', RawMaterialStockController::class)->middleware('permission:rawMaterialStocks.list');
-
-    // Production
-    Route::get('/productions/{production}/status/{status}',[ProductionController::class, 'updateStatus'])->name('productions.updateStatus')->middleware('permission:productions.updateStatus');
-    Route::get('/productions/{production}/print',[ProductionController::class, 'printProduction'])->name('productions.print');
-    Route::resource('/productions', ProductionController::class)->middleware('permission:productions.list');
-
     // Sell
-    Route::get('/sells/{sell}/status/{status}',[SellController::class, 'updateStatus'])->name('sells.updateStatus')->middleware('permission:sells.updateStatus');
-    Route::get('/sells/{id}/invoice', [SellController::class, 'showInvoice'])->name('sells.invoiceTemplate');
-    Route::resource('/sells', SellController::class)->middleware('permission:sells.list');
+    Route::prefix('sell')->name('sells.')->middleware('auth')->group(function() {
 
-    // ShowroomTransfer
-    Route::get('/product-stock-transfers/{product_stock_transfer}/status',[ProductStockTransferController::class, 'changeStatus'])->name('product-stock-transfers.changeStatus');
-    Route::resource('/product-stock-transfers', ProductStockTransferController::class)->middleware('permission:productStockTransfers.list');
+        Route::get('/', [SellController::class, 'index'])->name('index')->middleware('permission:sell-list');
 
-    // WarehouseTransfer
-    Route::get('/raw-material-stock-transfers/{raw_material_stock_transfer}/status',[RawMaterialStockTransferController::class, 'changeStatus'])->name('raw-material-stock-transfers.changeStatus');
-    Route::resource('/raw-material-stock-transfers', RawMaterialStockTransferController::class)->middleware('permission:rawMaterialStockTransfers.list');
+        Route::get('/create', [SellController::class, 'create'])->name('create')->middleware('permission:sell-create');
+        Route::post('/store', [SellController::class, 'store'])->name('store')->middleware('permission:sell-create');
+
+        Route::get('/{id}/edit', [SellController::class, 'edit'])->name('edit')->middleware('permission:sell-edit');
+        Route::put('/{id}/update', [SellController::class, 'update'])->name('update')->middleware('permission:sell-edit');
+
+        Route::delete('/{id}/delete', [SellController::class, 'destroy'])->name('destroy')->middleware('permission:sell-delete');
+
+        Route::get('/{id}/invoice', [SellController::class, 'showInvoice'])->name('invoice')->middleware('permission:sell-view');
+        Route::get('/{id}/status/{status}', [SellController::class, 'updateStatus'])->name('update.status')->middleware('permission:sell-edit');
+
+        Route::get('/products-by-category', [SellController::class, 'getProductsByCategory'])->name('get.product.by.category')->middleware('permission:sell-list');
+        Route::get('/all-products', [SellController::class, 'getAllProducts'])->name('get.all.product')->middleware('permission:sell-list');
+
+        Route::post('/set-currency', [SellController::class, 'setCurrency'])->name('set.currency')->middleware('permission:sell-create');
+    });
+
+
+
 
 });
 

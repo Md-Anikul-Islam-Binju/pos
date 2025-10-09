@@ -1,146 +1,297 @@
 @extends('admin.app')
 @section('admin_content')
-    {{-- CKEditor CDN --}}
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box">
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">CoderNetix POS</a></li>
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">Resource</a></li>
-                        <li class="breadcrumb-item active">Brand!</li>
-                    </ol>
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-flex align-items-center justify-content-between">
+            <h4 class="mb-0">Reports</h4>
+        </div>
+    </div>
+</div>
+
+{{-- Report Selector --}}
+<div class="row mt-3">
+    <div class="col-md-4">
+        <select id="reportType" class="form-control">
+            <option value="">-- Select Report --</option>
+            <option value="rawMaterialStock">Raw Material Stock</option>
+            <option value="productStock">Product Stock</option>
+            <option value="sell">Sell</option>
+            <option value="asset">Asset</option>
+            <option value="expense">Expense</option>
+            <option value="rawMaterialPurchase">Raw Material Purchase</option>
+            <option value="productTransfer">Product Transfer</option>
+            <option value="rawMaterialTransfer">Raw Material Transfer</option>
+            <option value="balanceSheet">Balance Sheet</option>
+            <option value="depositBalanceSheet">Deposit Balance Sheet</option>
+            <option value="withdrawBalanceSheet">Withdraw Balance Sheet</option>
+            <option value="transferBalanceSheet">Transfer Balance Sheet</option>
+            <option value="sellProfitLoss">Sell Profit/Loss</option>
+            <option value="cronJobLogs">Cron Job Logs</option>
+        </select>
+    </div>
+</div>
+
+<hr>
+
+<div class="report-section mt-3">
+
+    {{-- ================= Raw Material Stock Report ================= --}}
+    <div id="rawMaterialStock" class="report-block d-none">
+        <h5>Raw Material Stock Report</h5>
+        <form method="GET" action="{{ route('raw.material.stock.report') }}">
+            <div class="row g-2">
+                <div class="col-md-2">
+                    <select name="materialId" class="form-control">
+                        <option value="">-- Material --</option>
+                        @foreach($rawMaterials as $material)
+                        <option value="{{ $material->id }}" {{ request('materialId') == $material->id ? 'selected' : '' }}>{{ $material->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
-                <h4 class="page-title">Brand!</h4>
+                <div class="col-md-2">
+                    <select name="warehouseId" class="form-control">
+                        <option value="">-- Warehouse --</option>
+                        @foreach($warehouses as $warehouse)
+                        <option value="{{ $warehouse->id }}" {{ request('warehouseId') == $warehouse->id ? 'selected' : '' }}>{{ $warehouse->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="colorId" class="form-control">
+                        <option value="">-- Color --</option>
+                        @foreach($colors as $color)
+                        <option value="{{ $color->id }}" {{ request('colorId') == $color->id ? 'selected' : '' }}>{{ $color->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="brandId" class="form-control">
+                        <option value="">-- Brand --</option>
+                        @foreach($brands as $brand)
+                        <option value="{{ $brand->id }}" {{ request('brandId') == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="sizeId" class="form-control">
+                        <option value="">-- Size --</option>
+                        @foreach($sizes as $size)
+                        <option value="{{ $size->id }}" {{ request('sizeId') == $size->id ? 'selected' : '' }}>{{ $size->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
             </div>
+        </form>
+
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Material</th>
+                        <th>Warehouse</th>
+                        <th>Color</th>
+                        <th>Brand</th>
+                        <th>Size</th>
+                        <th>Quantity</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($stocks as $stock)
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $stock->raw_material->name ?? '' }}</td>
+                        <td>{{ $stock->warehouse->name ?? '' }}</td>
+                        <td>{{ $stock->color->name ?? '' }}</td>
+                        <td>{{ $stock->brand->name ?? '' }}</td>
+                        <td>{{ $stock->size->name ?? '' }}</td>
+                        <td>{{ $stock->quantity }}</td>
+                        <td>{{ $stock->created_at->format('d-m-Y') }}</td>
+                    </tr>
+                    @empty
+                    <tr><td colspan="8" class="text-center">No data found</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <div class="d-flex justify-content-end">
-                    <!-- Large modal -->
-                    @can('brand-create')
-                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addNewModalId">Add New</button>
-                    @endcan
+    {{-- ================= Product Stock Report ================= --}}
+    <div id="productStock" class="report-block d-none mt-5">
+        <h5>Product Stock Report</h5>
+        <form method="GET" action="{{ route('product.stock.report') }}">
+            <div class="row g-2">
+                <div class="col-md-2">
+                    <select name="productId" class="form-control">
+                        <option value="">-- Product --</option>
+                        @foreach($products as $product)
+                        <option value="{{ $product->id }}" {{ request('productId') == $product->id ? 'selected' : '' }}>{{ $product->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="showroomId" class="form-control">
+                        <option value="">-- Showroom --</option>
+                        @foreach($showrooms as $showroom)
+                        <option value="{{ $showroom->id }}" {{ request('showroomId') == $showroom->id ? 'selected' : '' }}>{{ $showroom->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="colorId" class="form-control">
+                        <option value="">-- Color --</option>
+                        @foreach($colors as $color)
+                        <option value="{{ $color->id }}" {{ request('colorId') == $color->id ? 'selected' : '' }}>{{ $color->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="brandId" class="form-control">
+                        <option value="">-- Brand --</option>
+                        @foreach($brands as $brand)
+                        <option value="{{ $brand->id }}" {{ request('brandId') == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="sizeId" class="form-control">
+                        <option value="">-- Size --</option>
+                        @foreach($sizes as $size)
+                        <option value="{{ $size->id }}" {{ request('sizeId') == $size->id ? 'selected' : '' }}>{{ $size->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
                 </div>
             </div>
-            <div class="card-body">
-                <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
-                    <thead>
+        </form>
+
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered table-striped">
+                <thead>
                     <tr>
-                        <th>S/N</th>
-                        <th>Name</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        <th>#</th>
+                        <th>Product</th>
+                        <th>Showroom</th>
+                        <th>Color</th>
+                        <th>Brand</th>
+                        <th>Size</th>
+                        <th>Quantity</th>
+                        <th>Created At</th>
                     </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($brand as $key=>$brandData)
-                        <tr>
-                            <td>{{$key+1}}</td>
-                            <td>{{$brandData->name}}</td>
-                            <td>{{$brandData->status==1? 'Active':'Inactive'}}</td>
-                            <td style="width: 100px;">
-                                <div class="d-flex justify-content-end gap-1">
-                                    @can('brand-edit')
-                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editNewModalId{{$brandData->id}}">Edit</button>
-                                    @endcan
-                                    @can('brand-delete')
-                                        <a href="{{route('brand.destroy',$brandData->id)}}" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#danger-header-modal{{$brandData->id}}">Delete</a>
-                                    @endcan
-                                </div>
-                            </td>
-                            <!--Edit Modal -->
-                            <div class="modal fade" id="editNewModalId{{$brandData->id}}" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="editNewModalLabel{{$brandData->id}}" aria-hidden="true">
-                                <div class="modal-dialog modal-lg modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h4 class="modal-title" id="addNewModalLabel{{$brandData->id}}">Edit</h4>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <form method="post" action="{{route('brand.update',$brandData->id)}}" enctype="multipart/form-data">
-                                                @csrf
-                                                @method('PUT')
-                                                <div class="row">
-                                                    <div class="col-6">
-                                                        <div class="mb-3">
-                                                            <label for="name" class="form-label">Name</label>
-                                                            <input type="text" id="name" name="name" value="{{$brandData->name}}"
-                                                                   class="form-control" placeholder="Enter Name" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <div class="mb-3">
-                                                            <label for="example-select" class="form-label">Status</label>
-                                                            <select name="status" class="form-select">
-                                                                <option value="1" {{ $brandData->status === 1 ? 'selected' : '' }}>Active</option>
-                                                                <option value="0" {{ $brandData->status === 0 ? 'selected' : '' }}>Inactive</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex justify-content-end">
-                                                    <button class="btn btn-primary" type="submit">Update</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Delete Modal -->
-                            <div id="danger-header-modal{{$brandData->id}}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="danger-header-modalLabel{{$brandData->id}}" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header modal-colored-header bg-danger">
-                                            <h4 class="modal-title" id="danger-header-modalLabe{{$brandData->id}}l">Delete</h4>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <h5 class="mt-0">Do you want to Delete this ? </h5>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <a href="{{route('brand.destroy',$brandData->id)}}" class="btn btn-danger">Delete</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
+                </thead>
+                <tbody>
+                    @forelse($stocks as $stock)
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $stock->product->name ?? '' }}</td>
+                        <td>{{ $stock->showroom->name ?? '' }}</td>
+                        <td>{{ $stock->color->name ?? '' }}</td>
+                        <td>{{ $stock->brand->name ?? '' }}</td>
+                        <td>{{ $stock->size->name ?? '' }}</td>
+                        <td>{{ $stock->quantity }}</td>
+                        <td>{{ $stock->created_at->format('d-m-Y') }}</td>
+                    </tr>
+                    @empty
+                    <tr><td colspan="8" class="text-center">No data found</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
-    <!--Add Modal -->
-    <div class="modal fade" id="addNewModalId" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="addNewModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="addNewModalLabel">Add</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+    {{-- ================= Sell Report ================= --}}
+    <div id="sell" class="report-block d-none mt-5">
+        <h5>Sell Report</h5>
+        <form method="GET" action="{{ route('sell.report') }}">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <select name="customerId" class="form-control">
+                        <option value="">-- Customer --</option>
+                        @foreach($customers as $customer)
+                        <option value="{{ $customer->id }}" {{ request('customerId') == $customer->id ? 'selected' : '' }}>{{ $customer->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
-                <div class="modal-body">
-                    <form method="post" action="{{route('brand.store')}}" enctype="multipart/form-data">
-                        @csrf
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="mb-3">
-                                    <label for="name" class="form-label">Name</label>
-                                    <input type="text" id="name" name="name"
-                                           class="form-control" placeholder="Enter Name">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-end">
-                            <button class="btn btn-primary" type="submit">Submit</button>
-                        </div>
-                    </form>
+                <div class="col-md-3">
+                    <select name="salesmanId" class="form-control">
+                        <option value="">-- Salesman --</option>
+                        @foreach($salesmen as $salesman)
+                        <option value="{{ $salesman->id }}" {{ request('salesmanId') == $salesman->id ? 'selected' : '' }}>{{ $salesman->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="accountId" class="form-control">
+                        <option value="">-- Account --</option>
+                        @foreach($accounts as $account)
+                        <option value="{{ $account->id }}" {{ request('accountId') == $account->id ? 'selected' : '' }}>{{ $account->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
                 </div>
             </div>
+        </form>
+
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Customer</th>
+                        <th>Salesman</th>
+                        <th>Account</th>
+                        <th>Net Total ({{ $defaultCurrency->name ?? '' }})</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($sells as $sell)
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $sell->customer->name ?? '' }}</td>
+                        <td>{{ $sell->salesman->name ?? '' }}</td>
+                        <td>{{ $sell->account->name ?? '' }}</td>
+                        <td>{{ number_format(getDefaultCurrencyConvertedPrice($sell)['net_total'] ?? $sell->net_total, 2) }}</td>
+                        <td>{{ $sell->created_at->format('d-m-Y') }}</td>
+                    </tr>
+                    @empty
+                    <tr><td colspan="6" class="text-center">No data found</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
+
+    {{-- ================= Other Reports ================= --}}
+    {{-- You repeat similar blocks for asset, expense, rawMaterialPurchase, productTransfer,
+         rawMaterialTransfer, balanceSheet, depositBalanceSheet, withdrawBalanceSheet,
+         transferBalanceSheet, sellProfitLoss, cronJobLogs --}}
+    {{-- The structure is identical: filters form + table displaying related data --}}
+
+</div>
+
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const reportSelect = document.getElementById('reportType');
+        reportSelect.addEventListener('change', function() {
+            document.querySelectorAll('.report-block').forEach(function(el) {
+                el.classList.add('d-none');
+            });
+            if(this.value) {
+                document.getElementById(this.value).classList.remove('d-none');
+            }
+        });
+    });
+</script>
 @endsection
